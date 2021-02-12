@@ -38,9 +38,11 @@ namespace CustomShell
             this.outputBox.BackColor = System.Drawing.Color.Black;
             this.outputBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.outputBox.Font = new System.Drawing.Font("Kasa-Hara", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.outputBox.ForeColor = System.Drawing.Color.White;
+            this.outputBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
+            this.outputBox.HideSelection = false;
             this.outputBox.Location = new System.Drawing.Point(0, 0);
             this.outputBox.Name = "outputBox";
+            this.outputBox.ReadOnly = true;
             this.outputBox.Size = new System.Drawing.Size(800, 450);
             this.outputBox.TabIndex = 0;
             this.outputBox.Text = "";
@@ -51,6 +53,7 @@ namespace CustomShell
             this.inputBox.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.inputBox.Font = new System.Drawing.Font("Kasa-Hara", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.inputBox.ForeColor = System.Drawing.Color.White;
+            this.inputBox.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.inputBox.Location = new System.Drawing.Point(0, 424);
             this.inputBox.Multiline = false;
             this.inputBox.Name = "inputBox";
