@@ -51,7 +51,7 @@ namespace CustomShell
             // 
             this.inputBox.BackColor = System.Drawing.Color.Black;
             this.inputBox.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.inputBox.Font = new System.Drawing.Font("Kasa-Hara", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.inputBox.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.inputBox.ForeColor = System.Drawing.Color.White;
             this.inputBox.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.inputBox.Location = new System.Drawing.Point(0, 424);

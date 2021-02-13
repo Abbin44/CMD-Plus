@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -13,18 +14,39 @@ namespace CustomShell
 
         public enum Commands
         {
-            cd = 1,
+            cd,
             mkdir,
             mkfile,
             cp,
             rm,
-            help
+            help,
+            exec,
+            open
         };
 
         public string inputPrefix()
         {
-            string text = string.Concat(Environment.UserName + "@" + currentDir);
+            string text = string.Concat(Environment.UserName, "@", currentDir, " ~ ");
             return text;
+        }
+        
+        //This is used to get a full file path if only a file or folder is entered 
+        //and the user expects the command to understand that it's the file inside of the current directory 
+        public string GetFullPath(string[] tokens)
+        {
+            return string.Concat(currentDir, @"\", tokens[tokens.Length - 1]);
+        }
+
+        //Check if the user has entered a complete file path or only a file or folder within the current directory
+        public string CheckInputType(string[] tokens)
+        {
+            string path;
+            if (!tokens[tokens.Length - 1].Contains(@":\"))
+                path = GetFullPath(tokens);
+            else
+                path = tokens[1];
+
+            return path;
         }
 
         public Form1()
@@ -36,7 +58,7 @@ namespace CustomShell
         public void InitConsole()
         {
             outputBox.ScrollToCaret();
-            inputBox.Text = string.Concat(Environment.UserName + "@" + currentDir);
+            inputBox.Text = string.Concat(Environment.UserName, "@", currentDir, " ~ ");
             inputBox.SelectionStart = inputBox.Text.Length;
             this.ActiveControl = inputBox;
         }
@@ -64,11 +86,10 @@ namespace CustomShell
         #region Commands
         public void ChangeDirectory(string[] tokens)
         {
+            string path = CheckInputType(tokens);
+
             if (tokens.Length == 1) //Go to root
-            {
                 currentDir = @"C:\";
-                AddCommandToConsole(tokens);
-            }
             else if (tokens[1] == "..")//Go back one folder
             {
                 string dir = currentDir;
@@ -77,23 +98,17 @@ namespace CustomShell
                     dir = dir.Substring(0, index);
 
                 currentDir = dir;
-                AddCommandToConsole(tokens);
             }
-            else if (Directory.Exists(tokens[1]))
+            else if (Directory.Exists(path))
             {
-                currentDir = tokens[1];
-                AddCommandToConsole(tokens);
+                currentDir = path;
             }
+            AddCommandToConsole(tokens);
         }
 
         public void MakeDirectory(string[] tokens)
         {
-            string dir = string.Empty;
-
-            if (!tokens[1].Contains(@":\"))
-                dir = string.Concat(currentDir, @"\", tokens[1]);
-            else
-                dir = tokens[1];
+            string dir = CheckInputType(tokens);
 
             if (!Directory.Exists(dir))
             {
@@ -106,12 +121,7 @@ namespace CustomShell
 
         public void MakeFile(string[] tokens)
         {
-            string path = string.Empty;
-
-            if (!tokens[1].Contains(@":\"))
-                path = string.Concat(currentDir, @"\", tokens[1]);
-            else 
-                path = tokens[1];
+            string path = CheckInputType(tokens);
 
             if (!File.Exists(path))
             {
@@ -124,11 +134,7 @@ namespace CustomShell
 
         public void RemoveFolder(string[] tokens)
         {
-            string path;
-            if (!tokens[1].Contains(@":\"))
-                path = string.Concat(currentDir, @"\", tokens[1]);
-            else
-                path = tokens[1];
+            string path = CheckInputType(tokens);
 
             if (tokens[1].Contains("."))
             {
@@ -140,10 +146,26 @@ namespace CustomShell
             else
             {
                 if (Directory.Exists(path))
-                    Directory.Delete(path);
+                {
+                    if(tokens[1] == "-r")
+                        Directory.Delete(path, true);
+                    else
+                    {
+                        try
+                        {
+                            Directory.Delete(path, false);
+                        }
+                        catch (Exception)
+                        {
+                            AddTextToConsole("Directory is not empty. Use -r to remove recursivley");
+                        }
+                    }
+
+                }
                 else
                     AddTextToConsole("Folder doesn't exists");
             }
+            AddCommandToConsole(tokens);
         }
 
         public void CopyFile(string[] tokens)
@@ -158,17 +180,62 @@ namespace CustomShell
             string output = tokens[2];
 
             if (!File.Exists(output))
-                File.Copy(input, output);
+                 File.Copy(input, output);
             else
                 AddTextToConsole("Output file already exists");
+
+            AddCommandToConsole(tokens);
         }
 
         public void DisplayHelp()
         {
             string[] commands = Enum.GetNames(typeof(Commands));
-            for (int i = 0; i < commands.Length; i++)
+            for (int i = 0; i < commands.Length; ++i)
             {
                 AddTextToConsole(commands[i]);
+            }
+        }
+
+        public void Execute(string[] tokens)
+        {
+            string path = CheckInputType(tokens);
+            if (!tokens[1].EndsWith(".exe"))
+            {
+                AddTextToConsole("You have not entered a valid file to execute");
+                return;
+            }
+            else
+            {
+                try
+                {
+                    Process.Start(path);
+                }
+                catch (Exception)
+                {
+                    AddTextToConsole("Something went wrong...");
+                }
+            }
+            AddCommandToConsole(tokens);
+        }
+
+        public void OpenFile(string[] tokens)
+        {
+            string path = CheckInputType(tokens);
+            if (!tokens[1].Contains("."))
+            {
+                AddTextToConsole("You have not entered a valid file to open");
+                return;
+            }
+            else
+            {
+                try
+                {
+                    Process.Start(path);
+                }
+                catch (Exception)
+                {
+                    AddTextToConsole("Something went wrong...");
+                }
             }
         }
         #endregion
@@ -182,7 +249,7 @@ namespace CustomShell
             if (e.KeyCode == Keys.Enter)
             {
                 input = inputBox.Text;
-                string command = input.Remove(0, (Environment.UserName + "@" + currentDir).Length);
+                string command = input.Remove(0, (Environment.UserName + "@" + currentDir + " ~ ").Length);
                 tokens = command.Split(' ');
 
                 switch (tokens[0])
@@ -204,6 +271,12 @@ namespace CustomShell
                         break;
                     case "help":
                         DisplayHelp();
+                        break;
+                    case "exec":
+                        Execute(tokens);
+                        break;
+                    case "open":
+                        OpenFile(tokens);
                         break;
                     default:
                         AddTextToConsole("Command does not exist");
