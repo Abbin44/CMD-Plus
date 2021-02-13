@@ -10,6 +10,17 @@ namespace CustomShell
     {
         string currentDir = @"C:/";
         List<string> history = new List<string>();
+
+        public enum Commands
+        {
+            cd = 1,
+            mkdir,
+            mkfile,
+            cp,
+            rm,
+            help
+        };
+
         public string inputPrefix()
         {
             string text = string.Concat(Environment.UserName + "@" + currentDir);
@@ -110,28 +121,95 @@ namespace CustomShell
             else
                 AddTextToConsole("File already exists.");
         }
+
+        public void RemoveFolder(string[] tokens)
+        {
+            string path;
+            if (!tokens[1].Contains(@":\"))
+                path = string.Concat(currentDir, @"\", tokens[1]);
+            else
+                path = tokens[1];
+
+            if (tokens[1].Contains("."))
+            {
+                if (File.Exists(path))
+                    File.Delete(path);
+                else
+                    AddTextToConsole("File doesn't exists");
+            }
+            else
+            {
+                if (Directory.Exists(path))
+                    Directory.Delete(path);
+                else
+                    AddTextToConsole("Folder doesn't exists");
+            }
+        }
+
+        public void CopyFile(string[] tokens)
+        {
+            if (tokens.Length != 3)
+            {
+                AddTextToConsole("Command not formatted correctly");
+                return;
+            }
+
+            string input = tokens[1];
+            string output = tokens[2];
+
+            if (!File.Exists(output))
+                File.Copy(input, output);
+            else
+                AddTextToConsole("Output file already exists");
+        }
+
+        public void DisplayHelp()
+        {
+            string[] commands = Enum.GetNames(typeof(Commands));
+            for (int i = 0; i < commands.Length; i++)
+            {
+                AddTextToConsole(commands[i]);
+            }
+        }
         #endregion
-        //When command is entered
-        private void inputBox_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
+        private void inputBox_KeyDown(object sender, KeyEventArgs e)
         {
             int historyIndex = 0;
             string input = string.Empty;
             string[] tokens;
 
+            //When command is entered
             if (e.KeyCode == Keys.Enter)
             {
                 input = inputBox.Text;
                 string command = input.Remove(0, (Environment.UserName + "@" + currentDir).Length);
                 tokens = command.Split(' ');
 
-                if (tokens[0] == "cd")
-                    ChangeDirectory(tokens);
-                else if (tokens[0] == "mkdir")
-                    MakeDirectory(tokens);
-                else if (tokens[0] == "mkfile")
-                    MakeFile(tokens);
-                else
-                    return;
+                switch (tokens[0])
+                {
+                    case "cd":
+                        ChangeDirectory(tokens);
+                        break;
+                    case "mkdir":
+                        MakeDirectory(tokens);
+                        break;
+                    case "mkfile":
+                        MakeFile(tokens);
+                        break;
+                    case "cp":
+                        CopyFile(tokens);
+                        break;
+                    case "rm":
+                        RemoveFolder(tokens);
+                        break;
+                    case "help":
+                        DisplayHelp();
+                        break;
+                    default:
+                        AddTextToConsole("Command does not exist");
+                        break;
+
+                }
             }
 
             if(e.KeyCode == Keys.Up)
