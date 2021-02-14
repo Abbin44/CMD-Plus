@@ -273,15 +273,25 @@ namespace CustomShell
 
         public void ExtractArchive(string[] tokens)
         {
-            string inputPath = GetPathType(tokens[1]);
-            string outputPath = GetPathType(tokens[2]);
             if(tokens.Length == 3)
+            {
+                string inputPath = GetPathType(tokens[1]);
+                string outputPath = GetPathType(tokens[2]);
                 ZipFile.ExtractToDirectory(inputPath, outputPath);
+            }
             else if(tokens.Length == 2)
             {
+                string input = GetPathType(tokens[1]);
                 string output;
-                output = tokens[1].Remove(0, tokens[1].Length - 4);
-                ZipFile.ExtractToDirectory(tokens[1], output);
+                if (!tokens[1].Contains(@":\"))
+                {
+                    output = GetFullPathFromName(tokens[1]);
+                    output = output.Substring(0, output.Length - 4);
+                }
+                else
+                    output = tokens[1];
+
+                ZipFile.ExtractToDirectory(input, output);
             }
             AddCommandToConsole(tokens);
         }
@@ -310,9 +320,9 @@ namespace CustomShell
         }
         #endregion
 
+        int historyIndex = 0;
         private void inputBox_KeyDown(object sender, KeyEventArgs e)
         {
-            int historyIndex = 0;
             string input = string.Empty;
             string[] tokens;
 
@@ -321,7 +331,7 @@ namespace CustomShell
             {
                 input = inputBox.Text;
                 string command = input.Remove(0, (Environment.UserName + "@" + currentDir + " ~ ").Length);
-                command.Trim(' ');
+                command = command.Trim();
                 tokens = command.Split(' ');
 
                 switch (tokens[0])
@@ -370,7 +380,7 @@ namespace CustomShell
             {
                 if (historyIndex >= 0 && historyIndex < history.Count)
                 {
-                    inputBox.Text = string.Concat(inputPrefix(), " ", history[historyIndex]); //Clear input area
+                    inputBox.Text = string.Concat(inputPrefix(), " ", history[history.Count - historyIndex - 1]); //Clear input area
                     inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
                     ++historyIndex;
                 }
@@ -380,7 +390,7 @@ namespace CustomShell
             {
                 if(historyIndex > 0 && historyIndex <= history.Count)
                 {
-                    inputBox.Text = string.Concat(inputPrefix(), " ", history[historyIndex]); //Clear input area
+                    inputBox.Text = string.Concat(inputPrefix(), " ", history[history.Count - historyIndex]); //Clear input area
                     inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
                     --historyIndex;
                 }
