@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
+using System.IO.Compression;
 
 namespace CustomShell
 {
@@ -21,7 +22,10 @@ namespace CustomShell
             rm,
             help,
             exec,
-            open
+            open,
+            clear,
+            extr,
+            compr
         };
 
         public string inputPrefix()
@@ -32,9 +36,14 @@ namespace CustomShell
         
         //This is used to get a full file path if only a file or folder is entered 
         //and the user expects the command to understand that it's the file inside of the current directory 
-        public string GetFullPath(string[] tokens)
+        public string GetFullPathFromArray(string[] tokens)
         {
             return string.Concat(currentDir, @"\", tokens[tokens.Length - 1]);
+        }
+
+        public string GetFullPathFromName(string path)
+        {
+            return string.Concat(currentDir, @"\", path);
         }
 
         //Check if the user has entered a complete file path or only a file or folder within the current directory
@@ -42,11 +51,22 @@ namespace CustomShell
         {
             string path;
             if (!tokens[tokens.Length - 1].Contains(@":\"))
-                path = GetFullPath(tokens);
+                path = GetFullPathFromArray(tokens);
             else
                 path = tokens[1];
 
             return path;
+        }
+
+        public string GetPathType(string path)
+        {
+            string input;
+            if (!path.Contains(@":\"))
+                input = GetFullPathFromName(path);
+            else
+                input = path;
+
+            return input;
         }
 
         public Form1()
@@ -87,9 +107,14 @@ namespace CustomShell
         public void ChangeDirectory(string[] tokens)
         {
             string path = CheckInputType(tokens);
-
+            
             if (tokens.Length == 1) //Go to root
-                currentDir = @"C:\";
+            {
+                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                    currentDir = @"C:\";
+                else if (Environment.OSVersion.Platform == PlatformID.Unix)
+                    currentDir = @"~";
+            }
             else if (tokens[1] == "..")//Go back one folder
             {
                 string dir = currentDir;
@@ -194,6 +219,8 @@ namespace CustomShell
             {
                 AddTextToConsole(commands[i]);
             }
+            inputBox.Text = inputPrefix();
+            inputBox.SelectionStart = inputBox.Text.Length;
         }
 
         public void Execute(string[] tokens)
@@ -238,7 +265,51 @@ namespace CustomShell
                 }
             }
         }
+
+        public void ClearConsole()
+        {
+            outputBox.Text = string.Empty;
+        }
+
+        public void ExtractArchive(string[] tokens)
+        {
+            string inputPath = GetPathType(tokens[1]);
+            string outputPath = GetPathType(tokens[2]);
+            if(tokens.Length == 3)
+                ZipFile.ExtractToDirectory(inputPath, outputPath);
+            else if(tokens.Length == 2)
+            {
+                string output;
+                output = tokens[1].Remove(0, tokens[1].Length - 4);
+                ZipFile.ExtractToDirectory(tokens[1], output);
+            }
+            AddCommandToConsole(tokens);
+        }
+
+        public void CompressFolder(string[] tokens)
+        {
+
+            if (tokens.Length == 3)
+            {
+                string inputPath = GetPathType(tokens[1]);
+                string outputPath = GetPathType(tokens[2]);
+                ZipFile.CreateFromDirectory(inputPath, outputPath + ".zip");
+            }
+            else if (tokens.Length == 2)
+            {
+                string path;
+
+                if (!tokens[1].Contains(@":\"))
+                    path = GetFullPathFromName(tokens[1]);
+                else
+                    path = tokens[1];
+
+                ZipFile.CreateFromDirectory(path, path + ".zip");
+            }
+            AddCommandToConsole(tokens);
+        }
         #endregion
+
         private void inputBox_KeyDown(object sender, KeyEventArgs e)
         {
             int historyIndex = 0;
@@ -250,6 +321,7 @@ namespace CustomShell
             {
                 input = inputBox.Text;
                 string command = input.Remove(0, (Environment.UserName + "@" + currentDir + " ~ ").Length);
+                command.Trim(' ');
                 tokens = command.Split(' ');
 
                 switch (tokens[0])
@@ -277,6 +349,15 @@ namespace CustomShell
                         break;
                     case "open":
                         OpenFile(tokens);
+                        break;
+                    case "clear":
+                        ClearConsole();
+                        break;
+                    case "extr":
+                        ExtractArchive(tokens);
+                        break;
+                    case "compr":
+                        CompressFolder(tokens);
                         break;
                     default:
                         AddTextToConsole("Command does not exist");
