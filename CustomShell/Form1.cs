@@ -25,7 +25,8 @@ namespace CustomShell
             open,
             clear,
             extr,
-            compr
+            compr,
+            size
         };
 
         public string inputPrefix()
@@ -101,6 +102,17 @@ namespace CustomShell
         public void AddTextToConsole(string text)
         {
             outputBox.AppendText("\n" + text);
+        }
+
+        public string FormatBytes(long bytes)
+        {
+            string[] suffix = { "B", "KB", "MB", "GB", "TB" };
+            int i;
+            double dblSByte = bytes;
+            for (i = 0; i < suffix.Length && bytes >= 1024; i++, bytes /= 1024)
+                dblSByte = bytes / 1024.0;
+
+            return string.Format("{0:0.##} {1}", dblSByte, suffix[i]);
         }
 
         #region Commands
@@ -318,6 +330,21 @@ namespace CustomShell
             }
             AddCommandToConsole(tokens);
         }
+
+        public void DirectorySize(string[] tokens)
+        {
+            string path = CheckInputType(tokens);
+            long size = 0;
+            DirectoryInfo di = new DirectoryInfo(path);
+
+            foreach (FileInfo fi in di.GetFiles("*", SearchOption.AllDirectories))
+                size += fi.Length;
+
+            string output = FormatBytes(size);
+
+            AddCommandToConsole(tokens);
+            AddTextToConsole(output);
+        }
         #endregion
 
         int historyIndex = 0;
@@ -368,6 +395,9 @@ namespace CustomShell
                         break;
                     case "compr":
                         CompressFolder(tokens);
+                        break;
+                    case "size":
+                        DirectorySize(tokens);
                         break;
                     default:
                         AddTextToConsole("Command does not exist");
