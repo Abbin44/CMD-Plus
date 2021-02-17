@@ -19,6 +19,7 @@ namespace CustomShell
             mkdir,
             mkfile,
             cp,
+            mv,
             rm,
             help,
             exec,
@@ -44,7 +45,10 @@ namespace CustomShell
 
         public string GetFullPathFromName(string path)
         {
-            return string.Concat(currentDir, @"\", path);
+            if(!currentDir.Contains("\\"))
+                return string.Concat(currentDir, @"\", path);
+            else
+                return string.Concat(currentDir, path);
         }
 
         //Check if the user has entered a complete file path or only a file or folder within the current directory
@@ -345,6 +349,35 @@ namespace CustomShell
             AddCommandToConsole(tokens);
             AddTextToConsole(output);
         }
+        
+        public new void Move(string[] tokens)
+        {
+            if(tokens.Length != 3)
+            {
+                AddTextToConsole("Invalid command format...");
+                return;
+            }
+
+            string input;
+            if (!tokens[1].Contains(@":\"))
+                input = GetFullPathFromName(tokens[1]);
+            else
+                input = tokens[1];
+
+            string output;
+            if (!tokens[2].Contains(@":\"))
+                output = GetFullPathFromName(tokens[2]);
+            else
+                output = tokens[2];
+
+
+            if (!input.Contains("."))
+                Directory.Move(input, output);
+            else
+                File.Move(input, output);
+
+            AddCommandToConsole(tokens);
+        }
         #endregion
 
         int historyIndex = 0;
@@ -374,6 +407,9 @@ namespace CustomShell
                         break;
                     case "cp":
                         CopyFile(tokens);
+                        break;
+                    case "mv":
+                        Move(tokens);
                         break;
                     case "rm":
                         RemoveFolder(tokens);
