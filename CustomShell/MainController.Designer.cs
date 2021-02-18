@@ -1,7 +1,7 @@
 ﻿
 namespace CustomShell
 {
-    partial class Form1
+    partial class MainController
     {
         /// <summary>
         /// Required designer variable.
@@ -46,6 +46,7 @@ namespace CustomShell
             this.outputBox.Size = new System.Drawing.Size(800, 450);
             this.outputBox.TabIndex = 0;
             this.outputBox.Text = "";
+            this.outputBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.outputBox_KeyDown);
             // 
             // inputBox
             // 
@@ -62,7 +63,7 @@ namespace CustomShell
             this.inputBox.Text = "";
             this.inputBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.inputBox_KeyDown);
             // 
-            // Form1
+            // MainController
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -70,16 +71,16 @@ namespace CustomShell
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.inputBox);
             this.Controls.Add(this.outputBox);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.KeyPreview = true;
+            this.Name = "MainController";
+            this.Text = "Shell IDK";
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.RichTextBox outputBox;
-        private System.Windows.Forms.RichTextBox inputBox;
+        public System.Windows.Forms.RichTextBox outputBox;
+        public System.Windows.Forms.RichTextBox inputBox;
     }
 }
 

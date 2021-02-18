@@ -1,21 +1,24 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 using System.Windows.Forms;
-using System.IO.Compression;
-using System.Collections;
-using System.Drawing;
 
 namespace CustomShell
 {
-    public partial class Form1 : Form
+    public partial class MainController : Form
     {
         string currentDir = @"C:/";
         List<string> history = new List<string>();
+        WandEditor wand;
 
-        public string inputPrefix()
+        public static MainController controller { get; private set; }
+
+        public string InputPrefix()
         {
             string text = string.Concat(Environment.UserName, "@", currentDir, " ~ ");
             return text;
@@ -59,9 +62,15 @@ namespace CustomShell
             return input;
         }
 
-        public Form1()
+        public MainController()
         {
             InitializeComponent();
+
+            if (controller != null)
+                throw new Exception("Only one instance of cMainForm may ever exist!");
+
+            controller = this;
+
             InitConsole();
         }
 
@@ -84,7 +93,7 @@ namespace CustomShell
             outputBox.AppendText(command + "\n");
             history.Add(command);
 
-            inputBox.Text = inputPrefix(); //Clear input area
+            inputBox.Text = InputPrefix(); //Clear input area
             inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
         }
 
@@ -324,10 +333,11 @@ namespace CustomShell
             sb.Append("extr [PathToZip] (OutputFolder)\n");
             sb.Append("compr [Path] (OutputArchive)\n");
             sb.Append("size [Path]\n");
+            sb.Append("wand [Path]\n");
             sb.Append("help");
 
             AddTextToConsole(sb.ToString());
-            inputBox.Text = inputPrefix();
+            inputBox.Text = InputPrefix();
             inputBox.SelectionStart = inputBox.Text.Length;
         }
 
@@ -540,6 +550,10 @@ namespace CustomShell
                     case "size":
                         DirectorySize(tokens);
                         break;
+                    case ("wand"):
+                        wand = new WandEditor();
+                        wand.LoadFile(tokens);
+                        break;
                     default:
                         AddTextToConsole("Command does not exist");
                         break;
@@ -551,7 +565,7 @@ namespace CustomShell
             {
                 if (historyIndex >= 0 && historyIndex < history.Count)
                 {
-                    inputBox.Text = string.Concat(inputPrefix(), " ", history[history.Count - historyIndex - 1]); //Clear input area
+                    inputBox.Text = string.Concat(InputPrefix(), " ", history[history.Count - historyIndex - 1]); //Clear input area
                     inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
                     ++historyIndex;
                 }
@@ -561,10 +575,22 @@ namespace CustomShell
             {
                 if(historyIndex > 0 && historyIndex <= history.Count)
                 {
-                    inputBox.Text = string.Concat(inputPrefix(), " ", history[history.Count - historyIndex]); //Clear input area
+                    inputBox.Text = string.Concat(InputPrefix(), " ", history[history.Count - historyIndex]); //Clear input area
                     inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
                     --historyIndex;
                 }
+            }
+        }
+
+        private void outputBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.S)//Save and quit from Wand
+            {
+                wand.SaveAndExit(); 
+            }
+            else if (e.Control && e.KeyCode == Keys.Q)//Quit without save Wand
+            {
+                wand.Exit();
             }
         }
     }
