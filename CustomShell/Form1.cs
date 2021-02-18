@@ -5,6 +5,8 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using System.IO.Compression;
+using System.Collections;
+using System.Drawing;
 
 namespace CustomShell
 {
@@ -12,23 +14,6 @@ namespace CustomShell
     {
         string currentDir = @"C:/";
         List<string> history = new List<string>();
-
-        public enum Commands
-        {
-            cd,
-            mkdir,
-            mkfile,
-            cp,
-            mv,
-            rm,
-            help,
-            exec,
-            open,
-            clear,
-            extr,
-            compr,
-            size
-        };
 
         public string inputPrefix()
         {
@@ -96,7 +81,7 @@ namespace CustomShell
                  sb.Append(tokens[i] + " ");
             }
             string command = sb.ToString();
-            outputBox.AppendText("\n" + command);
+            outputBox.AppendText(command + "\n");
             history.Add(command);
 
             inputBox.Text = inputPrefix(); //Clear input area
@@ -105,7 +90,7 @@ namespace CustomShell
 
         public void AddTextToConsole(string text)
         {
-            outputBox.AppendText("\n" + text);
+            outputBox.AppendText(text + "\n");
         }
 
         public string FormatBytes(long bytes)
@@ -147,6 +132,62 @@ namespace CustomShell
             AddCommandToConsole(tokens);
         }
 
+        public void ListFiles(string[] tokens)
+        {
+            try
+            {
+                if (tokens.Length == 1)
+                {
+                    AddCommandToConsole(tokens);
+                    IEnumerable entries = Directory.EnumerateFileSystemEntries(currentDir);
+                    foreach (string item in entries)
+                    {
+                        FileAttributes attr = File.GetAttributes(item.ToString());
+                        AddTextToConsole(item.ToString());
+                        outputBox.Find(item.ToString());
+                        if(attr.HasFlag(FileAttributes.Directory))
+                            outputBox.SelectionColor = Color.Green;
+                        else
+                            outputBox.SelectionColor = Color.Red;
+
+                        outputBox.Select(0, 0);
+                    }
+                }
+                else if(tokens.Length == 2)
+                {
+                    AddCommandToConsole(tokens);
+
+                    string path = CheckInputType(tokens);
+                    IEnumerable entries = Directory.EnumerateFileSystemEntries(path);
+                    foreach (string item in entries)
+                    {
+                        FileAttributes attr = File.GetAttributes(item.ToString());
+                        AddTextToConsole(item.ToString());
+                        outputBox.Find(item.ToString());
+
+                        if (attr.HasFlag(FileAttributes.Directory))
+                            outputBox.SelectionColor = Color.Green;
+                        else
+                            outputBox.SelectionColor = Color.Red;
+
+                        outputBox.Select(0, 0);
+                    }
+                }
+                else
+                {
+                    AddTextToConsole("Command is not valid");
+                }
+            }
+            catch (Exception e)
+            {
+                if(e.InnerException is UnauthorizedAccessException)
+                {
+                    AddTextToConsole("Cannot access a directory. Please run shell as admin.");
+                    return;
+                }              
+            }
+        }
+
         public void MakeDirectory(string[] tokens)
         {
             string dir = CheckInputType(tokens);
@@ -166,8 +207,24 @@ namespace CustomShell
 
             if (!File.Exists(path))
             {
-                File.Create(path);
-                AddCommandToConsole(tokens);
+                try
+                {
+                    File.Create(path);
+                    AddCommandToConsole(tokens);
+                }
+                catch (Exception e)
+                {
+                    if (e.InnerException is UnauthorizedAccessException)
+                    {
+                        AddTextToConsole("Cannot access a directory. Please run shell as admin.");
+                        return;
+                    }
+                    else
+                    {
+                        AddTextToConsole("Error: make sure the filepath is valid");
+                    }
+                }
+
             }
             else
                 AddTextToConsole("File already exists.");
@@ -196,9 +253,20 @@ namespace CustomShell
                         {
                             Directory.Delete(path, false);
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
-                            AddTextToConsole("Directory is not empty. Use -r to remove recursivley");
+                            if (e.InnerException is UnauthorizedAccessException)
+                            {
+                                AddTextToConsole("Cannot access a directory. Please run shell as admin.");
+                                return;
+                            }
+                            else if (e.InnerException is IOException)
+                            {
+                                AddTextToConsole("Directory is not empty. Use -r to remove recursivley");
+                                return;
+                            }
+                            else
+                                return; //Hopefully never gets to this so don't display anything
                         }
                     }
 
@@ -220,21 +288,45 @@ namespace CustomShell
             string input = tokens[1];
             string output = tokens[2];
 
-            if (!File.Exists(output))
-                 File.Copy(input, output);
-            else
-                AddTextToConsole("Output file already exists");
+            try
+            {
+                if (!File.Exists(output))
+                    File.Copy(input, output);
+                else
+                    AddTextToConsole("Output file already exists");
 
-            AddCommandToConsole(tokens);
+                AddCommandToConsole(tokens);
+            }
+            catch (Exception e)
+            {
+                if (e.InnerException is UnauthorizedAccessException)
+                {
+                    AddTextToConsole("Cannot access a directory. Please run shell as admin.");
+                    return;
+                }
+            }
         }
 
         public void DisplayHelp()
         {
-            string[] commands = Enum.GetNames(typeof(Commands));
-            for (int i = 0; i < commands.Length; ++i)
-            {
-                AddTextToConsole(commands[i]);
-            }
+            StringBuilder sb = new StringBuilder();
+            sb.Append("() means optional parameter\n");
+            sb.Append("cd [Path]\n");
+            sb.Append("ls (Path)\n");
+            sb.Append("mkdir [Path]\n");
+            sb.Append("mkfile [Path]\n");
+            sb.Append("cp [InputPath] (OutputPath)\n");
+            sb.Append("mv [InputPath] [OutputPath]\n");
+            sb.Append("rm [Path]\n");
+            sb.Append("exec [PathToExe]\n");
+            sb.Append("open [PathToFile]\n");
+            sb.Append("clear\n");
+            sb.Append("extr [PathToZip] (OutputFolder)\n");
+            sb.Append("compr [Path] (OutputArchive)\n");
+            sb.Append("size [Path]\n");
+            sb.Append("help");
+
+            AddTextToConsole(sb.ToString());
             inputBox.Text = inputPrefix();
             inputBox.SelectionStart = inputBox.Text.Length;
         }
@@ -370,13 +462,23 @@ namespace CustomShell
             else
                 output = tokens[2];
 
+            try
+            {
+                if (!input.Contains("."))
+                    Directory.Move(input, output);
+                else
+                    File.Move(input, output);
 
-            if (!input.Contains("."))
-                Directory.Move(input, output);
-            else
-                File.Move(input, output);
-
-            AddCommandToConsole(tokens);
+                AddCommandToConsole(tokens);
+            }
+            catch (Exception e)
+            {
+                if(e.InnerException is UnauthorizedAccessException)
+                {
+                    AddTextToConsole("Cannot access a directory. Please run shell as admin.");
+                    return;
+                }
+            }
         }
         #endregion
 
@@ -398,6 +500,9 @@ namespace CustomShell
                 {
                     case "cd":
                         ChangeDirectory(tokens);
+                        break;
+                    case "ls":
+                        ListFiles(tokens);
                         break;
                     case "mkdir":
                         MakeDirectory(tokens);
