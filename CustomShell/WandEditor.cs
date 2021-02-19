@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomShell
 {
@@ -19,6 +15,22 @@ namespace CustomShell
         string oldHistory;
         string path;
         public bool hasFileLoaded = false;
+        
+        public void PeekFile(string[] tokens)
+        {
+            if (tokens.Length != 2)
+            {
+                main.AddTextToConsole("Invalid command format");
+                return;
+            }
+            main.AddCommandToConsole(tokens);
+            path = main.CheckInputType(tokens);
+            main.outputBox.ForeColor = Color.Aqua;
+
+            string[] lines = File.ReadAllLines(path);
+            for (int i = 0; i < lines.Length; i++)
+                main.AddTextToConsole(lines[i]);
+        }
 
         public void LoadFile(string[] tokens)
         {
@@ -29,6 +41,7 @@ namespace CustomShell
             }
 
             path = main.CheckInputType(tokens);
+            main.AddCommandToConsole(tokens);
             oldHistory = main.outputBox.Text;
             main.outputBox.Clear();
             main.outputBox.ForeColor = Color.Aqua;
@@ -36,9 +49,7 @@ namespace CustomShell
             {
                 string[] lines = File.ReadAllLines(path);
                 for (int i = 0; i < lines.Length; i++)
-                {
                     main.AddTextToConsole(lines[i]);
-                }
 
                 main.outputBox.ReadOnly = false;
                 main.outputBox.Focus();
@@ -57,10 +68,21 @@ namespace CustomShell
         {
             if (hasFileLoaded == true)
             {
-                string text = main.outputBox.Text;
-                File.WriteAllText(path, text);
-                hasFileLoaded = false;
-                Exit();
+                try
+                {
+                    string text = main.outputBox.Text;
+                    File.WriteAllText(path, text);
+                    hasFileLoaded = false;
+                    Exit();
+                }
+                catch (Exception e)
+                {
+                    if(e.InnerException is UnauthorizedAccessException)
+                    {
+                        main.AddTextToConsole("Cannot access a directory.Please run shell as admin.");
+                        return;
+                    }
+                }
             }
             else
                 return;

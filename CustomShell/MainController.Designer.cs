@@ -43,7 +43,7 @@ namespace CustomShell
             this.outputBox.Location = new System.Drawing.Point(0, 0);
             this.outputBox.Name = "outputBox";
             this.outputBox.ReadOnly = true;
-            this.outputBox.Size = new System.Drawing.Size(800, 450);
+            this.outputBox.Size = new System.Drawing.Size(928, 460);
             this.outputBox.TabIndex = 0;
             this.outputBox.Text = "";
             this.outputBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.outputBox_KeyDown);
@@ -55,10 +55,10 @@ namespace CustomShell
             this.inputBox.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.inputBox.ForeColor = System.Drawing.Color.Red;
             this.inputBox.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.inputBox.Location = new System.Drawing.Point(0, 424);
+            this.inputBox.Location = new System.Drawing.Point(0, 434);
             this.inputBox.Multiline = false;
             this.inputBox.Name = "inputBox";
-            this.inputBox.Size = new System.Drawing.Size(800, 26);
+            this.inputBox.Size = new System.Drawing.Size(928, 26);
             this.inputBox.TabIndex = 1;
             this.inputBox.Text = "";
             this.inputBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.inputBox_KeyDown);
@@ -68,7 +68,7 @@ namespace CustomShell
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Maroon;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(928, 460);
             this.Controls.Add(this.inputBox);
             this.Controls.Add(this.outputBox);
             this.KeyPreview = true;
