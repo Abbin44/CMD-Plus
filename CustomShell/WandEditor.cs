@@ -17,7 +17,6 @@ namespace CustomShell
         public void AddTextToConsole(string text)
         {
             main.wandTextBox.AppendText(text + "\n");
-            main.wandTextBox.ScrollToCaret();
         }
 
         public void PeekFile(string[] tokens)
@@ -34,7 +33,7 @@ namespace CustomShell
             for (int i = 0; i < lines.Length; i++)
             {
                 main.AddTextToConsole(lines[i]);
-                main.outputBox.Find(lines[i]);
+                main.outputBox.Select(main.outputBox.Text.Length - lines[i].Length - 1, main.outputBox.Text.Length);
                 main.outputBox.SelectionColor = Color.Aqua;
                 main.outputBox.SelectionStart = main.outputBox.Text.Length;
             }

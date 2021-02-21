@@ -17,6 +17,7 @@ namespace CustomShell
         WandEditor wand;
         Processes proc;
         Compression comp;
+        Calculator calc;
 
         public static MainController controller { get; private set; }
 
@@ -591,6 +592,11 @@ namespace CustomShell
                         if (proc == null)
                             proc = new Processes();
                         proc.KillProcess(tokens);
+                        break;
+                    case "calc":
+                        if (calc == null)
+                            calc = new Calculator();
+                        calc.CalculateInput(tokens);
                         break;
                     default:
                         AddTextToConsole("Command does not exist");
