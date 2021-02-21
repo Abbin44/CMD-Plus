@@ -331,10 +331,21 @@ namespace CustomShell
             {
                 try
                 {
-                    string input = tokens[1];
-                    string output = string.Concat("copy_", input);
+                    string inputPath = GetPathType(tokens[1]); //This is the path to the inputfile
+                    string fileInput = GetPathType(tokens[1]); //This gets converted to ONLY THE FILENAME
+
+                    int index = fileInput.LastIndexOf(@"\");//Remove the filename from the filepath so 
+                    if (index > 0)                      //we can add a modified filename instead
+                        fileInput = fileInput.Substring(index + 1, fileInput.Length - index - 1);
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("copy_");
+                    sb.Append(fileInput);
+                    string output = sb.ToString();
+                    string filePath = GetPathType(output);
+
                     if (!File.Exists(output))
-                        File.Copy(input, output);
+                        File.Copy(inputPath, filePath);
                     else
                         AddTextToConsole("Output file already exists");
 
