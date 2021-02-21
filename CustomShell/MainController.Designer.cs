@@ -31,6 +31,7 @@ namespace CustomShell
         {
             this.outputBox = new System.Windows.Forms.RichTextBox();
             this.inputBox = new System.Windows.Forms.RichTextBox();
+            this.wandTextBox = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
             // outputBox
@@ -46,7 +47,6 @@ namespace CustomShell
             this.outputBox.Size = new System.Drawing.Size(928, 460);
             this.outputBox.TabIndex = 0;
             this.outputBox.Text = "";
-            this.outputBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.outputBox_KeyDown);
             // 
             // inputBox
             // 
@@ -63,12 +63,28 @@ namespace CustomShell
             this.inputBox.Text = "";
             this.inputBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.inputBox_KeyDown);
             // 
+            // wandTextBox
+            // 
+            this.wandTextBox.BackColor = System.Drawing.Color.Black;
+            this.wandTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.wandTextBox.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.wandTextBox.ForeColor = System.Drawing.Color.Aqua;
+            this.wandTextBox.HideSelection = false;
+            this.wandTextBox.Location = new System.Drawing.Point(0, 0);
+            this.wandTextBox.Name = "wandTextBox";
+            this.wandTextBox.Size = new System.Drawing.Size(928, 434);
+            this.wandTextBox.TabIndex = 2;
+            this.wandTextBox.Text = "";
+            this.wandTextBox.Visible = false;
+            this.wandTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.wandTextBox_KeyDown);
+            // 
             // MainController
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Maroon;
             this.ClientSize = new System.Drawing.Size(928, 460);
+            this.Controls.Add(this.wandTextBox);
             this.Controls.Add(this.inputBox);
             this.Controls.Add(this.outputBox);
             this.KeyPreview = true;
@@ -81,6 +97,7 @@ namespace CustomShell
         #endregion
         public System.Windows.Forms.RichTextBox outputBox;
         public System.Windows.Forms.RichTextBox inputBox;
+        public System.Windows.Forms.RichTextBox wandTextBox;
     }
 }
 

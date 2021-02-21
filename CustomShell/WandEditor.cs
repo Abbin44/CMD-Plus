@@ -12,10 +12,14 @@ namespace CustomShell
 
         }
 
-        string oldHistory;
         string path;
         public bool hasFileLoaded = false;
-        
+        public void AddTextToConsole(string text)
+        {
+            main.wandTextBox.AppendText(text + "\n");
+            main.wandTextBox.ScrollToCaret();
+        }
+
         public void PeekFile(string[] tokens)
         {
             if (tokens.Length != 2)
@@ -25,11 +29,15 @@ namespace CustomShell
             }
             main.AddCommandToConsole(tokens);
             path = main.CheckInputType(tokens);
-            main.outputBox.ForeColor = Color.Aqua;
 
             string[] lines = File.ReadAllLines(path);
             for (int i = 0; i < lines.Length; i++)
+            {
                 main.AddTextToConsole(lines[i]);
+                main.outputBox.Find(lines[i]);
+                main.outputBox.SelectionColor = Color.Aqua;
+                main.outputBox.SelectionStart = main.outputBox.Text.Length;
+            }
         }
 
         public void LoadFile(string[] tokens)
@@ -42,23 +50,26 @@ namespace CustomShell
 
             path = main.CheckInputType(tokens);
             main.AddCommandToConsole(tokens);
-            oldHistory = main.outputBox.Text;
-            main.outputBox.Clear();
-            main.outputBox.ForeColor = Color.Aqua;
+
+            main.wandTextBox.Clear();
+            main.wandTextBox.Visible = true;// Swap text box to be able to 
+            main.outputBox.Visible = false; // preseve coloring in previous commands
+            main.wandTextBox.ForeColor = Color.Aqua;
             try
             {
                 string[] lines = File.ReadAllLines(path);
                 for (int i = 0; i < lines.Length; i++)
-                    main.AddTextToConsole(lines[i]);
+                    AddTextToConsole(lines[i]);
 
-                main.outputBox.ReadOnly = false;
-                main.outputBox.Focus();
-                main.outputBox.SelectionStart = main.outputBox.TextLength;
+                main.wandTextBox.Focus();
+                main.wandTextBox.SelectionStart = main.wandTextBox.TextLength;
                 main.inputBox.Text = main.InputPrefix(); //Clear input console
                 hasFileLoaded = true;
             }
             catch (Exception e)
             {
+                main.wandTextBox.Visible = false;
+                main.outputBox.Visible = true;
                 main.AddTextToConsole("Something went wrong, please check your input");
                 return;
             }
@@ -70,7 +81,7 @@ namespace CustomShell
             {
                 try
                 {
-                    string text = main.outputBox.Text;
+                    string text = main.wandTextBox.Text;
                     File.WriteAllText(path, text);
                     hasFileLoaded = false;
                     Exit();
@@ -80,6 +91,8 @@ namespace CustomShell
                     if(e.InnerException is UnauthorizedAccessException)
                     {
                         main.AddTextToConsole("Cannot access a directory.Please run shell as admin.");
+                        main.wandTextBox.Visible = false;
+                        main.outputBox.Visible = true;
                         return;
                     }
                 }
@@ -91,10 +104,8 @@ namespace CustomShell
         public void Exit()
         {
             hasFileLoaded = false;
-            main.outputBox.Clear();
-            main.outputBox.ForeColor = Color.Fuchsia;
-            main.outputBox.Text = oldHistory;
-            main.outputBox.ReadOnly = true;
+            main.wandTextBox.Visible = false;
+            main.outputBox.Visible = true;
             main.inputBox.Focus();
             main.inputBox.SelectionStart = main.inputBox.Text.Length;
         }

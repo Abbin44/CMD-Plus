@@ -78,7 +78,6 @@ namespace CustomShell
 
         public void InitConsole()
         {
-            outputBox.ScrollToCaret();
             inputBox.Text = string.Concat(Environment.UserName, "@", currentDir, " ~ ");
             inputBox.SelectionStart = inputBox.Text.Length;
             this.ActiveControl = inputBox;
@@ -88,11 +87,12 @@ namespace CustomShell
         {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < tokens.Length; ++i)
-            {
                  sb.Append(tokens[i] + " ");
-            }
+
             string command = sb.ToString();
             outputBox.AppendText(command + "\n");
+            outputBox.SelectionStart = outputBox.TextLength;
+            outputBox.ScrollToCaret();
             history.Add(command);
 
             inputBox.Text = InputPrefix(); //Clear input area
@@ -102,6 +102,8 @@ namespace CustomShell
         public void AddTextToConsole(string text)
         {
             outputBox.AppendText(text + "\n");
+            outputBox.SelectionStart = outputBox.TextLength;
+            outputBox.ScrollToCaret();
         }
 
         public string FormatBytes(long bytes)
@@ -155,13 +157,12 @@ namespace CustomShell
                     {
                         FileAttributes attr = File.GetAttributes(item.ToString());
                         AddTextToConsole(item.ToString());
-                        outputBox.Find(item.ToString());
+                        outputBox.Select(outputBox.Text.Length - item.Length - 1, outputBox.Text.Length);
+
                         if(attr.HasFlag(FileAttributes.Directory))
                             outputBox.SelectionColor = Color.Green;
                         else
                             outputBox.SelectionColor = Color.Red;
-
-                        outputBox.Select(0, 0);
                     }
                 }
                 else if(tokens.Length == 2)
@@ -174,20 +175,20 @@ namespace CustomShell
                     {
                         FileAttributes attr = File.GetAttributes(item.ToString());
                         AddTextToConsole(item.ToString());
-                        outputBox.Find(item.ToString());
+                        outputBox.Select(outputBox.Text.Length - item.Length - 1, outputBox.Text.Length);
 
                         if (attr.HasFlag(FileAttributes.Directory))
                             outputBox.SelectionColor = Color.Green;
                         else
                             outputBox.SelectionColor = Color.Red;
-
-                        outputBox.Select(0, 0);
                     }
                 }
                 else
                 {
                     AddTextToConsole("Command is not valid");
                 }
+
+                outputBox.SelectionStart = outputBox.TextLength;
             }
             catch (Exception e)
             {
@@ -618,11 +619,11 @@ namespace CustomShell
             }
         }
 
-        private void outputBox_KeyDown(object sender, KeyEventArgs e)
+        private void wandTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.S)//Save and quit from Wand
             {
-                wand.SaveAndExit(); 
+                wand.SaveAndExit();
             }
             else if (e.Control && e.KeyCode == Keys.Q)//Quit without save Wand
             {
