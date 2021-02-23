@@ -18,7 +18,7 @@ namespace CustomShell
         Processes proc;
         Compression comp;
         Calculator calc;
-
+        BatchInterpreter batch;
         public static MainController controller { get; private set; }
 
         public string InputPrefix()
@@ -335,7 +335,7 @@ namespace CustomShell
                     string fileInput = GetPathType(tokens[1]); //This gets converted to ONLY THE FILENAME
 
                     int index = fileInput.LastIndexOf(@"\");//Remove the filename from the filepath so 
-                    if (index > 0)                      //we can add a modified filename instead
+                    if (index > 0)                          //we can add a modified filename instead
                         fileInput = fileInput.Substring(index + 1, fileInput.Length - index - 1);
 
                     StringBuilder sb = new StringBuilder();
@@ -526,7 +526,7 @@ namespace CustomShell
             if (e.KeyCode == Keys.Enter)
             {
                 input = inputBox.Text;
-                string command = input.Remove(0, (Environment.UserName + "@" + currentDir + " ~ ").Length);
+                string command = input.Remove(0, (Environment.UserName + "@" + currentDir + " ~").Length);
                 command = command.Trim();
                 tokens = command.Split(' ');
 
@@ -607,7 +607,12 @@ namespace CustomShell
                     case "calc":
                         if (calc == null)
                             calc = new Calculator();
-                        calc.CalculateInput(tokens);
+                        calc.CreateTokens(tokens);
+                        break;
+                    case "batch":
+                        if (batch == null)
+                            batch = new BatchInterpreter();
+                        batch.ExecuteCommand(tokens);
                         break;
                     default:
                         AddTextToConsole("Command does not exist");
