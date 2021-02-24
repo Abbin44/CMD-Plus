@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.IO.Compression;
 using System.Text;
 using System.Windows.Forms;
 
@@ -380,15 +379,16 @@ namespace CustomShell
             sb.Append("rm [Path]                       | Removes a file or folder\n");
             sb.Append("exec [PathToExe]                | Executes an .EXE file\n");
             sb.Append("open [PathToFile]               | Opens a file with the standard app\n");
-            sb.Append("clear                           | Clears the console\n");
             sb.Append("extr [PathToZip] (OutputFolder) | Extracts a zip file\n");
             sb.Append("compr [Path] (OutputArchive)    | Compresses a foler or file into a zip\n");
+            sb.Append("calc [Equation]                 | Calculates the given equation\n");
             sb.Append("size [Path]                     | Gets the size of a folder\n");
             sb.Append("peek [Path]                     | Prints all the text in a file\n");
             sb.Append("wand [Path]                     | Lets you edit a file. CTRL + S to save. CTRL + Q to quit\n");
             sb.Append("listproc                        | Lists all running processes\n");
             sb.Append("killproc [ID]                   | Lets you kill a process\n");
             sb.Append("batch [CommandOrBatFile]        | Lets you kill a process\n");
+            sb.Append("clear                           | Clears the console\n");
             sb.Append("help                            | Display help\n");
             sb.Append("shutdown                        | Shuts down the computer\n");
             sb.Append("exit                            | Exits the shell");
@@ -562,9 +562,6 @@ namespace CustomShell
                     case "open":
                         OpenFile(tokens);
                         break;
-                    case "clear":
-                        ClearConsole();
-                        break;
                     case "extr":
                         if (comp == null)
                             comp = new Compression();
@@ -587,6 +584,9 @@ namespace CustomShell
                         if(wand == null)
                            wand = new WandEditor();
                         wand.LoadFile(tokens);
+                        break;
+                    case "clear":
+                        ClearConsole();
                         break;
                     case "exit":
                         ExitShell();
