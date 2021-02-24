@@ -18,15 +18,6 @@ namespace CustomShell
 
         }
 
-        public void RunFile(string[] tokens)
-        {
-            if(tokens.Length != 2)
-            {
-                main.AddTextToConsole("Invalid command format");
-                return;
-            }
-        }
-
         public void ExecuteCommand(string[] tokens)
         {
             if (tokens.Length < 2)
@@ -34,15 +25,19 @@ namespace CustomShell
                 main.AddTextToConsole("Invalid command format");
                 return;
             }
-
             
             StringBuilder sb = new StringBuilder();
             for (int i = 1; i < tokens.Length; i++)
             {
                 sb.Append(tokens[i]);
-                sb.Append(" ");
+
+                if(!(i == tokens.Length - 1))
+                   sb.Append(" ");
             }
             string command = sb.ToString();
+
+            if (command.EndsWith(".bat"))
+                command = main.GetPathType(command);
 
             ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + command)
             {

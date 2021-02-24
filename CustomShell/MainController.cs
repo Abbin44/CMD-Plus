@@ -36,7 +36,7 @@ namespace CustomShell
 
         public string GetFullPathFromName(string path)
         {
-            if(!currentDir.Contains("\\"))
+            if(!currentDir.EndsWith("\\"))
                 return string.Concat(currentDir, @"\", path);
             else
                 return string.Concat(currentDir, path);
@@ -233,9 +233,8 @@ namespace CustomShell
                         return;
                     }
                     else
-                    {
                         AddTextToConsole("Error: make sure the filepath is valid");
-                    }
+                    
                 }
             }
             else
@@ -389,6 +388,7 @@ namespace CustomShell
             sb.Append("wand [Path]                     | Lets you edit a file. CTRL + S to save. CTRL + Q to quit\n");
             sb.Append("listproc                        | Lists all running processes\n");
             sb.Append("killproc [ID]                   | Lets you kill a process\n");
+            sb.Append("batch [CommandOrBatFile]        | Lets you kill a process\n");
             sb.Append("help                            | Display help\n");
             sb.Append("shutdown                        | Shuts down the computer\n");
             sb.Append("exit                            | Exits the shell");
