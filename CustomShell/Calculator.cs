@@ -6,14 +6,9 @@ using System.Threading.Tasks;
 
 namespace CustomShell
 {
-    class Calculator
+    public static class Calculator
     {
-        MainController main = MainController.controller;
-        List<Token> pipeline = new List<Token>();
-        public Calculator()
-        {
-
-        }
+        public static List<Token> pipeline = new List<Token>();
 
         public enum TokenType
         {
@@ -26,13 +21,13 @@ namespace CustomShell
             Rparen   = 6
         }
 
-        struct Token
+        public struct Token
         {
             public TokenType type;
-            public double value;
+            public double? value;//Nullable double
         }
 
-        public void CreateTokens(string[] tokens)
+        public static void CreateTokens(string[] tokens)
         {
             StringBuilder sb = new StringBuilder();
             int decimalCount = 0;
@@ -84,57 +79,58 @@ namespace CustomShell
                 {
                     Token token;
                     token.type = TokenType.Plus;
-                    token.value = 0;
+                    token.value = null;
                     pipeline.Add(token);
                 }
                 else if (currentChar == '-')
                 {
                     Token token;
                     token.type = TokenType.Minus;
-                    token.value = 0;
+                    token.value = null;
                     pipeline.Add(token);
                 }
                 else if (currentChar == '*')
                 {
                     Token token;
                     token.type = TokenType.Multiply;
-                    token.value = 0;
+                    token.value = null;
                     pipeline.Add(token);
                 }
                 else if (currentChar == '/')
                 {
                     Token token;
                     token.type = TokenType.Divide;
-                    token.value = 0;
+                    token.value = null;
                     pipeline.Add(token);
                 }
                 else if (currentChar == '(')
                 {
                     Token token;
                     token.type = TokenType.Lparen;
-                    token.value = 0;
+                    token.value = null;
                     pipeline.Add(token);
                 }
                 else if (currentChar == ')')
                 {
                     Token token;
                     token.type = TokenType.Rparen;
-                    token.value = 0;
+                    token.value = null;
                     pipeline.Add(token);
                 }
                 else
                 {
-                    main.AddTextToConsole(string.Concat("Illegal character", currentChar));
+                    MainController.controller.AddTextToConsole(string.Concat("Illegal character", currentChar));
                     return;
                 }
             }
             PrintOutput();
         }
 
-        public void PrintOutput()
+
+        public static void PrintOutput()
         {
             for (int i = 0; i < pipeline.Count; i++)
-                main.AddTextToConsole(pipeline[i].ToString());
+                MainController.controller.AddTextToConsole(pipeline[i].type.ToString() + ":" + pipeline[i].value.ToString());
         }
     }
 }

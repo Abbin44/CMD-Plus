@@ -6,6 +6,8 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
+using static CustomShell.Calculator;
+using static CustomShell.TreeGenerator;
 
 namespace CustomShell
 {
@@ -16,7 +18,6 @@ namespace CustomShell
         WandEditor wand;
         Processes proc;
         Compression comp;
-        Calculator calc;
         BatchInterpreter batch;
         public static MainController controller { get; private set; }
 
@@ -605,9 +606,7 @@ namespace CustomShell
                         proc.KillProcess(tokens);
                         break;
                     case "calc":
-                        if (calc == null)
-                            calc = new Calculator();
-                        calc.CreateTokens(tokens);
+                        CreateTokens(tokens);
                         break;
                     case "batch":
                         if (batch == null)

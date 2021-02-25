@@ -43,9 +43,12 @@ namespace CustomShell
             using (Process proc = new Process())
             {
                 proc.StartInfo = procStartInfo;
-                proc.Start(); 
+                proc.Start();
 
                 string output = proc.StandardOutput.ReadToEnd();
+
+                Encoding unicode = Encoding.Unicode;
+                byte[] unicodeBytes = unicode.GetBytes(output);
 
                 if (string.IsNullOrEmpty(output))
                     output = proc.StandardError.ReadToEnd();
