@@ -129,6 +129,8 @@ namespace CustomShell
         {
             for (int i = 0; i < pipeline.Count; i++)
                 MainController.controller.AddTextToConsole(pipeline[i].type.ToString() + ":" + pipeline[i].value.ToString());
+
+            TreeGenerator tree = new TreeGenerator();
         }
     }
 }

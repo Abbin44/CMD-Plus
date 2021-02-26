@@ -12,16 +12,16 @@ namespace CustomShell
          * 
          * */
 
-        List<Token> result = new List<Token>();
+        List<object> result = new List<object>();
         public TreeGenerator()
         {
-
+            GenerateTree();
         }
 
         #region Nodes
         public struct NumberNode
         {
-            public Token value;
+            public Token number;
         }
 
         public struct AddNode
@@ -35,22 +35,34 @@ namespace CustomShell
             public Token NodeA;
             public Token NodeB;
         }
+
         public struct MultiplyNode
         {
             public Token NodeA;
             public Token NodeB;
         }
+
         public struct DivideNode
         {
             public Token NodeA;
             public Token NodeB;
+        }
+
+        public struct LparenNode
+        {
+            public Token Lparen;
+        }
+
+        public struct RparnNode
+        {
+            public Token Rparen;
         }
         #endregion
 
         #region NodeGetters
         public string GetNumber(NumberNode number)
         {
-            return number.value.ToString();
+            return number.number.ToString();
         }
 
         public double CalcAddNode(AddNode node)
@@ -113,11 +125,14 @@ namespace CustomShell
                     AddNode node;
                     node.NodeA = Ltoken;
                     node.NodeB = Rtoken;
-                    result.Add(CalcAddNode(node));
+                    result.Add(node);
                 }
                 else if (Ctoken.type == TokenType.Minus)
                 {
-                    result.Add(SubtractNode((double)Ltoken.value, (double)Rtoken.value));
+                    SubtractNode node;
+                    node.NodeA = Ltoken;
+                    node.NodeB = Rtoken;
+                    result.Add(node);
                 }
             }
 
@@ -146,11 +161,17 @@ namespace CustomShell
 
                 if (Ctoken.type == TokenType.Multiply)
                 {
-                    result.Add(MultiplyNode((double)Ltoken.value, (double)Rtoken.value));
+                    MultiplyNode node;
+                    node.NodeA = Ltoken;
+                    node.NodeB = Rtoken;
+                    result.Add(node);
                 }
                 else if (Ctoken.type == TokenType.Divide)
                 {
-                    result.Add(DivideNode((double)Ltoken.value, (double)Rtoken.value));
+                    DivideNode node;
+                    node.NodeA = Ltoken;
+                    node.NodeB = Rtoken;
+                    result.Add(node);
                 }
             }
 
@@ -176,18 +197,47 @@ namespace CustomShell
                 else
                     Rtoken.value = null;
 
-
                 if (Ctoken.type == TokenType.Lparen)
                 {
-                    while (Ctoken.type != TokenType.Rparen)
-                    {
-                        continue;
-                    }
-                    result.Add(MultiplyNode((double)Ltoken.value, (double)Rtoken.value));
+                    LparenNode node;
+                    node.Lparen = Ctoken;
+                    result.Add(node);
                 }
-                else if (Ctoken.type == TokenType.Divide)
+                else if (Ctoken.type == TokenType.Rparen)
                 {
-                    result.Add(DivideNode((double)Ltoken.value, (double)Rtoken.value));
+                    RparnNode node;
+                    node.Rparen = Ctoken;
+                    result.Add(node);
+                }
+            }
+
+            for (int i = 0; i < tokenPipeline.Count; i++)
+            {
+                if (!(i - 1 < 0))
+                {
+                    Ltoken.type = tokenPipeline[i - 1].type;
+                    Ltoken.value = tokenPipeline[i - 1].value;
+                }
+                else
+                    Ltoken.value = null;
+
+                Ctoken.type = tokenPipeline[i].type;
+                Ctoken.value = tokenPipeline[i].value;
+
+                if (i + 1 != tokenPipeline.Count)
+                {
+                    Rtoken.type = tokenPipeline[i + 1].type;
+                    Rtoken.value = tokenPipeline[i + 1].value;
+
+                }
+                else
+                    Rtoken.value = null;
+
+                if (Ctoken.type == TokenType.Number)
+                {
+                    NumberNode node;
+                    node.number = Ctoken;
+                    result.Insert(i, node);
                 }
             }
         }
