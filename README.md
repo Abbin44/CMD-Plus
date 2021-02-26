@@ -30,3 +30,5 @@ The wand editor is the equivilent of the linux command touch. It allows you to o
 
 ## Batch Integration
 The Windows Command Line or CMD, is fully integrated and all batch commands that can be run in CMD can be run in my shell as well.
+
+![alt text](https://github.com/Abbin44/Custom-Shell/blob/master/preview_image.png?raw=true)
