@@ -12,36 +12,65 @@ namespace CustomShell
          * 
          * */
 
-        List<double> result = new List<double>();
+        List<Token> result = new List<Token>();
         public TreeGenerator()
         {
 
         }
 
+        #region Nodes
+        public struct NumberNode
+        {
+            public Token value;
+        }
+
+        public struct AddNode
+        {
+            public Token NodeA;
+            public Token NodeB;
+        }        
+        
+        public struct SubtractNode
+        {
+            public Token NodeA;
+            public Token NodeB;
+        }
+        public struct MultiplyNode
+        {
+            public Token NodeA;
+            public Token NodeB;
+        }
+        public struct DivideNode
+        {
+            public Token NodeA;
+            public Token NodeB;
+        }
+        #endregion
+
         #region NodeGetters
-        public string GetNumber(Token number)
+        public string GetNumber(NumberNode number)
         {
             return number.value.ToString();
         }
 
-        public double AddNode(double NodeA, double NodeB)
+        public double CalcAddNode(AddNode node)
         {
-            return (double)(NodeA + NodeB);
+            return (double)(node.NodeA.value + node.NodeB.value);
         }
 
-        public double SubtractNode(double NodeA, double NodeB)
+        public double CalcSubtractNode(SubtractNode node)
         {
-            return (double)(NodeA - NodeB);
+            return (double)(node.NodeA.value - node.NodeB.value);
         }
 
-        public double MultiplyNode(double NodeA, double NodeB)
+        public double CalcMultiplyNode(MultiplyNode node)
         {
-            return (double)(NodeA * NodeB);
+            return (double)(node.NodeA.value * node.NodeB.value);
         }
 
-        public double DivideNode(double NodeA, double NodeB)
+        public double CalcDivideNode(DivideNode node)
         {
-            return (double)(NodeA / NodeB);
+            return (double)(node.NodeA.value / node.NodeB.value);
         }
         #endregion
 
@@ -51,6 +80,47 @@ namespace CustomShell
             Token Ltoken;
             Token Ctoken;
             Token Rtoken;
+            Ltoken.type = null;
+            Ltoken.value = null;
+            Ctoken.type = null;
+            Ctoken.value = null;
+            Rtoken.type = null;
+            Rtoken.value = null;
+
+            for (int i = 0; i < tokenPipeline.Count; i++)
+            {
+                if (!(i - 1 < 0))
+                {
+                    Ltoken.type = tokenPipeline[i - 1].type;
+                    Ltoken.value = tokenPipeline[i - 1].value;
+                }
+                else
+                    Ltoken.value = null;
+
+                Ctoken.type = tokenPipeline[i].type;
+                Ctoken.value = tokenPipeline[i].value;
+
+                if (i + 1 != tokenPipeline.Count)
+                {
+                    Rtoken.type = tokenPipeline[i + 1].type;
+                    Rtoken.value = tokenPipeline[i + 1].value;
+                }
+                else
+                    Rtoken.value = null;
+
+                if (Ctoken.type == TokenType.Plus)
+                {
+                    AddNode node;
+                    node.NodeA = Ltoken;
+                    node.NodeB = Rtoken;
+                    result.Add(CalcAddNode(node));
+                }
+                else if (Ctoken.type == TokenType.Minus)
+                {
+                    result.Add(SubtractNode((double)Ltoken.value, (double)Rtoken.value));
+                }
+            }
+
             for (int i = 0; i < tokenPipeline.Count; i++)
             {
                 if (!(i - 1 < 0))
@@ -73,28 +143,51 @@ namespace CustomShell
                 else
                     Rtoken.value = null;
 
-                while (Ctoken.type == TokenType.Multiply || Ctoken.type == TokenType.Divide)
-                {
-                    if (Ctoken.type == TokenType.Multiply)
-                    {
-                        result.Add(MultiplyNode((double)Ltoken.value, (double)Rtoken.value));
-                    }
-                    else if (Ctoken.type == TokenType.Divide)
-                    {
-                        result.Add(DivideNode((double)Ltoken.value, (double)Rtoken.value));
-                    }
-                }
 
-                while (Ctoken.type == TokenType.Plus || Ctoken.type == TokenType.Minus)
+                if (Ctoken.type == TokenType.Multiply)
                 {
-                    if (Ctoken.type == TokenType.Plus)
+                    result.Add(MultiplyNode((double)Ltoken.value, (double)Rtoken.value));
+                }
+                else if (Ctoken.type == TokenType.Divide)
+                {
+                    result.Add(DivideNode((double)Ltoken.value, (double)Rtoken.value));
+                }
+            }
+
+            for (int i = 0; i < tokenPipeline.Count; i++)
+            {
+                if (!(i - 1 < 0))
+                {
+                    Ltoken.type = tokenPipeline[i - 1].type;
+                    Ltoken.value = tokenPipeline[i - 1].value;
+                }
+                else
+                    Ltoken.value = null;
+
+                Ctoken.type = tokenPipeline[i].type;
+                Ctoken.value = tokenPipeline[i].value;
+
+                if (i + 1 != tokenPipeline.Count)
+                {
+                    Rtoken.type = tokenPipeline[i + 1].type;
+                    Rtoken.value = tokenPipeline[i + 1].value;
+
+                }
+                else
+                    Rtoken.value = null;
+
+
+                if (Ctoken.type == TokenType.Lparen)
+                {
+                    while (Ctoken.type != TokenType.Rparen)
                     {
-                        result.Add(AddNode((double)Ltoken.value, (double)Rtoken.value));
+                        continue;
                     }
-                    else if (Ctoken.type == TokenType.Minus)
-                    {
-                        result.Add(SubtractNode((double)Ltoken.value, (double)Rtoken.value));
-                    }
+                    result.Add(MultiplyNode((double)Ltoken.value, (double)Rtoken.value));
+                }
+                else if (Ctoken.type == TokenType.Divide)
+                {
+                    result.Add(DivideNode((double)Ltoken.value, (double)Rtoken.value));
                 }
             }
         }

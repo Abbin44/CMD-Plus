@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomShell
 {
@@ -23,7 +21,7 @@ namespace CustomShell
 
         public struct Token
         {
-            public TokenType type;
+            public TokenType? type;
             public double? value;//Nullable double
         }
 
