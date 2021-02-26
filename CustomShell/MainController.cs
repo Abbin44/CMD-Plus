@@ -185,9 +185,7 @@ namespace CustomShell
                     }
                 }
                 else
-                {
                     AddTextToConsole("Command is not valid");
-                }
 
                 outputBox.SelectionStart = outputBox.TextLength;
             }
@@ -456,8 +454,16 @@ namespace CustomShell
             long size = 0;
             DirectoryInfo di = new DirectoryInfo(path);
 
-            foreach (FileInfo fi in di.GetFiles("*", SearchOption.AllDirectories))
-                size += fi.Length;
+            try
+            {
+                foreach (FileInfo fi in di.GetFiles("*", SearchOption.AllDirectories))
+                    size += fi.Length;
+            }
+            catch (Exception)
+            {
+                AddTextToConsole("Path is invalid");
+                return;
+            }
 
             string output = FormatBytes(size);
 
