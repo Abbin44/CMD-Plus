@@ -54,6 +54,7 @@
     <Compile Include="BatchInterpreter.cs" />
     <Compile Include="Calculator.cs" />
     <Compile Include="Compression.cs" />
+    <Compile Include="Interpreter.cs" />
     <Compile Include="MainController.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -3,7 +3,7 @@ using static CustomShell.Calculator;
 
 namespace CustomShell
 {
-    class TreeGenerator
+    static class TreeGenerator
     {
         /*NOTES
          * 
@@ -12,11 +12,7 @@ namespace CustomShell
          * 
          * */
 
-        List<object> result = new List<object>();
-        public TreeGenerator()
-        {
-            GenerateTree();
-        }
+        public static List<object> nodeTree = new List<object>();
 
         #region Nodes
         public struct NumberNode
@@ -57,36 +53,20 @@ namespace CustomShell
         {
             public Token Rparen;
         }
-        #endregion
 
-        #region NodeGetters
-        public string GetNumber(NumberNode number)
+        public struct PlusNode
         {
-            return number.number.ToString();
+            public Token token;
         }
 
-        public double CalcAddNode(AddNode node)
+        public struct MinusNode
         {
-            return (double)(node.NodeA.value + node.NodeB.value);
-        }
-
-        public double CalcSubtractNode(SubtractNode node)
-        {
-            return (double)(node.NodeA.value - node.NodeB.value);
-        }
-
-        public double CalcMultiplyNode(MultiplyNode node)
-        {
-            return (double)(node.NodeA.value * node.NodeB.value);
-        }
-
-        public double CalcDivideNode(DivideNode node)
-        {
-            return (double)(node.NodeA.value / node.NodeB.value);
+            public Token token;
         }
         #endregion
 
-        public void GenerateTree()
+
+        public static void GenerateTree()
         {
             List<Token> tokenPipeline = pipeline;
             Token Ltoken;
@@ -125,14 +105,14 @@ namespace CustomShell
                     AddNode node;
                     node.NodeA = Ltoken;
                     node.NodeB = Rtoken;
-                    result.Add(node);
+                    nodeTree.Add(node);
                 }
                 else if (Ctoken.type == TokenType.Minus)
                 {
                     SubtractNode node;
                     node.NodeA = Ltoken;
                     node.NodeB = Rtoken;
-                    result.Add(node);
+                    nodeTree.Add(node);
                 }
             }
 
@@ -164,14 +144,14 @@ namespace CustomShell
                     MultiplyNode node;
                     node.NodeA = Ltoken;
                     node.NodeB = Rtoken;
-                    result.Add(node);
+                    nodeTree.Add(node);
                 }
                 else if (Ctoken.type == TokenType.Divide)
                 {
                     DivideNode node;
                     node.NodeA = Ltoken;
                     node.NodeB = Rtoken;
-                    result.Add(node);
+                    nodeTree.Add(node);
                 }
             }
 
@@ -201,13 +181,25 @@ namespace CustomShell
                 {
                     LparenNode node;
                     node.Lparen = Ctoken;
-                    result.Add(node);
+                    nodeTree.Add(node);
                 }
                 else if (Ctoken.type == TokenType.Rparen)
                 {
                     RparnNode node;
                     node.Rparen = Ctoken;
-                    result.Add(node);
+                    nodeTree.Add(node);
+                }
+                else if(Ctoken.type == TokenType.Plus)
+                {
+                    PlusNode node;
+                    node.token = Ctoken;
+                    nodeTree.Add(node);
+                }
+                else if (Ctoken.type == TokenType.Minus)
+                {
+                    MinusNode node;
+                    node.token = Ctoken;
+                    nodeTree.Add(node);
                 }
             }
 
@@ -237,9 +229,10 @@ namespace CustomShell
                 {
                     NumberNode node;
                     node.number = Ctoken;
-                    result.Insert(i, node);
+                    nodeTree.Add(node);
                 }
             }
+            Interpreter interpret = new Interpreter();
         }
     }
 }
