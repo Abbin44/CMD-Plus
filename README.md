@@ -1,4 +1,4 @@
-# Custom-Shell
+# CMD++
 A custom shell that allows you to run a bunch of different commands, including everything from CMD/Batch
 
 ### Check the github wiki page for more in depth info about the commands.
