@@ -60,22 +60,22 @@ namespace CustomShell
 
         public void InterpretNodeTree()
         {
-            for (int i = 0; i < nodeTree.Count; i++)
+            for (int i = nodeTree.Count - 1; i >= 0; --i)//Start from the back so order of operations are correct
             {
-                if (nodeTree[i].GetType() == typeof(NumberNode))
-                     result += GetNumber((NumberNode)nodeTree[i]);
-                else if (nodeTree[i].GetType() == typeof(AddNode))
+                //if (nodeTree[i].GetType() == typeof(NumberNode))
+                //     result += GetNumber((NumberNode)nodeTree[i]);
+                if (nodeTree[i].GetType() == typeof(AddNode))
                     result += CalcAddNode((AddNode)nodeTree[i]);
                 else if (nodeTree[i].GetType() == typeof(SubtractNode))
-                    result += CalcSubtractNode((SubtractNode)nodeTree[i]);
+                    result -= CalcSubtractNode((SubtractNode)nodeTree[i]);
                 else if (nodeTree[i].GetType() == typeof(MultiplyNode))
                     result += CalcMultiplyNode((MultiplyNode)nodeTree[i]);
                 else if (nodeTree[i].GetType() == typeof(DivideNode))
                     result += CalcDivideNode((DivideNode)nodeTree[i]);
-                //else if (nodeTree[i].GetType() == typeof(PlusNode))
-                //    result += CalcPlusNode((PlusNode)nodeTree[i]);
-                //else if (nodeTree[i].GetType() == typeof(MinusNode))
-                //    result += CalcMinusNode((MinusNode)nodeTree[i]);
+                else if (nodeTree[i].GetType() == typeof(PlusNode))
+                    result += CalcPlusNode((PlusNode)nodeTree[i]);
+                else if (nodeTree[i].GetType() == typeof(MinusNode))
+                    result += CalcMinusNode((MinusNode)nodeTree[i]);
             }
         }
     }

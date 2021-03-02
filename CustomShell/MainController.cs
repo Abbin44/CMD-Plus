@@ -611,6 +611,7 @@ namespace CustomShell
                             proc = new Processes();
                         proc.KillProcess(tokens);
                         break;
+                    //Broken fucking calculator, someone please fix it.
                     case "calc":
                         CreateTokens(tokens);
                         break;

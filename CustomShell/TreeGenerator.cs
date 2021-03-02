@@ -100,14 +100,14 @@ namespace CustomShell
                 else
                     Rtoken.value = null;
 
-                if (Ctoken.type == TokenType.Plus)
+                if (Ctoken.type == TokenType.Plus && Ltoken.type == TokenType.Number && Rtoken.type == TokenType.Number)
                 {
                     AddNode node;
                     node.NodeA = Ltoken;
                     node.NodeB = Rtoken;
                     nodeTree.Add(node);
                 }
-                else if (Ctoken.type == TokenType.Minus)
+                else if (Ctoken.type == TokenType.Minus && Ltoken.type == TokenType.Number && Rtoken.type == TokenType.Number)//If both terms are numbers we add a subtract node, oterwise skip it and assume it is used as a negative number
                 {
                     SubtractNode node;
                     node.NodeA = Ltoken;
@@ -189,20 +189,15 @@ namespace CustomShell
                     node.Rparen = Ctoken;
                     nodeTree.Add(node);
                 }
-                else if(Ctoken.type == TokenType.Plus)
-                {
-                    PlusNode node;
-                    node.token = Ctoken;
-                    nodeTree.Add(node);
-                }
-                else if (Ctoken.type == TokenType.Minus)
-                {
-                    MinusNode node;
-                    node.token = Ctoken;
-                    nodeTree.Add(node);
-                }
+                //else if (Ctoken.type == TokenType.Minus && Ltoken.type != TokenType.Number || Rtoken.type != TokenType.Number)//Check if minus is surrounded by numbers, in that case skip it and assume it is a subtraction. Otherwise, add the number as a negative
+                //{
+                //    MinusNode node;
+                //    node.token = Ctoken;
+                //    nodeTree.Add(node);
+                //}
             }
 
+            /*
             for (int i = 0; i < tokenPipeline.Count; i++)
             {
                 if (!(i - 1 < 0))
@@ -232,6 +227,13 @@ namespace CustomShell
                     nodeTree.Add(node);
                 }
             }
+            */
+
+            for (int i = 0; i < nodeTree.Count; i++)
+            {
+                MainController.controller.AddTextToConsole(nodeTree[i].GetType().Name);
+            }
+
             Interpreter interpret = new Interpreter();
         }
     }
