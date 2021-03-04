@@ -86,52 +86,28 @@ namespace CustomShell
         public void ApplySyntaxHighlight()
         {
             string[] types = new string[] {"int ", "integer ", "float ", "single ", "double ", "decimal ", "bool ", "boolean ", "string "};
-            string[] operators = new string[] {"!", "=", ">", "<", "|"};
-            string[] statements = new string[] {"if", "else if", "elif", "if else", "else", "true", "false", "try", "catch", "finally", "public", "private", "protected", "static", "using", "import", "void", "while", "for", "return", "continue", "break"};
+            string[] operators = new string[] {"!", "=", ">", "<", "|", "@", "+", "-", "*", "/"};
+            string[] statements = new string[] {"if", "else if", "elif", "if else", "else", "true", "false", "try", "catch", "finally", "public", "private", "protected", "static", "using", "import", "include", "define", "void", "while", "for", "return", "continue", "break"};
+            string[] misc = new string[] {"#", "$"};
 
+            FindAndColor(types, Color.Blue);
+            FindAndColor(operators, Color.Red);
+            FindAndColor(statements, Color.Purple);
+            FindAndColor(misc, Color.Khaki);
+        }
+
+        private void FindAndColor(string[] strings, Color color)
+        {
             string word;
 
-
-            for (int i = 0; i < types.Length; i++)
+            for (int i = 0; i < strings.Length; i++)
             {
                 int s_start = main.wandTextBox.SelectionStart, startIndex = 0, index;
-                word = types[i];
+                word = strings[i];
                 while ((index = main.wandTextBox.Text.IndexOf(word, startIndex)) != -1)
                 {
                     main.wandTextBox.Select(index, word.Length);
-                    main.wandTextBox.SelectionColor = Color.Blue;
-
-                    startIndex = index + word.Length;
-                }
-
-                main.wandTextBox.SelectionStart = s_start;
-                main.wandTextBox.SelectionLength = 0;
-            }
-
-            for (int i = 0; i < operators.Length; i++)
-            {
-                int s_start = main.wandTextBox.SelectionStart, startIndex = 0, index;
-                word = operators[i];
-                while ((index = main.wandTextBox.Text.IndexOf(word, startIndex)) != -1)
-                {
-                    main.wandTextBox.Select(index, word.Length);
-                    main.wandTextBox.SelectionColor = Color.Red;
-
-                    startIndex = index + word.Length;
-                }
-
-                main.wandTextBox.SelectionStart = s_start;
-                main.wandTextBox.SelectionLength = 0;
-            }
-
-            for (int i = 0; i < statements.Length; i++)
-            {
-                int s_start = main.wandTextBox.SelectionStart, startIndex = 0, index;
-                word = statements[i];
-                while ((index = main.wandTextBox.Text.IndexOf(word, startIndex)) != -1)
-                {
-                    main.wandTextBox.Select(index, word.Length);
-                    main.wandTextBox.SelectionColor = Color.Purple;
+                    main.wandTextBox.SelectionColor = color;
 
                     startIndex = index + word.Length;
                 }
