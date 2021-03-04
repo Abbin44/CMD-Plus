@@ -647,11 +647,25 @@ namespace CustomShell
             }
         }
 
+        bool syntaxHighlight = true;
         private void wandTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.S)//Save and quit from Wand
             {
                 wand.SaveAndExit();
+            }
+            else if (e.Control && e.KeyCode == Keys.H)//Toggle syntax highlighting
+            {
+                if(syntaxHighlight == true)
+                {
+                    syntaxHighlight = false;
+                    wand.RemoveSyntaxHighlight();
+                }
+                else
+                {
+                    syntaxHighlight = true;
+                    wand.ApplySyntaxHighlight();
+                }
             }
             else if (e.Control && e.KeyCode == Keys.Q)//Quit without save Wand
             {

@@ -76,6 +76,13 @@ namespace CustomShell
             }
         }
 
+        public void RemoveSyntaxHighlight()
+        {
+            main.wandTextBox.SelectAll();
+            main.wandTextBox.SelectionColor = Color.LightSteelBlue;
+            main.wandTextBox.SelectionStart = main.wandTextBox.Text.Length;
+        }
+
         public void ApplySyntaxHighlight()
         {
             string[] types = new string[] {"int ", "integer ", "float ", "single ", "double ", "decimal ", "bool ", "boolean ", "string "};
