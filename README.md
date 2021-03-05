@@ -30,7 +30,7 @@ A custom shell that allows you to run a bunch of different commands, including e
 The wand editor is the equivilent of the linux command touch. It allows you to open a file, edit it's contents and then either quit witout saving or quit and save. It also allows you to quickly peek at a file which simply print the content, you cannot edit the text in this mode.
 
 The wand editor also have syntax highlighting for better readability when modifying code. If you open a file which does not contain code, you can easily toggle off the coloring and read everything in plain text.
-![alt text](https://github.com/Abbin44/Custom-Shell/blob/master/wand_preview.png?raw=true)
+![alt text](https://github.com/Abbin44/Custom-Shell/blob/master/wand_preview_image.png?raw=true)
 
 ## Batch Integration
 The Windows Command Line or CMD, is fully integrated and all batch commands that can be run in CMD can be run in my shell as well.
