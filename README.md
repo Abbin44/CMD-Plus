@@ -1,5 +1,6 @@
 # CMD++
 A custom shell that allows you to run a bunch of different commands, including everything from CMD/Batch
+![alt text](https://github.com/Abbin44/Custom-Shell/blob/master/preview_image.png?raw=true)
 
 ### Check the github wiki page for more in depth info about the commands.
 
@@ -33,5 +34,3 @@ The wand editor also have syntax highlighting for better readability when modify
 
 ## Batch Integration
 The Windows Command Line or CMD, is fully integrated and all batch commands that can be run in CMD can be run in my shell as well.
-
-![alt text](https://github.com/Abbin44/Custom-Shell/blob/master/preview_image.png?raw=true)
