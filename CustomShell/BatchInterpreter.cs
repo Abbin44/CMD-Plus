@@ -20,7 +20,7 @@ namespace CustomShell
             }
             
             StringBuilder sb = new StringBuilder();
-            for (int i = 1; i < tokens.Length; i++)
+            for (int i = 1; i < tokens.Length; ++i)
             {
                 sb.Append(tokens[i]);
 

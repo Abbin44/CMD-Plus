@@ -89,7 +89,7 @@ namespace CustomShell
             this.Controls.Add(this.outputBox);
             this.KeyPreview = true;
             this.Name = "MainController";
-            this.Text = "Shell IDK";
+            this.Text = "CMD++";
             this.ResumeLayout(false);
 
         }

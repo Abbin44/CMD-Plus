@@ -7,7 +7,6 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using static CustomShell.Calculator;
-using static CustomShell.TreeGenerator;
 
 namespace CustomShell
 {
@@ -386,7 +385,7 @@ namespace CustomShell
             sb.Append("wand [Path]                     | Lets you edit a file. CTRL + S to save. CTRL + Q to quit\n");
             sb.Append("listproc                        | Lists all running processes\n");
             sb.Append("killproc [ID]                   | Lets you kill a process\n");
-            sb.Append("batch [CommandOrBatFile]        | Lets you kill a process\n");
+            sb.Append("batch [CommandOrBatFile]        | Lets you run any batch command or script file\n");
             sb.Append("clear                           | Clears the console\n");
             sb.Append("help                            | Display help\n");
             sb.Append("shutdown                        | Shuts down the computer\n");
@@ -611,8 +610,7 @@ namespace CustomShell
                             proc = new Processes();
                         proc.KillProcess(tokens);
                         break;
-                    //Broken fucking calculator, someone please fix it.
-                    case "calc":
+                    case "calc"://Broken fucking calculator, someone please fix it.
                         CreateTokens(tokens);
                         break;
                     case "batch":
