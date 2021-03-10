@@ -18,6 +18,7 @@ namespace CustomShell
         Processes proc;
         Compression comp;
         BatchInterpreter batch;
+        LocalDirectory localDirectory;
         public static MainController controller { get; private set; }
 
         public string InputPrefix()
@@ -624,7 +625,15 @@ namespace CustomShell
                 }
             }
 
-            if(e.KeyCode == Keys.Up)
+            if (e.KeyCode == Keys.Tab)
+            {
+                if (localDirectory == null)
+                    localDirectory = new LocalDirectory();
+                localDirectory.GetAllCurrentDir(inputBox.Text, currentDir);
+            }
+
+            #region History
+            if (e.KeyCode == Keys.Up)
             {
                 if (historyIndex >= 0 && historyIndex < history.Count)
                 {
@@ -643,6 +652,7 @@ namespace CustomShell
                     --historyIndex;
                 }
             }
+            #endregion
         }
 
         bool syntaxHighlight = true;

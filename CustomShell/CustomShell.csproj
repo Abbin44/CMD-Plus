@@ -55,6 +55,7 @@
     <Compile Include="Calculator.cs" />
     <Compile Include="Compression.cs" />
     <Compile Include="Interpreter.cs" />
+    <Compile Include="LocalDirectory.cs" />
     <Compile Include="MainController.cs">
       <SubType>Form</SubType>
     </Compile>

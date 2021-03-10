@@ -72,7 +72,7 @@ namespace CustomShell
             {
                 main.wandTextBox.Visible = false;
                 main.outputBox.Visible = true;
-                main.AddTextToConsole("Something went wrong, please check your input");
+                main.AddTextToConsole("File not valid...");
                 return;
             }
         }

@@ -46,6 +46,7 @@ namespace CustomShell
             this.outputBox.ReadOnly = true;
             this.outputBox.Size = new System.Drawing.Size(928, 460);
             this.outputBox.TabIndex = 0;
+            this.outputBox.TabStop = false;
             this.outputBox.Text = "";
             // 
             // inputBox
@@ -60,6 +61,7 @@ namespace CustomShell
             this.inputBox.Name = "inputBox";
             this.inputBox.Size = new System.Drawing.Size(928, 26);
             this.inputBox.TabIndex = 1;
+            this.inputBox.TabStop = false;
             this.inputBox.Text = "";
             this.inputBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.inputBox_KeyDown);
             // 
@@ -74,6 +76,7 @@ namespace CustomShell
             this.wandTextBox.Name = "wandTextBox";
             this.wandTextBox.Size = new System.Drawing.Size(928, 434);
             this.wandTextBox.TabIndex = 2;
+            this.wandTextBox.TabStop = false;
             this.wandTextBox.Text = "";
             this.wandTextBox.Visible = false;
             this.wandTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.wandTextBox_KeyDown);
