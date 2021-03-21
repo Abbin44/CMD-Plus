@@ -14,6 +14,7 @@ namespace CustomShell
     {
         string currentDir = @"C:/";
         List<string> history = new List<string>();
+        List<string> queue = new List<string>();
         WandEditor wand;
         Processes proc;
         Compression comp;
@@ -528,100 +529,209 @@ namespace CustomShell
         {
             string input = string.Empty;
             string[] tokens;
+            string[] cmdTokens = new string[100];
 
             //When command is entered
             if (e.KeyCode == Keys.Enter)
             {
+                string[] cmd = new string[10];
+                string[] cmds;
                 input = inputBox.Text;
                 string command = input.Remove(0, (Environment.UserName + "@" + currentDir + " ~").Length);
                 command = command.Trim();
                 tokens = command.Split(' ');
 
-                switch (tokens[0])
+                if (command.Contains("&&"))
                 {
-                    case "cd":
-                        ChangeDirectory(tokens);
-                        break;
-                    case "ls":
-                        ListFiles(tokens);
-                        break;
-                    case "mkdir":
-                        MakeDirectory(tokens);
-                        break;
-                    case "mkfile":
-                        MakeFile(tokens);
-                        break;
-                    case "cp":
-                        CopyFile(tokens);
-                        break;
-                    case "mv":
-                        Move(tokens);
-                        break;
-                    case "rm":
-                        RemoveFolder(tokens);
-                        break;
-                    case "help":
-                        DisplayHelp();
-                        break;
-                    case "exec":
-                        Execute(tokens);
-                        break;
-                    case "open":
-                        OpenFile(tokens);
-                        break;
-                    case "extr":
-                        if (comp == null)
-                            comp = new Compression();
-                        comp.ExtractArchive(tokens);
-                        break;
-                    case "compr":
-                        if (comp == null)
-                            comp = new Compression();
-                        comp.CompressFolder(tokens);
-                        break;
-                    case "size":
-                        DirectorySize(tokens);
-                        break;
-                    case "peek":
-                        if (wand == null)
-                            wand = new WandEditor();
-                        wand.PeekFile(tokens);
-                        break;
-                    case "wand":
-                        if(wand == null)
-                           wand = new WandEditor();
-                        wand.LoadFile(tokens);
-                        break;
-                    case "clear":
-                        ClearConsole();
-                        break;
-                    case "exit":
-                        ExitShell();
-                        break;
-                    case "shutdown":
-                        Shutdown();
-                        break;
-                    case "listproc":
-                        if (proc == null)
-                            proc = new Processes();
-                        proc.ListProcesses();
-                        break;
-                    case "killproc":
-                        if (proc == null)
-                            proc = new Processes();
-                        proc.KillProcess(tokens);
-                        break;
-                    case "calc"://Broken fucking calculator, someone please fix it.
-                        CreateTokens(tokens);
-                        break;
-                    case "batch":
-                        if (batch == null)
-                            batch = new BatchInterpreter();
-                        batch.ExecuteCommand(tokens);
-                        break;
-                    default:
-                        AddTextToConsole("Command does not exist");
-                        break;
+                    cmd = command.Split(new string[] { "&&" }, StringSplitOptions.None);
+                    cmds = new string[cmd.Length];
+                    for (int i = 0; i < cmd.Length; ++i)
+                        cmds[i] = cmd[i].Replace(" ", "");
+                }
+                else
+                    cmds = new string[0];
+
+                if (cmds.Length > 1)
+                {
+                    for (int i = 0; i < cmds.Length; ++i)
+                    {
+                        tokens = cmds[i].Split(' ');
+                        switch (true)
+                        {
+                            case true when cmds[i].StartsWith("cd"):
+                                ChangeDirectory(tokens);
+                                break;
+                            case true when cmds[i].StartsWith("ls"):
+                                ListFiles(tokens);
+                                break;
+                            case true when cmds[i].StartsWith("mkdir"):
+                                MakeDirectory(tokens);
+                                break;
+                            case true when cmds[i].StartsWith("mkfile"):
+                                MakeFile(tokens);
+                                break;
+                            case true when cmds[i].StartsWith("cp"):
+                                CopyFile(tokens);
+                                break;
+                            case true when cmds[i].StartsWith("mv"):
+                                Move(tokens);
+                                break;
+                            case true when cmds[i].StartsWith("rm"):
+                                RemoveFolder(tokens);
+                                break;
+                            case true when cmds[i].StartsWith("help"):
+                                DisplayHelp();
+                                break;
+                            case true when cmds[i].StartsWith("exec"):
+                                Execute(tokens);
+                                break;
+                            case true when cmds[i].StartsWith("open"):
+                                OpenFile(tokens);
+                                break;
+                            case true when cmds[i].StartsWith("extr"):
+                                if (comp == null)
+                                    comp = new Compression();
+                                comp.ExtractArchive(tokens);
+                                break;
+                            case true when cmds[i].StartsWith("compr"):
+                                if (comp == null)
+                                    comp = new Compression();
+                                comp.CompressFolder(tokens);
+                                break;
+                            case true when cmds[i].StartsWith("size"):
+                                DirectorySize(tokens);
+                                break;
+                            case true when cmds[i].StartsWith("peek"):
+                                if (wand == null)
+                                    wand = new WandEditor();
+                                wand.PeekFile(tokens);
+                                break;
+                            case true when cmds[i].StartsWith("wand"):
+                                if (wand == null)
+                                    wand = new WandEditor();
+                                wand.LoadFile(tokens);
+                                break;
+                            case true when cmds[i].StartsWith("clear"):
+                                ClearConsole();
+                                break;
+                            case true when cmds[i].StartsWith("exit"):
+                                ExitShell();
+                                break;
+                            case true when cmds[i].StartsWith("shutdown"):
+                                Shutdown();
+                                break;
+                            case true when cmds[i].StartsWith("listproc"):
+                                if (proc == null)
+                                    proc = new Processes();
+                                proc.ListProcesses();
+                                break;
+                            case true when cmds[i].StartsWith("killproc"):
+                                if (proc == null)
+                                    proc = new Processes();
+                                proc.KillProcess(tokens);
+                                break;
+                            case true when cmds[i].StartsWith("calc")://Broken fucking calculator, someone please fix it.
+                                CreateTokens(tokens);
+                                break;
+                            case true when cmds[i].StartsWith("batch"):
+                                if (batch == null)
+                                    batch = new BatchInterpreter();
+                                batch.ExecuteCommand(tokens);
+                                break;
+                            default:
+                                AddTextToConsole("Command does not exist");
+                                break;
+                        }
+                    }
+                }
+                else
+                {
+                    switch (tokens[0])
+                    {
+                        case "cd":
+                            ChangeDirectory(tokens);
+                            break;
+                        case "ls":
+                            ListFiles(tokens);
+                            break;
+                        case "mkdir":
+                            MakeDirectory(tokens);
+                            break;
+                        case "mkfile":
+                            MakeFile(tokens);
+                            break;
+                        case "cp":
+                            CopyFile(tokens);
+                            break;
+                        case "mv":
+                            Move(tokens);
+                            break;
+                        case "rm":
+                            RemoveFolder(tokens);
+                            break;
+                        case "help":
+                            DisplayHelp();
+                            break;
+                        case "exec":
+                            Execute(tokens);
+                            break;
+                        case "open":
+                            OpenFile(tokens);
+                            break;
+                        case "extr":
+                            if (comp == null)
+                                comp = new Compression();
+                            comp.ExtractArchive(tokens);
+                            break;
+                        case "compr":
+                            if (comp == null)
+                                comp = new Compression();
+                            comp.CompressFolder(tokens);
+                            break;
+                        case "size":
+                            DirectorySize(tokens);
+                            break;
+                        case "peek":
+                            if (wand == null)
+                                wand = new WandEditor();
+                            wand.PeekFile(tokens);
+                            break;
+                        case "wand":
+                            if (wand == null)
+                                wand = new WandEditor();
+                            wand.LoadFile(tokens);
+                            break;
+                        case "clear":
+                            ClearConsole();
+                            break;
+                        case "exit":
+                            ExitShell();
+                            break;
+                        case "shutdown":
+                            Shutdown();
+                            break;
+                        case "listproc":
+                            if (proc == null)
+                                proc = new Processes();
+                            proc.ListProcesses();
+                            break;
+                        case "killproc":
+                            if (proc == null)
+                                proc = new Processes();
+                            proc.KillProcess(tokens);
+                            break;
+                        case "calc"://Broken fucking calculator, someone please fix it.
+                            CreateTokens(tokens);
+                            break;
+                        case "batch":
+                            if (batch == null)
+                                batch = new BatchInterpreter();
+                            batch.ExecuteCommand(tokens);
+                            break;
+                        default:
+                            AddTextToConsole("Command does not exist");
+                            break;
+                    }
                 }
             }
 
