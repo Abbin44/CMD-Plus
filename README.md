@@ -24,12 +24,13 @@ A custom shell that allows you to run a bunch of different commands, including e
     + Execute .bat files
     + List all running processes
     + Kill a process
+    + Use the && operator to run multiple commands
     + Dynamic coloring
     
 ## Wand Editor
-The wand editor is the equivilent of the linux command touch. It allows you to open a file, edit it's contents and then either quit witout saving or quit and save. It also allows you to quickly peek at a file which simply print the content, you cannot edit the text in this mode.
+The wand editor is the equivilent of the linux command touch. It allows you to open a file, edit it's contents and then either quit without saving, or quit and save. It also allows you to quickly peek at a file which simply prints the content, you cannot edit the text in this mode.
 
-The wand editor also have syntax highlighting for better readability when modifying code. If you open a file which does not contain code, you can easily toggle off the coloring and read everything in plain text.
+The wand editor also have syntax highlighting for better readability when modifying code. If you open a file that does not contain code, you can easily toggle off the coloring and read everything in plain text.
 ![alt text](https://github.com/Abbin44/Custom-Shell/blob/master/wand_preview_image.png?raw=true)
 
 ## Batch Integration
