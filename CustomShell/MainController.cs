@@ -543,10 +543,11 @@ namespace CustomShell
 
                 if (command.Contains("&&"))
                 {
-                    cmd = command.Split(new string[] { "&&" }, StringSplitOptions.None);
+                    cmd = command.Split(new string[] { "&&" }, StringSplitOptions.None); //Split input line into seperate commands
                     cmds = new string[cmd.Length];
+
                     for (int i = 0; i < cmd.Length; ++i)
-                        cmds[i] = cmd[i].Replace(" ", "");
+                        cmds[i] = cmd[i].Trim();//Trim the white chars
                 }
                 else
                     cmds = new string[0];
@@ -555,7 +556,7 @@ namespace CustomShell
                 {
                     for (int i = 0; i < cmds.Length; ++i)
                     {
-                        tokens = cmds[i].Split(' ');
+                        tokens = cmds[i].Split(' ');//Split all the commands into tokens and run them
                         switch (true)
                         {
                             case true when cmds[i].StartsWith("cd"):
