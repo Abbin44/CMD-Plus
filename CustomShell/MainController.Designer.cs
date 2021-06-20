@@ -93,6 +93,7 @@ namespace CustomShell
             this.KeyPreview = true;
             this.Name = "MainController";
             this.Text = "CMD++";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainController_FormClosing);
             this.ResumeLayout(false);
 
         }

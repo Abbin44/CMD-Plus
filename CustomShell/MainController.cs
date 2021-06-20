@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FluentFTP;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,8 +20,20 @@ namespace CustomShell
         Processes proc;
         Compression comp;
         BatchInterpreter batch;
+        FTPController ftpController;
         LocalDirectory localDirectory;
         public static MainController controller { get; private set; }
+
+        public MainController()
+        {
+            InitializeComponent();
+
+            if (controller != null)
+                throw new Exception("Only one instance of cMainForm may ever exist!");
+
+            controller = this;
+            InitConsole();
+        }
 
         public string InputPrefix()
         {
@@ -66,18 +79,6 @@ namespace CustomShell
             return input;
         }
 
-        public MainController()
-        {
-            InitializeComponent();
-
-            if (controller != null)
-                throw new Exception("Only one instance of cMainForm may ever exist!");
-
-            controller = this;
-
-            InitConsole();
-        }
-
         public void InitConsole()
         {
             inputBox.Text = string.Concat(Environment.UserName, "@", currentDir, " ~ ");
@@ -106,6 +107,11 @@ namespace CustomShell
             outputBox.AppendText(text + "\n");
             outputBox.SelectionStart = outputBox.TextLength;
             outputBox.ScrollToCaret();
+        }
+
+        public void AddFTPItemToConsole(FtpListItem item)
+        {
+
         }
 
         public string FormatBytes(long bytes)
@@ -729,8 +735,29 @@ namespace CustomShell
                                 batch = new BatchInterpreter();
                             batch.ExecuteCommand(tokens);
                             break;
+                        case "ftp":
+                            if (ftpController == null)
+                            {
+                                ftpController = new FTPController(tokens[1]);
+                                if (tokens[2] == "true")
+                                    ftpController.StartFTPSConnection(tokens[3], tokens[4]);
+                                else
+                                    ftpController.StartFTPConnection();
+                            }
+
+                            if (tokens[1] == "uploadFile")
+                                ftpController.UploadFile(tokens[2], tokens[3]);
+                            else if (tokens[1] == "downloadFile")
+                                ftpController.DownloadFile(tokens[2], tokens[3]);
+                            else if (tokens[1] == "uploadDirectory")
+                                ftpController.UploadDirectory(tokens[2], tokens[3]);
+                            else if (tokens[1] == "uploadDirectory")
+                                ftpController.DownloadDirectory(tokens[2], tokens[3]);
+                            else if (tokens[1] == "close")
+                                ftpController.Terminate();
+                            break;
                         default:
-                            AddTextToConsole("Command does not exist");
+                            AddTextToConsole("Command does not exist...");
                             break;
                     }
                 }
@@ -790,6 +817,12 @@ namespace CustomShell
             {
                 wand.Exit();
             }
+        }
+
+        private void MainController_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (ftpController != null)
+                ftpController = null;
         }
     }
 }
