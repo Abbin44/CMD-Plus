@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using static CustomShell.MainController;
 namespace CustomShell
 {
@@ -15,17 +14,22 @@ namespace CustomShell
 
         private string ExtractFilePath(string input)
         {
-            string output = string.Empty;
+            string path = string.Empty;
             char[] text = input.ToCharArray();
             for (int i = input.Length - 1; i > 0; --i)
             {
-                if(text[i] == '\\' && text[i - 1] == ':') //Start of a filepath
+                if (text[i] == '\\' && text[i - 1] == ':') //Start of a filepath
                 {
-                    output = input.Substring(i - 2);//Get only the filepath in a substring
+                    path = input.Substring(i - 2);//Get only the filepath in a substring
                     break;
                 }
             }
-            return output;
+            string dir = path;
+            int index = dir.LastIndexOf(@"\");
+            if (index > 0)
+                dir = dir.Substring(0, index + 1);
+
+            return dir;
         }
 
         public void GetAllCurrentDir(string currentInput, string currentDir)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FluentFTP;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,15 +20,27 @@ namespace CustomShell
         Processes proc;
         Compression comp;
         BatchInterpreter batch;
+        FTPController ftpController;
         LocalDirectory localDirectory;
         public static MainController controller { get; private set; }
+
+        public MainController()
+        {
+            InitializeComponent();
+
+            if (controller != null)
+                throw new Exception("Only one instance of cMainForm may ever exist!");
+
+            controller = this;
+            InitConsole();
+        }
 
         public string InputPrefix()
         {
             string text = string.Concat(Environment.UserName, "@", currentDir, " ~ ");
             return text;
         }
-        
+
         //This is used to get a full file path if only a file or folder is entered 
         //and the user expects the command to understand that it's the file inside of the current directory 
         public string GetFullPathFromArray(string[] tokens)
@@ -37,7 +50,7 @@ namespace CustomShell
 
         public string GetFullPathFromName(string path)
         {
-            if(!currentDir.EndsWith("\\"))
+            if (!currentDir.EndsWith("\\"))
                 return string.Concat(currentDir, @"\", path);
             else
                 return string.Concat(currentDir, path);
@@ -66,18 +79,6 @@ namespace CustomShell
             return input;
         }
 
-        public MainController()
-        {
-            InitializeComponent();
-
-            if (controller != null)
-                throw new Exception("Only one instance of cMainForm may ever exist!");
-
-            controller = this;
-
-            InitConsole();
-        }
-
         public void InitConsole()
         {
             inputBox.Text = string.Concat(Environment.UserName, "@", currentDir, " ~ ");
@@ -89,7 +90,7 @@ namespace CustomShell
         {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < tokens.Length; ++i)
-                 sb.Append(tokens[i] + " ");
+                sb.Append(tokens[i] + " ");
 
             string command = sb.ToString();
             outputBox.AppendText(command + "\n");
@@ -108,6 +109,11 @@ namespace CustomShell
             outputBox.ScrollToCaret();
         }
 
+        public void AddFTPItemToConsole(FtpListItem item)
+        {
+
+        }
+
         public string FormatBytes(long bytes)
         {
             string[] suffix = { "B", "KB", "MB", "GB", "TB" };
@@ -123,7 +129,7 @@ namespace CustomShell
         public void ChangeDirectory(string[] tokens)
         {
             string path = CheckInputType(tokens);
-            
+
             if (tokens.Length == 1) //Go to root
             {
                 if (Environment.OSVersion.Platform == PlatformID.Win32NT)
@@ -161,13 +167,13 @@ namespace CustomShell
                         AddTextToConsole(item.ToString());
                         outputBox.Select(outputBox.Text.Length - item.Length - 1, outputBox.Text.Length);
 
-                        if(attr.HasFlag(FileAttributes.Directory))
+                        if (attr.HasFlag(FileAttributes.Directory))
                             outputBox.SelectionColor = Color.Green;
                         else
                             outputBox.SelectionColor = Color.Red;
                     }
                 }
-                else if(tokens.Length == 2)
+                else if (tokens.Length == 2)
                 {
                     AddCommandToConsole(tokens);
 
@@ -192,11 +198,11 @@ namespace CustomShell
             }
             catch (Exception e)
             {
-                if(e.InnerException is UnauthorizedAccessException)
+                if (e.InnerException is UnauthorizedAccessException)
                 {
                     AddTextToConsole("Cannot access directory. Please run shell as admin.");
                     return;
-                }              
+                }
             }
         }
 
@@ -233,7 +239,7 @@ namespace CustomShell
                     }
                     else
                         AddTextToConsole("Error: make sure the filepath is valid");
-                    
+
                 }
             }
             else
@@ -255,7 +261,7 @@ namespace CustomShell
             {
                 if (Directory.Exists(path))
                 {
-                    if(tokens[1] == "-r")
+                    if (tokens[1] == "-r")
                         Directory.Delete(path, true);
                     else
                     {
@@ -325,7 +331,7 @@ namespace CustomShell
                 }
 
             }
-            else if(tokens.Length == 2)
+            else if (tokens.Length == 2)
             {
                 try
                 {
@@ -471,10 +477,10 @@ namespace CustomShell
             AddCommandToConsole(tokens);
             AddTextToConsole(output);
         }
-        
+
         public new void Move(string[] tokens)
         {
-            if(tokens.Length == 3)
+            if (tokens.Length == 3)
             {
                 string input;
                 if (!tokens[1].Contains(@":\"))
@@ -729,8 +735,29 @@ namespace CustomShell
                                 batch = new BatchInterpreter();
                             batch.ExecuteCommand(tokens);
                             break;
+                        case "ftp":
+                            if (ftpController == null)
+                            {
+                                ftpController = new FTPController(tokens[1]);
+                                if (tokens[2] == "true")
+                                    ftpController.StartFTPSConnection(tokens[3], tokens[4]);
+                                else
+                                    ftpController.StartFTPConnection();
+                            }
+
+                            if (tokens[1] == "uploadFile")
+                                ftpController.UploadFile(tokens[2], tokens[3]);
+                            else if (tokens[1] == "downloadFile")
+                                ftpController.DownloadFile(tokens[2], tokens[3]);
+                            else if (tokens[1] == "uploadDirectory")
+                                ftpController.UploadDirectory(tokens[2], tokens[3]);
+                            else if (tokens[1] == "uploadDirectory")
+                                ftpController.DownloadDirectory(tokens[2], tokens[3]);
+                            else if (tokens[1] == "close")
+                                ftpController.Terminate();
+                            break;
                         default:
-                            AddTextToConsole("Command does not exist");
+                            AddTextToConsole("Command does not exist...");
                             break;
                     }
                 }
@@ -756,7 +783,7 @@ namespace CustomShell
 
             if (e.KeyCode == Keys.Down)
             {
-                if(historyIndex > 0 && historyIndex <= history.Count)
+                if (historyIndex > 0 && historyIndex <= history.Count)
                 {
                     inputBox.Text = string.Concat(InputPrefix(), " ", history[history.Count - historyIndex]); //Clear input area
                     inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
@@ -775,7 +802,7 @@ namespace CustomShell
             }
             else if (e.Control && e.KeyCode == Keys.H)//Toggle syntax highlighting
             {
-                if(syntaxHighlight == true)
+                if (syntaxHighlight == true)
                 {
                     syntaxHighlight = false;
                     wand.RemoveSyntaxHighlight();
@@ -790,6 +817,12 @@ namespace CustomShell
             {
                 wand.Exit();
             }
+        }
+
+        private void MainController_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (ftpController != null)
+                ftpController = null;
         }
     }
 }
