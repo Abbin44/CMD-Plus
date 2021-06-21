@@ -68,7 +68,7 @@ namespace CustomShell
                 main.inputBox.Text = main.InputPrefix(); //Clear input console
                 hasFileLoaded = true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 main.wandTextBox.Visible = false;
                 main.outputBox.Visible = true;

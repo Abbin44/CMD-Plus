@@ -28,10 +28,9 @@ namespace CustomShell
             }
             catch (Exception)
             {
-                MainController.controller.AddTextToConsole("An error occured, did you enter the right login credentials?");
+                MainController.controller.AddTextToConsole("An error occured, please try again...");
+                return;
             }
-
-
         }
         public void StartFTPConnection()
         {
@@ -45,6 +44,7 @@ namespace CustomShell
             }
             catch (Exception)
             {
+                MainController.controller.AddTextToConsole("An error occured, did you enter the right login credentials?");
                 return;
             }
         }
@@ -67,26 +67,73 @@ namespace CustomShell
                 DateTime time = client.GetModifiedTime(item.FullName);
                 MainController.controller.AddFTPItemToConsole(item);
             }
+
+            MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
+            MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
         }
 
         public void UploadFile(string from, string to)
         {
-            client.UploadFile(from, to);
+            try
+            {
+                client.UploadFile(from, to);
+                MainController.controller.AddTextToConsole("Successfully uploaded file...");
+                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
+                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+            }
+            catch (Exception)
+            {
+                MainController.controller.AddTextToConsole("Could not upload file...");
+                return;
+            }
         }
 
-        public void DownloadFile(string from, string to)
+        public void DownloadFile(string to, string from)
         {
-            client.DownloadFile(from, to);
+            try
+            {
+                client.DownloadFile(to, from);
+                MainController.controller.AddTextToConsole("Successfully downloaded file...");
+                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
+                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+            }
+            catch (Exception)
+            {
+                MainController.controller.AddTextToConsole("Could not download file...");
+                return;
+            }
         }
 
         public void UploadDirectory(string from, string to)
         {
-            client.UploadDirectory(from, to);
+            try
+            {
+                client.UploadDirectory(from, to);
+                MainController.controller.AddTextToConsole("Successfully uploaded directory...");
+                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
+                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+            }
+            catch (Exception)
+            {
+                MainController.controller.AddTextToConsole("Could not upload directory...");
+                return;
+            }
         }
 
-        public void DownloadDirectory(string from, string to)
+        public void DownloadDirectory(string to, string from)
         {
-            client.DownloadDirectory(from, to);
+            try
+            {
+                client.DownloadDirectory(to, from);
+                MainController.controller.AddTextToConsole("Successfully downloaded directory...");
+                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
+                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+            }
+            catch (Exception)
+            {
+                MainController.controller.AddTextToConsole("Could not download directory...");
+                return;
+            }
         }
 
         public void Terminate()

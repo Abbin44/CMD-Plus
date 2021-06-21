@@ -111,7 +111,13 @@ namespace CustomShell
 
         public void AddFTPItemToConsole(FtpListItem item)
         {
-
+            StringBuilder sb = new StringBuilder();
+            sb.Append(item.FullName);
+            sb.Append("               ");
+            sb.Append(item.Modified);
+            sb.Append("               ");
+            sb.Append(FormatBytes(item.Size));
+            AddTextToConsole(sb.ToString());
         }
 
         public string FormatBytes(long bytes)
@@ -751,8 +757,16 @@ namespace CustomShell
                                 ftpController.DownloadFile(tokens[2], tokens[3]);
                             else if (tokens[1] == "uploadDirectory")
                                 ftpController.UploadDirectory(tokens[2], tokens[3]);
-                            else if (tokens[1] == "uploadDirectory")
+                            else if (tokens[1] == "downloadDirectory")
                                 ftpController.DownloadDirectory(tokens[2], tokens[3]);
+                            else if (tokens[1] == "ls")
+                            {
+                                AddTextToConsole("Path               Last Modified               Size");
+                                if (tokens.Length > 2)
+                                    ftpController.GetDir(tokens[2]);
+                                else
+                                    ftpController.GetDir("\\");
+                            }
                             else if (tokens[1] == "close")
                                 ftpController.Terminate();
                             break;
