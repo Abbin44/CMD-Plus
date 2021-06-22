@@ -22,6 +22,7 @@ A custom shell that allows you to run a bunch of different commands, including e
 + Misc
     + Run ANY batch command
     + Execute .bat files
+    + Interact with FPT/FTPS servers
     + List all running processes
     + Kill a process
     + Use the && operator to run multiple commands
