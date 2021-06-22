@@ -651,6 +651,39 @@ namespace CustomShell
                                     batch = new BatchInterpreter();
                                 batch.ExecuteCommand(tokens);
                                 break;
+                            case true when cmds[i].StartsWith("ftp"):
+                                if (ftpController == null)
+                                {
+                                    ftpController = new FTPController(tokens[1]);
+                                    if (tokens[2] == "true")
+                                        ftpController.StartFTPSConnection(tokens[3], tokens[4]);
+                                    else
+                                        ftpController.StartFTPConnection();
+                                }
+
+                                if (tokens[1] == "uploadFile")
+                                    ftpController.UploadFile(tokens[2], tokens[3]);
+                                else if (tokens[1] == "downloadFile")
+                                    ftpController.DownloadFile(tokens[2], tokens[3]);
+                                else if (tokens[1] == "uploadDirectory")
+                                    ftpController.UploadDirectory(tokens[2], tokens[3]);
+                                else if (tokens[1] == "downloadDirectory")
+                                    ftpController.DownloadDirectory(tokens[2], tokens[3]);
+                                else if (tokens[1] == "deleteFile")
+                                    ftpController.DeleteFile(tokens[2]);
+                                else if (tokens[1] == "deleteDirectory")
+                                    ftpController.DeleteDirectory(tokens[2]);
+                                else if (tokens[1] == "ls")
+                                {
+                                    AddTextToConsole("Path               Last Modified               Size");
+                                    if (tokens.Length > 2)
+                                        ftpController.GetDir(tokens[2]);
+                                    else
+                                        ftpController.GetDir("\\");
+                                }
+                                else if (tokens[1] == "close")
+                                    ftpController.Terminate();
+                                break;
                             default:
                                 AddTextToConsole("Command does not exist");
                                 break;
@@ -759,6 +792,10 @@ namespace CustomShell
                                 ftpController.UploadDirectory(tokens[2], tokens[3]);
                             else if (tokens[1] == "downloadDirectory")
                                 ftpController.DownloadDirectory(tokens[2], tokens[3]);
+                            else if (tokens[1] == "deleteFile")
+                                ftpController.DeleteFile(tokens[2]);
+                            else if (tokens[1] == "deleteDirectory")
+                                ftpController.DeleteDirectory(tokens[2]);
                             else if (tokens[1] == "ls")
                             {
                                 AddTextToConsole("Path               Last Modified               Size");

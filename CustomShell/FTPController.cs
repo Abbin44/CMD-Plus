@@ -50,23 +50,10 @@ namespace CustomShell
         }
         public void GetDir(string dir)
         {
+            dir = MainController.controller.GetFullPathFromName(dir);
+
             foreach (FtpListItem item in client.GetListing(dir))
-            {
-
-                // if this is a file
-                if (item.Type == FtpFileSystemObjectType.File)
-                {
-                    // get the file size
-                    long size = client.GetFileSize(item.FullName);
-
-                    // calculate a hash for the file on the server side (default algorithm)
-                    FtpHash hash = client.GetChecksum(item.FullName);
-                }
-
-                // get modified date/time of the file or folder
-                DateTime time = client.GetModifiedTime(item.FullName);
                 MainController.controller.AddFTPItemToConsole(item);
-            }
 
             MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
             MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
@@ -132,6 +119,38 @@ namespace CustomShell
             catch (Exception)
             {
                 MainController.controller.AddTextToConsole("Could not download directory...");
+                return;
+            }
+        }
+
+        public void DeleteFile(string path)
+        {
+            try
+            {
+                client.DeleteFile(path);
+                MainController.controller.AddTextToConsole("Successfully deleted the file...");
+                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
+                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+            }
+            catch (Exception)
+            {
+                MainController.controller.AddTextToConsole("Could not delete file...");
+                return;
+            }
+        }
+
+        public void DeleteDirectory(string path)
+        {
+            try
+            {
+                client.DeleteDirectory(path);
+                MainController.controller.AddTextToConsole("Successfully deleted the directory...");
+                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
+                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+            }
+            catch (Exception)
+            {
+                MainController.controller.AddTextToConsole("Could not delete directory...");
                 return;
             }
         }
