@@ -29,6 +29,7 @@ namespace CustomShell
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainController));
             this.outputBox = new System.Windows.Forms.RichTextBox();
             this.inputBox = new System.Windows.Forms.RichTextBox();
             this.wandTextBox = new System.Windows.Forms.RichTextBox();
@@ -90,6 +91,7 @@ namespace CustomShell
             this.Controls.Add(this.wandTextBox);
             this.Controls.Add(this.inputBox);
             this.Controls.Add(this.outputBox);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Name = "MainController";
             this.Text = "CMD++";
