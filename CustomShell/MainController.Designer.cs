@@ -65,6 +65,7 @@ namespace CustomShell
             this.inputBox.TabStop = false;
             this.inputBox.Text = "";
             this.inputBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.inputBox_KeyDown);
+            this.inputBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.inputBox_KeyUp);
             // 
             // wandTextBox
             // 
