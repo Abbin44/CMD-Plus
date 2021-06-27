@@ -380,30 +380,39 @@ namespace CustomShell
         public void DisplayHelp()
         {
             StringBuilder sb = new StringBuilder();
+            sb.Append("Not everything can be displayed here, please refer to https://github.com/Abbin44/CMD-Plus/wiki for more help\n");
             sb.Append("() means optional parameter\n");
             sb.Append("------------------------------------------------------------------------------------------\n");
-            sb.Append("cd [Path]                       | Change directory\n");
-            sb.Append("ls (Path)                       | List all files and folders in a directory\n");
-            sb.Append("mkdir [Path]                    | Creates a folder\n");
-            sb.Append("mkfile [Path]                   | Creates a file\n");
-            sb.Append("cp [InputPath] (OutputPath)     | Copies a file\n");
-            sb.Append("mv [InputPath] [OutputPath]     | Moves a file or folder\n");
-            sb.Append("rm [Path]                       | Removes a file or folder\n");
-            sb.Append("exec [PathToExe]                | Executes an .EXE file\n");
-            sb.Append("open [PathToFile]               | Opens a file with the standard app\n");
-            sb.Append("extr [PathToZip] (OutputFolder) | Extracts a zip file\n");
-            sb.Append("compr [Path] (OutputArchive)    | Compresses a foler or file into a zip\n");
-            sb.Append("calc [Equation]                 | Calculates the given equation\n");
-            sb.Append("size [Path]                     | Gets the size of a folder\n");
-            sb.Append("peek [Path]                     | Prints all the text in a file\n");
-            sb.Append("wand [Path]                     | Lets you edit a file. CTRL + S to save. CTRL + Q to quit\n");
-            sb.Append("listproc                        | Lists all running processes\n");
-            sb.Append("killproc [ID]                   | Lets you kill a process\n");
-            sb.Append("batch [CommandOrBatFile]        | Lets you run any batch command or script file\n");
-            sb.Append("clear                           | Clears the console\n");
-            sb.Append("help                            | Display help\n");
-            sb.Append("shutdown                        | Shuts down the computer\n");
-            sb.Append("exit                            | Exits the shell");
+            sb.Append("cd [Path]                                        | Change directory\n");
+            sb.Append("ls (Path)                                        | List all files and folders in a directory\n");
+            sb.Append("mkdir [Path]                                     | Creates a folder\n");
+            sb.Append("mkfile [Path]                                    | Creates a file\n");
+            sb.Append("cp [InputPath] (OutputPath)                      | Copies a file\n");
+            sb.Append("mv [InputPath] [OutputPath]                      | Moves a file or folder\n");
+            sb.Append("rm [Path]                                        | Removes a file or folder\n");
+            sb.Append("exec [PathToExe]                                 | Executes an .EXE file\n");
+            sb.Append("open [PathToFile]                                | Opens a file with the standard app\n");
+            sb.Append("extr [PathToZip] (OutputFolder)                  | Extracts a zip file\n");
+            sb.Append("compr [Path] (OutputArchive)                     | Compresses a foler or file into a zip\n");
+            sb.Append("calc [Equation]                                  | Calculates the given equation\n");
+            sb.Append("size [Path]                                      | Gets the size of a folder\n");
+            sb.Append("peek [Path]                                      | Prints all the text in a file\n");
+            sb.Append("wand [Path]                                      | Lets you edit a file. CTRL + S to save. CTRL + Q to quit\n");
+            sb.Append("listproc                                         | Lists all running processes\n");
+            sb.Append("killproc [ID]                                    | Lets you kill a process\n");
+            sb.Append("batch [CommandOrBatFile]                         | Lets you run any batch command or script file\n");
+            sb.Append("clear                                            | Clears the console\n");
+            sb.Append("fcolor [Color]                                   | Changes the text color of the console\n");
+            sb.Append("bcolor [Color]                                   | Changes the back color of the console\n");
+            sb.Append("ftp [ip] [true/false] (username) (Password)      | Starts an FTP/FTPS Connection\n");
+            sb.Append("ftp uploadFile [local path] [remote path]        | Uploads a file to the FTP server\n");
+            sb.Append("ftp downloadFile [local path] [remote path]      | Downloads a file from the FTP server\n");
+            sb.Append("ftp uploadDirectory [local path] [remote path]   | Uploads a directory to the FTP server\n");
+            sb.Append("ftp downloadDirectory [local path] [remote path] | Downloads a directory from the FTP server\n");
+            sb.Append("ftp close                                        | Terminates the connection to the FTP server\n");
+            sb.Append("help                                             | Display help\n");
+            sb.Append("shutdown                                         | Shuts down the computer\n");
+            sb.Append("exit                                             | Exits the shell");
 
             AddTextToConsole(sb.ToString());
             inputBox.Text = InputPrefix();
@@ -684,6 +693,100 @@ namespace CustomShell
                                 else if (tokens[1] == "close")
                                     ftpController.Terminate();
                                 break;
+                            case true when cmds[i].StartsWith("fcolor"):
+                                string fcolor = tokens[1].ToUpper();
+
+                                if (fcolor == "RED" || fcolor == "01" || fcolor == "1")
+                                {
+                                    outputBox.ForeColor = Color.Red;
+                                    inputBox.ForeColor = Color.Red;
+                                }
+                                else if (fcolor == "GREEN" || fcolor == "02" || fcolor == "2")
+                                {
+                                    outputBox.ForeColor = Color.Green;
+                                    inputBox.ForeColor = Color.Green;
+                                }
+                                else if (fcolor == "YELLOW" || fcolor == "03" || fcolor == "3")
+                                {
+                                    outputBox.ForeColor = Color.Yellow;
+                                    inputBox.ForeColor = Color.Yellow;
+                                }
+                                else if (fcolor == "ORANGE" || fcolor == "04" || fcolor == "4")
+                                {
+                                    outputBox.ForeColor = Color.Orange;
+                                    inputBox.ForeColor = Color.Orange;
+                                }
+                                else if (fcolor == "BLUE" || fcolor == "05" || fcolor == "5")
+                                {
+                                    outputBox.ForeColor = Color.Blue;
+                                    inputBox.ForeColor = Color.Blue;
+                                }
+                                else if (fcolor == "WHITE" || fcolor == "06" || fcolor == "6")
+                                {
+                                    outputBox.ForeColor = Color.White;
+                                    inputBox.ForeColor = Color.White;
+                                }
+                                else if (fcolor == "TURQUOISE" || fcolor == "07" || fcolor == "7")
+                                {
+                                    outputBox.ForeColor = Color.Turquoise;
+                                    inputBox.ForeColor = Color.Turquoise;
+                                }
+                                else if (fcolor == "BLACK" || fcolor == "08" || fcolor == "8")
+                                {
+                                    outputBox.ForeColor = Color.Black;
+                                    inputBox.ForeColor = Color.Black;
+                                }
+
+                                inputBox.Text = InputPrefix();
+                                inputBox.SelectionStart = inputBox.Text.Length;
+                                break;
+                            case true when cmds[i].StartsWith("bcolor"):
+                                string bcolor = tokens[1].ToUpper();
+
+                                if (bcolor == "RED" || bcolor == "01" || bcolor == "1")
+                                {
+                                    outputBox.BackColor = Color.Red;
+                                    inputBox.BackColor = Color.Red;
+                                }
+                                else if (bcolor == "GREEN" || bcolor == "02" || bcolor == "2")
+                                {
+                                    outputBox.BackColor = Color.Green;
+                                    inputBox.BackColor = Color.Green;
+                                }
+                                else if (bcolor == "YELLOW" || bcolor == "03" || bcolor == "3")
+                                {
+                                    outputBox.BackColor = Color.Yellow;
+                                    inputBox.BackColor = Color.Yellow;
+                                }
+                                else if (bcolor == "ORANGE" || bcolor == "04" || bcolor == "4")
+                                {
+                                    outputBox.BackColor = Color.Orange;
+                                    inputBox.BackColor = Color.Orange;
+                                }
+                                else if (bcolor == "BLUE" || bcolor == "05" || bcolor == "5")
+                                {
+                                    outputBox.BackColor = Color.Blue;
+                                    inputBox.BackColor = Color.Blue;
+                                }
+                                else if (bcolor == "WHITE" || bcolor == "06" || bcolor == "6")
+                                {
+                                    outputBox.BackColor = Color.White;
+                                    inputBox.BackColor = Color.White;
+                                }
+                                else if (bcolor == "TURQUOISE" || bcolor == "07" || bcolor == "7")
+                                {
+                                    outputBox.BackColor = Color.Turquoise;
+                                    inputBox.BackColor = Color.Turquoise;
+                                }
+                                else if (bcolor == "BLACK" || bcolor == "08" || bcolor == "8")
+                                {
+                                    outputBox.BackColor = Color.Black;
+                                    inputBox.BackColor = Color.Black;
+                                }
+
+                                inputBox.Text = InputPrefix();
+                                inputBox.SelectionStart = inputBox.Text.Length;
+                                break;
                             default:
                                 AddTextToConsole("Command does not exist");
                                 break;
@@ -806,6 +909,100 @@ namespace CustomShell
                             }
                             else if (tokens[1] == "close")
                                 ftpController.Terminate();
+                            break;
+                        case "fcolor":
+                            string fcolor = tokens[1].ToUpper();
+
+                            if(fcolor == "RED" || fcolor == "01" || fcolor == "1")
+                            {
+                                outputBox.ForeColor = Color.Red;
+                                inputBox.ForeColor = Color.Red;
+                            }
+                            else if (fcolor == "GREEN" || fcolor == "02" || fcolor == "2")
+                            {
+                                outputBox.ForeColor = Color.Green;
+                                inputBox.ForeColor = Color.Green;
+                            }
+                            else if (fcolor == "YELLOW" || fcolor == "03" || fcolor == "3")
+                            {
+                                outputBox.ForeColor = Color.Yellow;
+                                inputBox.ForeColor = Color.Yellow;
+                            }
+                            else if (fcolor == "ORANGE" || fcolor == "04" || fcolor == "4")
+                            {
+                                outputBox.ForeColor = Color.Orange;
+                                inputBox.ForeColor = Color.Orange;
+                            }
+                            else if (fcolor == "BLUE" || fcolor == "05" || fcolor == "5")
+                            {
+                                outputBox.ForeColor = Color.Blue;
+                                inputBox.ForeColor = Color.Blue;
+                            }
+                            else if (fcolor == "WHITE" || fcolor == "06" || fcolor == "6")
+                            {
+                                outputBox.ForeColor = Color.White;
+                                inputBox.ForeColor = Color.White;
+                            }
+                            else if (fcolor == "TURQUOISE" || fcolor == "07" || fcolor == "7")
+                            {
+                                outputBox.ForeColor = Color.Turquoise;
+                                inputBox.ForeColor = Color.Turquoise;
+                            }
+                            else if (fcolor == "BLACK" || fcolor == "08" || fcolor == "8")
+                            {
+                                outputBox.ForeColor = Color.Black;
+                                inputBox.ForeColor = Color.Black;
+                            }
+
+                            inputBox.Text = InputPrefix();
+                            inputBox.SelectionStart = inputBox.Text.Length;
+                            break;
+                        case "bcolor":
+                            string bcolor = tokens[1].ToUpper();
+
+                            if (bcolor == "RED" || bcolor == "01" || bcolor == "1")
+                            {
+                                outputBox.BackColor = Color.Red;
+                                inputBox.BackColor = Color.Red;
+                            }
+                            else if (bcolor == "GREEN" || bcolor == "02" || bcolor == "2")
+                            {
+                                outputBox.BackColor = Color.Green;
+                                inputBox.BackColor = Color.Green;
+                            }
+                            else if (bcolor == "YELLOW" || bcolor == "03" || bcolor == "3")
+                            {
+                                outputBox.BackColor = Color.Yellow;
+                                inputBox.BackColor = Color.Yellow;
+                            }
+                            else if (bcolor == "ORANGE" || bcolor == "04" || bcolor == "4")
+                            {
+                                outputBox.BackColor = Color.Orange;
+                                inputBox.BackColor = Color.Orange;
+                            }
+                            else if (bcolor == "BLUE" || bcolor == "05" || bcolor == "5")
+                            {
+                                outputBox.BackColor = Color.Blue;
+                                inputBox.BackColor = Color.Blue;
+                            }
+                            else if (bcolor == "WHITE" || bcolor == "06" || bcolor == "6")
+                            {
+                                outputBox.BackColor = Color.White;
+                                inputBox.BackColor = Color.White;
+                            }
+                            else if (bcolor == "TURQUOISE" || bcolor == "07" || bcolor == "7")
+                            {
+                                outputBox.BackColor = Color.Turquoise;
+                                inputBox.BackColor = Color.Turquoise;
+                            }
+                            else if (bcolor == "BLACK" || bcolor == "08" || bcolor == "8")
+                            {
+                                outputBox.BackColor = Color.Black;
+                                inputBox.BackColor = Color.Black;
+                            }
+
+                            inputBox.Text = InputPrefix();
+                            inputBox.SelectionStart = inputBox.Text.Length;
                             break;
                         default:
                             AddTextToConsole("Command does not exist...");
