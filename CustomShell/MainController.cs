@@ -21,6 +21,7 @@ namespace CustomShell
         Compression comp;
         BatchInterpreter batch;
         FTPController ftpController;
+        SSHClient sshClient;
         LocalDirectory localDirectory;
         public static MainController controller { get; private set; }
 
@@ -546,9 +547,10 @@ namespace CustomShell
         #endregion
 
         int historyIndex = 0;
+        public string[] tokens;
+
         private void inputBox_KeyDown(object sender, KeyEventArgs e)
         {
-            string[] tokens;
             //When command is entered
             if (e.KeyCode == Keys.Enter)
             {
@@ -789,6 +791,26 @@ namespace CustomShell
 
                             inputBox.Text = InputPrefix();
                             inputBox.SelectionStart = inputBox.Text.Length;
+                            break;
+                        case true when cmds[i].StartsWith("ssh"):
+                            if(sshClient == null)
+                                sshClient = new SSHClient();
+
+                            if (tokens[0] == "sshCom" || tokens[0] == "sshcom")
+                            {
+                                StringBuilder sb = new StringBuilder();
+                                for (int x = 1; x < tokens.Length; ++x)
+                                {
+                                    sb.Append(tokens[x]);
+                                    if(x + 1 < tokens.Length)
+                                        sb.Append(" ");
+                                }
+                                sshClient.SendCommand(sb.ToString());
+                            }
+                            else if (tokens[0] == "ssh" && tokens[1] == "close")
+                                sshClient.TerminateConnection();
+                            else if(tokens[0] == "ssh" && tokens[1] == "connect")
+                                sshClient.EstablishConnection(tokens[2], tokens[3], tokens[4]);
                             break;
                         default:
                             AddTextToConsole("Command does not exist");
