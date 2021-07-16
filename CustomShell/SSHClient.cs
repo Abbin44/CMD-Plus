@@ -10,7 +10,7 @@ namespace CustomShell
 {
     class SSHClient
     {
-        SshClient client;
+        public SshClient client;
         public SSHClient()
         {
             

@@ -15,7 +15,6 @@ namespace CustomShell
     {
         string currentDir = @"C:/";
         List<string> history = new List<string>();
-        List<string> queue = new List<string>();
         WandEditor wand;
         Processes proc;
         Compression comp;
@@ -889,6 +888,9 @@ namespace CustomShell
         {
             if (ftpController != null)
                 ftpController = null;
+
+            if (sshClient.client.IsConnected)
+                sshClient.TerminateConnection();
         }
     }
 }
