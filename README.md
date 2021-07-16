@@ -19,10 +19,12 @@ A custom shell that allows you to run a bunch of different commands, including e
     + Open files with their standard app
     + Print the contents of a file
     + Edit and save the contents of a file
++ Servers
+    + Interact with FPT/FTPS servers
+    + Interact with servers using SSH
 + Misc
     + Run ANY batch command
     + Execute .bat files
-    + Interact with FPT/FTPS servers
     + List all running processes
     + Kill a process
     + Use the && operator to run multiple commands
