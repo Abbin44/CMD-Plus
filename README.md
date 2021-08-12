@@ -1,5 +1,7 @@
 # CMD++
 A custom shell that allows you to run a bunch of different commands, including everything from CMD/Batch
+
+I am grateful for any feature suggestions or beg reports that you leave. You can do so in the issues tab!
 ![alt text](https://github.com/Abbin44/Custom-Shell/blob/master/preview_image.png?raw=true)
 
 ### Check the github wiki page for more in depth info about the commands.
