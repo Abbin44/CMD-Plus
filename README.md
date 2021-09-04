@@ -1,4 +1,8 @@
 # CMD++
+![](https://img.shields.io/github/downloads/Abbin44/CMD-Plus/total?color=orange&label=Downloads)
+
+
+
 A custom shell that allows you to run a bunch of different commands, including everything from CMD/Batch
 
 I am grateful for any feature suggestions or bug reports that you leave. You can do so in the issues tab!
