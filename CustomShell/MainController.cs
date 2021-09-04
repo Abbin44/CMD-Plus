@@ -410,6 +410,9 @@ namespace CustomShell
             sb.Append("ftp uploadDirectory [local path] [remote path]   | Uploads a directory to the FTP server\n");
             sb.Append("ftp downloadDirectory [local path] [remote path] | Downloads a directory from the FTP server\n");
             sb.Append("ftp close                                        | Terminates the connection to the FTP server\n");
+            sb.Append("ssh connect [host] [user] [password]             | Opens a connection to the SSH host\n");
+            sb.Append("sshCom [SSH Command]                             | Executes an SSH command an returns the result\n");
+            sb.Append("ssh close                                        | Terminates the connection to the SSH host\n");
             sb.Append("help                                             | Display help\n");
             sb.Append("shutdown                                         | Shuts down the computer\n");
             sb.Append("exit                                             | Exits the shell");
@@ -889,8 +892,9 @@ namespace CustomShell
             if (ftpController != null)
                 ftpController = null;
 
-            if (sshClient.client.IsConnected)
-                sshClient.TerminateConnection();
+            if(sshClient != null)
+                if (sshClient.client.IsConnected)
+                    sshClient.TerminateConnection();
         }
     }
 }

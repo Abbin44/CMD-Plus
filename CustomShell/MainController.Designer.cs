@@ -37,10 +37,10 @@ namespace CustomShell
             // 
             // outputBox
             // 
-            this.outputBox.BackColor = System.Drawing.Color.Black;
+            this.outputBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(49)))), ((int)(((byte)(49)))));
             this.outputBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.outputBox.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.outputBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
+            this.outputBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(119)))), ((int)(((byte)(68)))));
             this.outputBox.HideSelection = false;
             this.outputBox.Location = new System.Drawing.Point(0, 0);
             this.outputBox.Name = "outputBox";
@@ -52,10 +52,10 @@ namespace CustomShell
             // 
             // inputBox
             // 
-            this.inputBox.BackColor = System.Drawing.Color.Black;
+            this.inputBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(49)))), ((int)(((byte)(49)))));
             this.inputBox.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.inputBox.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.inputBox.ForeColor = System.Drawing.Color.Red;
+            this.inputBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(119)))), ((int)(((byte)(68)))));
             this.inputBox.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.inputBox.Location = new System.Drawing.Point(0, 434);
             this.inputBox.Multiline = false;
@@ -69,10 +69,10 @@ namespace CustomShell
             // 
             // wandTextBox
             // 
-            this.wandTextBox.BackColor = System.Drawing.Color.Black;
+            this.wandTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(49)))), ((int)(((byte)(49)))));
             this.wandTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wandTextBox.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.wandTextBox.ForeColor = System.Drawing.Color.Aqua;
+            this.wandTextBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(119)))), ((int)(((byte)(68)))));
             this.wandTextBox.HideSelection = false;
             this.wandTextBox.Location = new System.Drawing.Point(0, 0);
             this.wandTextBox.Name = "wandTextBox";
