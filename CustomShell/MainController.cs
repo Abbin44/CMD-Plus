@@ -14,7 +14,9 @@ namespace CustomShell
     public partial class MainController : Form
     {
         string currentDir = @"C:/";
-        List<string> history = new List<string>();
+        string historyFilePath = @"C:\Users\" + Environment.UserName + @"\AppData\Local\CMD++\cmdHistory.log";
+        string[] cmdHistory;
+        int historyLen;
         WandEditor wand;
         Processes proc;
         Compression comp;
@@ -28,10 +30,17 @@ namespace CustomShell
         {
             InitializeComponent();
 
+            if (!Directory.Exists(@"C:\Users\" + Environment.UserName + @"\AppData\Local\CMD++"))
+                Directory.CreateDirectory(@"C:\Users\" + Environment.UserName + @"\AppData\Local\CMD++");
+
+            if (!File.Exists(historyFilePath))
+                File.Create(historyFilePath);
+
             if (controller != null)
-                throw new Exception("Only one instance of cMainForm may ever exist!");
+                throw new Exception("Only one instance of MainController may ever exist!");
 
             controller = this;
+            LoadHistoryFile();
             InitConsole();
         }
 
@@ -96,10 +105,21 @@ namespace CustomShell
             outputBox.AppendText(command + "\n");
             outputBox.SelectionStart = outputBox.TextLength;
             outputBox.ScrollToCaret();
-            history.Add(command);
-
+            UpdateHistoryFile(command);//Update history file
+            LoadHistoryFile();         //And load it in to a new array
             inputBox.Text = InputPrefix(); //Clear input area
             inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
+        }
+
+        public void UpdateHistoryFile(string command)
+        {
+            File.AppendAllText(historyFilePath, command + "\n");
+        }
+
+        public void LoadHistoryFile()
+        {
+            cmdHistory = File.ReadAllLines(historyFilePath);
+            historyLen = cmdHistory.Length;
         }
 
         public void AddTextToConsole(string text)
@@ -209,6 +229,35 @@ namespace CustomShell
                     AddTextToConsole("Cannot access directory. Please run shell as admin.");
                     return;
                 }
+            }
+        }
+        public void Rename(string[] tokens)
+        {
+            string path = string.Empty;
+            string name = string.Empty;
+
+            if (!tokens[1].Contains(@":\"))
+                path = GetFullPathFromName(tokens[1]);
+            else
+                path = tokens[1];
+
+            if (!tokens[2].Contains(@":\"))
+                name = GetFullPathFromName(tokens[2]);
+            else
+                name = tokens[2];
+
+            try
+            {
+                if (path.Contains("."))
+                    File.Move(path, name);
+                else
+                    Directory.Move(path, name);
+
+                AddCommandToConsole(tokens);
+            }
+            catch (Exception e)
+            {
+                AddTextToConsole("Cannot find file path, did you enter the right name?");
             }
         }
 
@@ -548,11 +597,17 @@ namespace CustomShell
         }
         #endregion
 
-        int historyIndex = 0;
         public string[] tokens;
-
+        int historyIndex;
+        bool firstClick = true;
         private void inputBox_KeyDown(object sender, KeyEventArgs e)
         {
+            if(firstClick == true)
+            {
+                historyLen = cmdHistory.Length;
+                historyIndex = historyLen - 1;
+            }
+
             //When command is entered
             if (e.KeyCode == Keys.Enter)
             {
@@ -601,6 +656,9 @@ namespace CustomShell
                             break;
                         case true when cmds[i].StartsWith("cp"):
                             CopyFile(tokens);
+                            break;
+                        case true when cmds[i].StartsWith("rename"):
+                            Rename(tokens);
                             break;
                         case true when cmds[i].StartsWith("mv"):
                             Move(tokens);
@@ -830,28 +888,41 @@ namespace CustomShell
             }
 
             #region History
+            /*
+            The Command History system is extremley janky with a lot of shenanigans
+            Don't ever change this in the future because it is not understandable
+            firstClick needs to be there so that we stay inside of bounds and
+            only change the index by 1, if there is no bool it will either 
+            go out of bounds or change index by 2
+            */
             if (e.KeyCode == Keys.Up)
             {
                 e.Handled = true;
-                if (historyIndex >= 0 && historyIndex < history.Count)
+                if (historyIndex > 0 && historyIndex <= cmdHistory.Length)
                 {
-                    inputBox.Text = string.Concat(InputPrefix(), " ", history[history.Count - historyIndex - 1]); //Clear input area
+                    if(firstClick == false)
+                        --historyIndex;
+                    inputBox.Text = string.Concat(InputPrefix(), " ", cmdHistory[historyIndex]);
                     inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
-                    ++historyIndex;
+
+                    if(firstClick == true)
+                        firstClick = false;
                 }
             }
 
             if (e.KeyCode == Keys.Down)
             {
                 e.Handled = true;
-                if (historyIndex > 0 && historyIndex <= history.Count)
+                if (historyIndex >= 0 && historyIndex < cmdHistory.Length - 1)
                 {
-                    inputBox.Text = string.Concat(InputPrefix(), " ", history[history.Count - historyIndex]); //Clear input area
+                    if (firstClick == false)
+                        ++historyIndex;
+                    inputBox.Text = string.Concat(InputPrefix(), " ", cmdHistory[historyIndex]); 
                     inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
-                    --historyIndex;
+                    if (firstClick == true)
+                        firstClick = false;
                 }
             }
-
             #endregion
         }
 
