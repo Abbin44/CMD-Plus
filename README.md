@@ -10,12 +10,15 @@ I am grateful for any feature suggestions or bug reports that you leave. You can
 
 ### Check the github wiki page for more in depth info about the commands.
 
+**I Recommend running the shell as administrator since certain commands does not work without admin privilege**
+
+The command history log is saved in a file in `C:\Users\%username%\AppData\Local\CMD++\cmdHistory.log`
 ### What can the shell do?
 + File Maganement
-    + Make and Delete Files
-    + Make and Delete Folders
+    + Make and Delete Files and Folders
     + Copy and Move Files
-    + Copy Folders    
+    + Copy Folders
+    + Rename Files and Folders
     + Create .zip files
     + Extract .zip files
     + Get the size of a directory
@@ -29,6 +32,7 @@ I am grateful for any feature suggestions or bug reports that you leave. You can
     + Interact with FPT/FTPS servers
     + Interact with servers using SSH
 + Misc
+    + Save your command history
     + Run ANY batch command
     + Execute .bat files
     + List all running processes
