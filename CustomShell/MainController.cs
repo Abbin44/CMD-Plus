@@ -1,7 +1,6 @@
 ﻿using FluentFTP;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -13,6 +12,7 @@ namespace CustomShell
 {
     public partial class MainController : Form
     {
+        //TODO: Add support for linux filepaths as well, add an OS check in constructor of this class
         string currentDir = @"C:/";
         string historyFilePath = @"C:\Users\" + Environment.UserName + @"\AppData\Local\CMD++\cmdHistory.log";
         string[] cmdHistory;
@@ -24,6 +24,7 @@ namespace CustomShell
         FTPController ftpController;
         SSHClient sshClient;
         LocalDirectory localDirectory;
+        SystemInformation systemInfo;
         public static MainController controller { get; private set; }
 
         public MainController()
@@ -106,14 +107,16 @@ namespace CustomShell
             outputBox.SelectionStart = outputBox.TextLength;
             outputBox.ScrollToCaret();
             UpdateHistoryFile(command);//Update history file
-            LoadHistoryFile();         //And load it in to a new array
             inputBox.Text = InputPrefix(); //Clear input area
             inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
         }
 
         public void UpdateHistoryFile(string command)
         {
-            File.AppendAllText(historyFilePath, command + "\n");
+            if(cmdHistory[cmdHistory.Length - 1] != command)//Check if the last command is the same as the current one so that there are no doubles in the history
+                File.AppendAllText(historyFilePath, command + "\n");
+
+            LoadHistoryFile();//Update history array
         }
 
         public void LoadHistoryFile()
@@ -294,7 +297,6 @@ namespace CustomShell
                     }
                     else
                         AddTextToConsole("Error: make sure the filepath is valid");
-
                 }
             }
             else
@@ -428,6 +430,7 @@ namespace CustomShell
 
         public void DisplayHelp()
         {
+            string[] com = { "help" };
             StringBuilder sb = new StringBuilder();
             sb.Append("Not everything can be displayed here, please refer to https://github.com/Abbin44/CMD-Plus/wiki for more help\n");
             sb.Append("() means optional parameter\n");
@@ -467,6 +470,7 @@ namespace CustomShell
             sb.Append("exit                                             | Exits the shell");
 
             AddTextToConsole(sb.ToString());
+            AddCommandToConsole(com);
             inputBox.Text = InputPrefix();
             inputBox.SelectionStart = inputBox.Text.Length;
         }
@@ -612,7 +616,7 @@ namespace CustomShell
             if (e.KeyCode == Keys.Enter)
             {
                 e.Handled = true;
-
+                historyIndex = cmdHistory.Length - 1;
                 int commands = 1; //Default is one but will be incresed if there are any && in the input line
                 string[] cmds;
                 string input = inputBox.Text;
@@ -711,6 +715,7 @@ namespace CustomShell
                             if (proc == null)
                                 proc = new Processes();
                             proc.ListProcesses();
+                            AddCommandToConsole(tokens);
                             break;
                         case true when cmds[i].StartsWith("killproc"):
                             if (proc == null)
@@ -719,11 +724,19 @@ namespace CustomShell
                             break;
                         case true when cmds[i].StartsWith("calc")://Broken fucking calculator, someone please fix it.
                             CreateTokens(tokens);
+                            AddCommandToConsole(tokens);
                             break;
                         case true when cmds[i].StartsWith("batch"):
                             if (batch == null)
                                 batch = new BatchInterpreter();
                             batch.ExecuteCommand(tokens);
+                            break;
+                        case true when cmds[i].StartsWith("system"):
+                            if (systemInfo == null)
+                                systemInfo = new SystemInformation();
+                            AddCommandToConsole(tokens);
+
+                            systemInfo = null;
                             break;
                         case true when cmds[i].StartsWith("ftp"):
                             if (ftpController == null)
@@ -757,6 +770,8 @@ namespace CustomShell
                             }
                             else if (tokens[1] == "close")
                                 ftpController.Terminate();
+
+                            AddCommandToConsole(tokens);
                             break;
                         case true when cmds[i].StartsWith("fcolor"):
                             string fcolor = tokens[1].ToUpper();
@@ -871,6 +886,8 @@ namespace CustomShell
                                 sshClient.TerminateConnection();
                             else if(tokens[0] == "ssh" && tokens[1] == "connect")
                                 sshClient.EstablishConnection(tokens[2], tokens[3], tokens[4]);
+
+                            AddCommandToConsole(tokens);
                             break;
                         default:
                             AddTextToConsole("Command does not exist");
@@ -913,7 +930,7 @@ namespace CustomShell
             if (e.KeyCode == Keys.Down)
             {
                 e.Handled = true;
-                if (historyIndex >= 0 && historyIndex < cmdHistory.Length - 1)
+                if (historyIndex > 0 && historyIndex < cmdHistory.Length - 1)
                 {
                     if (firstClick == false)
                         ++historyIndex;
@@ -921,6 +938,18 @@ namespace CustomShell
                     inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
                     if (firstClick == true)
                         firstClick = false;
+                }
+                else if(historyIndex == 0 && firstClick == false) //This else if must be here so that you can press down to clear the history if you are at the end
+                {
+                    ++historyIndex;
+                    inputBox.Text = string.Concat(InputPrefix(), " ", cmdHistory[historyIndex]);
+                    inputBox.SelectionStart = inputBox.Text.Length;
+                }
+                else if (historyIndex == cmdHistory.Length - 1)
+                {
+                    ++historyIndex;
+                    inputBox.Text = InputPrefix();
+                    inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
                 }
             }
             #endregion

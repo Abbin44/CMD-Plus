@@ -58,7 +58,7 @@ namespace CustomShell
 
                 /*NOTE TO MYSELF IN THE FUTURE
                  * This über-garbage code is used to remove all escape characters from the CMD stdout text.
-                 * After the text has been printed in the output console the escape chars will not increse the lenght of the string
+                 * After the text has been printed in the output console the escape chars will not increase the lenght of the string
                  * Therefor, you need to remove all escape chars and calculate the offset from that, but there is still small differances
                  * in the offsets, the output cannot be colored until this is solved.
                  * 

@@ -77,6 +77,9 @@ namespace CustomShell
                 else if (nodeTree[i].GetType() == typeof(MinusNode))
                     result += CalcMinusNode((MinusNode)nodeTree[i]);
             }
+            MainController.controller.outputBox.AppendText(result.ToString());
+            nodeTree.Clear(); //Clear nodes to prepare for next input
+            Calculator.pipeline.Clear();
         }
     }
 }
