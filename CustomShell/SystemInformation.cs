@@ -19,13 +19,26 @@ namespace CustomShell
         */
         public SystemInformation()
         {
+            GetIcon();
+        }
+
+        private void CompileInformation()
+        {
+            string os = string.Empty;
+            string cpu = string.Empty;
+            string gpu = string.Empty;
+            string ram = string.Empty;
+            string uptime = string.Empty;
+
+            GetOS();
+            GetCPU();
+            GetGPU();
             GetRAM();
+
         }
 
         private string GetOS()
         {
-            //searcher = new ManagementObjectSearcher("select * from " + Key);
-
             string os = string.Empty;
 
             return os;
@@ -95,6 +108,23 @@ namespace CustomShell
                 }
             }
             return ram;
+        }
+
+        private void GetIcon()
+        {
+            //This is too large, needs to be replaced
+            string icon =
+                $@"________ /\\\\\\\\\_   __/\\\\____________ /\\\\_    __/\\\\\\\\\\\\____    _______________    _______________
+                    _____ /\\\////////__   _\/\\\\\\________/\\\\\\_     _\/\\\////////\\\__    _______________    _______________
+                     ___ /\\\/ __________   _\/\\\//\\\____/\\\//\\\_     _\/\\\______\//\\\_    ______/\\\_____    ______/\\\_____
+                      __ /\\\_____________   _\/\\\\///\\\/\\\/_\/\\\_     _\/\\\_______\/\\\_    _____\/\\\_____    _____\/\\\_____
+                       _\/\\\_____________    _\/\\\__\///\\\/___\/\\\_     _\/\\\_______\/\\\_    __/\\\\\\\\\\\_    __/\\\\\\\\\\\_
+                        _\//\\\____________    _\/\\\____\///_____\/\\\_     _\/\\\_______\/\\\_    _\/////\\\///__    _\/////\\\///__
+                         __\///\\\__________    _\/\\\_____________\/\\\_     _\/\\\_______/\\\__    _____\/\\\_____    _____\/\\\_____
+                          ____\////\\\\\\\\\_    _\/\\\_____________\/\\\_     _\/\\\\\\\\\\\\/___    _____\///______    _____\///______
+                           _______\/////////__    _\///______________\///__     _\////////////_____    _______________    _______________";
+
+            MainController.controller.outputBox.AppendText(icon);
         }
     }
 }

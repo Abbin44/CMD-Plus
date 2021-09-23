@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using static CustomShell.Calculator;
 
@@ -35,7 +36,7 @@ namespace CustomShell
                 Directory.CreateDirectory(@"C:\Users\" + Environment.UserName + @"\AppData\Local\CMD++");
 
             if (!File.Exists(historyFilePath))
-                File.Create(historyFilePath);
+                File.Create(historyFilePath).Close();
 
             if (controller != null)
                 throw new Exception("Only one instance of MainController may ever exist!");
@@ -113,8 +114,9 @@ namespace CustomShell
 
         public void UpdateHistoryFile(string command)
         {
-            if(cmdHistory[cmdHistory.Length - 1] != command)//Check if the last command is the same as the current one so that there are no doubles in the history
-                File.AppendAllText(historyFilePath, command + "\n");
+            if(cmdHistory.Length > 0)
+                if(cmdHistory[cmdHistory.Length - 1] != command)//Check if the last command is the same as the current one so that there are no doubles in the history
+                    File.AppendAllText(historyFilePath, command + "\n");
 
             LoadHistoryFile();//Update history array
         }
@@ -914,6 +916,8 @@ namespace CustomShell
             */
             if (e.KeyCode == Keys.Up)
             {
+                if (cmdHistory.Length == 0 || cmdHistory == null)
+                    return;
                 e.Handled = true;
                 if (historyIndex > 0 && historyIndex <= cmdHistory.Length)
                 {
@@ -929,6 +933,8 @@ namespace CustomShell
 
             if (e.KeyCode == Keys.Down)
             {
+                if (cmdHistory.Length == 0 || cmdHistory == null)
+                    return;
                 e.Handled = true;
                 if (historyIndex > 0 && historyIndex < cmdHistory.Length - 1)
                 {
@@ -965,9 +971,7 @@ namespace CustomShell
         private void wandTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.S)//Save and quit from Wand
-            {
                 wand.SaveAndExit();
-            }
             else if (e.Control && e.KeyCode == Keys.H)//Toggle syntax highlighting
             {
                 if (syntaxHighlight == true)
@@ -982,9 +986,7 @@ namespace CustomShell
                 }
             }
             else if (e.Control && e.KeyCode == Keys.Q)//Quit without save Wand
-            {
                 wand.Exit();
-            }
         }
 
         private void MainController_FormClosing(object sender, FormClosingEventArgs e)
@@ -993,8 +995,15 @@ namespace CustomShell
                 ftpController = null;
 
             if(sshClient != null)
+            {
                 if (sshClient.client.IsConnected)
                     sshClient.TerminateConnection();
+
+                sshClient = null;
+            }
+
+            if (systemInfo != null)
+                systemInfo = null;
         }
     }
 }
