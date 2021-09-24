@@ -115,8 +115,12 @@ namespace CustomShell
         public void UpdateHistoryFile(string command)
         {
             if(cmdHistory.Length > 0)
+            {
                 if(cmdHistory[cmdHistory.Length - 1] != command)//Check if the last command is the same as the current one so that there are no doubles in the history
                     File.AppendAllText(historyFilePath, command + "\n");
+            }
+            else
+                File.AppendAllText(historyFilePath, command + "\n");
 
             LoadHistoryFile();//Update history array
         }
@@ -700,6 +704,7 @@ namespace CustomShell
                             wand.PeekFile(tokens);
                             break;
                         case true when cmds[i].StartsWith("wand"):
+                            AddCommandToConsole(tokens);
                             if (wand == null)
                                 wand = new WandEditor();
                             wand.LoadFile(tokens);
@@ -714,10 +719,10 @@ namespace CustomShell
                             Shutdown();
                             break;
                         case true when cmds[i].StartsWith("listproc"):
+                            AddCommandToConsole(tokens);
                             if (proc == null)
                                 proc = new Processes();
                             proc.ListProcesses();
-                            AddCommandToConsole(tokens);
                             break;
                         case true when cmds[i].StartsWith("killproc"):
                             if (proc == null)
@@ -725,8 +730,8 @@ namespace CustomShell
                             proc.KillProcess(tokens);
                             break;
                         case true when cmds[i].StartsWith("calc")://Broken fucking calculator, someone please fix it.
-                            CreateTokens(tokens);
                             AddCommandToConsole(tokens);
+                            CreateTokens(tokens);
                             break;
                         case true when cmds[i].StartsWith("batch"):
                             if (batch == null)
@@ -734,13 +739,15 @@ namespace CustomShell
                             batch.ExecuteCommand(tokens);
                             break;
                         case true when cmds[i].StartsWith("system"):
+                            AddCommandToConsole(tokens);
                             if (systemInfo == null)
                                 systemInfo = new SystemInformation();
-                            AddCommandToConsole(tokens);
 
                             systemInfo = null;
                             break;
                         case true when cmds[i].StartsWith("ftp"):
+                            AddCommandToConsole(tokens);
+
                             if (ftpController == null)
                             {
                                 ftpController = new FTPController(tokens[1]);
@@ -773,7 +780,6 @@ namespace CustomShell
                             else if (tokens[1] == "close")
                                 ftpController.Terminate();
 
-                            AddCommandToConsole(tokens);
                             break;
                         case true when cmds[i].StartsWith("fcolor"):
                             string fcolor = tokens[1].ToUpper();
@@ -870,7 +876,9 @@ namespace CustomShell
                             inputBox.SelectionStart = inputBox.Text.Length;
                             break;
                         case true when cmds[i].StartsWith("ssh"):
-                            if(sshClient == null)
+                            AddCommandToConsole(tokens);
+
+                            if (sshClient == null)
                                 sshClient = new SSHClient();
 
                             if (tokens[0] == "sshCom" || tokens[0] == "sshcom")
@@ -889,7 +897,6 @@ namespace CustomShell
                             else if(tokens[0] == "ssh" && tokens[1] == "connect")
                                 sshClient.EstablishConnection(tokens[2], tokens[3], tokens[4]);
 
-                            AddCommandToConsole(tokens);
                             break;
                         default:
                             AddTextToConsole("Command does not exist");
@@ -928,6 +935,11 @@ namespace CustomShell
 
                     if(firstClick == true)
                         firstClick = false;
+                }
+                else if (historyIndex == 0) //This else if must be here so that you can press down to clear the history if you are at the end
+                {
+                    inputBox.Text = string.Concat(InputPrefix(), " ", cmdHistory[historyIndex]);
+                    inputBox.SelectionStart = inputBox.Text.Length;
                 }
             }
 
@@ -972,6 +984,8 @@ namespace CustomShell
         {
             if (e.Control && e.KeyCode == Keys.S)//Save and quit from Wand
                 wand.SaveAndExit();
+            else if (e.Control && e.KeyCode == Keys.D)
+                wand.DuplicateLine();
             else if (e.Control && e.KeyCode == Keys.H)//Toggle syntax highlighting
             {
                 if (syntaxHighlight == true)

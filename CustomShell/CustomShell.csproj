@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="BatchInterpreter.cs" />
     <Compile Include="Calculator.cs" />
+    <Compile Include="Coloring.cs" />
     <Compile Include="Compression.cs" />
     <Compile Include="FTPController.cs" />
     <Compile Include="Interpreter.cs" />

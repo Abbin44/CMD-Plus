@@ -38,14 +38,14 @@ namespace CustomShell
             // outputBox
             // 
             this.outputBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(49)))), ((int)(((byte)(49)))));
-            this.outputBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.outputBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.outputBox.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.outputBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(119)))), ((int)(((byte)(68)))));
             this.outputBox.HideSelection = false;
             this.outputBox.Location = new System.Drawing.Point(0, 0);
             this.outputBox.Name = "outputBox";
             this.outputBox.ReadOnly = true;
-            this.outputBox.Size = new System.Drawing.Size(928, 460);
+            this.outputBox.Size = new System.Drawing.Size(928, 435);
             this.outputBox.TabIndex = 0;
             this.outputBox.TabStop = false;
             this.outputBox.Text = "";
@@ -74,9 +74,10 @@ namespace CustomShell
             this.wandTextBox.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.wandTextBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(119)))), ((int)(((byte)(68)))));
             this.wandTextBox.HideSelection = false;
-            this.wandTextBox.Location = new System.Drawing.Point(0, 0);
+            this.wandTextBox.Location = new System.Drawing.Point(0, 435);
             this.wandTextBox.Name = "wandTextBox";
-            this.wandTextBox.Size = new System.Drawing.Size(928, 434);
+            this.wandTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            this.wandTextBox.Size = new System.Drawing.Size(928, 0);
             this.wandTextBox.TabIndex = 2;
             this.wandTextBox.TabStop = false;
             this.wandTextBox.Text = "";

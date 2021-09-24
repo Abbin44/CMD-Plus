@@ -10,13 +10,8 @@ namespace CustomShell
     class SystemInformation
     {
         ManagementObjectSearcher searcher;
-        /* The ascii art SHOULD be a specific size such as 32x32 or close to that
-         * 
-         * 
-         * 
-         * 
-         * 
-        */
+        Coloring color;
+        // The ascii art SHOULD be a specific size such as 32x32 or close to that
         public SystemInformation()
         {
             GetIcon();
@@ -34,13 +29,46 @@ namespace CustomShell
             GetCPU();
             GetGPU();
             GetRAM();
+            GetIcon();
+            GetUptime();
+            GetMobo();
+        }
 
+        private string GetMobo()
+        {
+            string mobo = string.Empty;
+
+            return mobo;
         }
 
         private string GetOS()
         {
             string os = string.Empty;
+            string arch = string.Empty;
+            string version = string.Empty;
 
+            searcher = new ManagementObjectSearcher("select Caption, OSArchitecture, Version from Win32_OperatingSystem");
+            foreach (ManagementObject share in searcher.Get())
+            {
+                foreach (PropertyData PC in share.Properties)
+                {
+                    if (PC.Name == "Caption")
+                    {
+                        os = PC.Value.ToString();
+                        os = os.Trim();
+                    }
+                    else if (PC.Name == "OSArchitecture")
+                    {
+                        arch = PC.Value.ToString();
+                        arch = arch.Trim();
+                    }
+                    else if(PC.Name == "Version")
+                    {
+                        version = PC.Value.ToString();
+                        version = version.Trim();
+                    }
+                }
+            }
             return os;
         }
 
@@ -103,11 +131,17 @@ namespace CustomShell
                     {
                         ram = PC.Value.ToString();
                         ram = ram.Trim();
-                        ram = MainController.controller.FormatBytes(Convert.ToInt32(ram));
+                        ram = MainController.controller.FormatBytes(Convert.ToInt32(ram));//It is highly unclear what size MaxCapacity returns
                     }
                 }
             }
             return ram;
+        }
+        private string GetUptime()
+        {
+            string uptime = string.Empty;
+
+            return uptime;
         }
 
         private void GetIcon()

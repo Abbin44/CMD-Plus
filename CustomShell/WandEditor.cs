@@ -7,6 +7,7 @@ namespace CustomShell
     class WandEditor
     {
         MainController main = MainController.controller;
+        Coloring color;
         public WandEditor()
         {
 
@@ -14,6 +15,7 @@ namespace CustomShell
 
         string path;
         public bool hasFileLoaded = false;
+        bool syntaxHighlighted = false;
         public void AddTextToConsole(string text)
         {
             main.wandTextBox.AppendText(text + "\n");
@@ -26,7 +28,6 @@ namespace CustomShell
                 main.AddTextToConsole("Invalid command format");
                 return;
             }
-            main.AddCommandToConsole(tokens);
             path = main.CheckInputType(tokens);
 
             string[] lines = File.ReadAllLines(path);
@@ -48,7 +49,6 @@ namespace CustomShell
             }
 
             path = main.CheckInputType(tokens);
-            main.AddCommandToConsole(tokens);
 
             main.wandTextBox.Clear();
             main.wandTextBox.Visible = true;// Swap text box to be able to preseve coloring in previous commands
@@ -77,8 +77,28 @@ namespace CustomShell
             }
         }
 
+        public void DuplicateLine()
+        {
+            int index = main.wandTextBox.GetLineFromCharIndex(main.wandTextBox.SelectionStart);
+            int lineLength = main.wandTextBox.Lines[index].Length;
+            int newLineLength = main.wandTextBox.Lines[index + 1].Length;
+            int newLineIndex = main.wandTextBox.GetFirstCharIndexFromLine(index + 1);
+
+            main.wandTextBox.SelectionStart = main.wandTextBox.GetFirstCharIndexFromLine(index);
+            main.wandTextBox.SelectionLength = lineLength;
+            string lineText = main.wandTextBox.SelectedText;
+
+            main.wandTextBox.Text = main.wandTextBox.Text.Insert(newLineIndex, "\n");
+            main.wandTextBox.Text = main.wandTextBox.Text.Insert(newLineIndex, lineText);
+            main.wandTextBox.SelectionStart = newLineIndex + newLineLength;
+
+            if (syntaxHighlighted == true)
+                ApplySyntaxHighlight();
+        }
+
         public void RemoveSyntaxHighlight()
         {
+            syntaxHighlighted = false;
             main.wandTextBox.SelectAll();
             main.wandTextBox.SelectionColor = Color.LightSteelBlue;
             main.wandTextBox.SelectionStart = main.wandTextBox.Text.Length;
@@ -86,38 +106,19 @@ namespace CustomShell
 
         public void ApplySyntaxHighlight()
         {
+            color = new Coloring();
+            syntaxHighlighted = true;
             string[] types = new string[] {"int ", "integer ", "float ", "single ", "double ", "decimal ", "bool ", "boolean ", "string "};
-            string[] operators = new string[] {"!", "=", ">", "<", "|", "@", "%", "+", "-", "*", "/", "\\", "?"};
+            string[] operators = new string[] {"!", "=", ">", "<", "|", "@", "%", "+", "-", "*", "/", "\\", "?", ";", ":"};
             string[] statements = new string[] {"if", "else if", "elif", "if else", "else", "true", "false", "try", "catch", "finally", "public", "private", "protected", "static", "using", "import", "include", "define", "void", "while", "for", "return", "continue", "break"};
             string[] misc = new string[] {"#", "$", "\"", "'", "region", "endregion"};
             string[] numbers = new string[] {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
 
-            FindAndColor(types, Color.Blue);
-            FindAndColor(operators, Color.Red);
-            FindAndColor(statements, Color.Purple);
-            FindAndColor(misc, Color.Khaki);
-            FindAndColor(numbers, Color.DarkViolet);
-        }
-
-        private void FindAndColor(string[] strings, Color color)
-        {
-            string word;
-
-            for (int i = 0; i < strings.Length; ++i)
-            {
-                int s_start = main.wandTextBox.SelectionStart, startIndex = 0, index;
-                word = strings[i];
-                while ((index = main.wandTextBox.Text.IndexOf(word, startIndex)) != -1)
-                {
-                    main.wandTextBox.Select(index, word.Length);
-                    main.wandTextBox.SelectionColor = color;
-
-                    startIndex = index + word.Length;
-                }
-
-                main.wandTextBox.SelectionStart = s_start;
-                main.wandTextBox.SelectionLength = 0;
-            }
+            color.FindAndColor(types, Color.Blue);
+            color.FindAndColor(operators, Color.Red);
+            color.FindAndColor(statements, Color.Purple);
+            color.FindAndColor(misc, Color.Khaki);
+            color.FindAndColor(numbers, Color.DarkViolet);
         }
 
         public void SaveAndExit()
