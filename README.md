@@ -4,7 +4,7 @@
 ![](https://img.shields.io/github/forks/Abbin44/CMD-Plus?color=orange&label=Forks)
 ![](https://img.shields.io/tokei/lines/github/Abbin44/CMD-Plus?color=orange&label=Total-Lines)
 
-A custom shell that allows you to run a bunch of different commands, including everything from CMD/Batch
+A custom shell that allows you to run a bunch of different commands, including everything from CMD/Batch. There are plans to have at lease some support for linux in the future. Currently there are some missing references that needs to be rewritten to make it work. 
 
 I am grateful for any feature suggestions or bug reports that you leave. You can do so in the issues tab!
 ![alt text](https://github.com/Abbin44/Custom-Shell/blob/master/preview.png?raw=true)
