@@ -45,7 +45,7 @@ namespace CustomShell
             this.outputBox.Location = new System.Drawing.Point(0, 0);
             this.outputBox.Name = "outputBox";
             this.outputBox.ReadOnly = true;
-            this.outputBox.Size = new System.Drawing.Size(928, 435);
+            this.outputBox.Size = new System.Drawing.Size(1038, 530);
             this.outputBox.TabIndex = 0;
             this.outputBox.TabStop = false;
             this.outputBox.Text = "";
@@ -57,10 +57,10 @@ namespace CustomShell
             this.inputBox.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.inputBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(119)))), ((int)(((byte)(68)))));
             this.inputBox.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.inputBox.Location = new System.Drawing.Point(0, 434);
+            this.inputBox.Location = new System.Drawing.Point(0, 496);
             this.inputBox.Multiline = false;
             this.inputBox.Name = "inputBox";
-            this.inputBox.Size = new System.Drawing.Size(928, 26);
+            this.inputBox.Size = new System.Drawing.Size(1038, 26);
             this.inputBox.TabIndex = 1;
             this.inputBox.TabStop = false;
             this.inputBox.Text = "";
@@ -74,10 +74,10 @@ namespace CustomShell
             this.wandTextBox.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.wandTextBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(119)))), ((int)(((byte)(68)))));
             this.wandTextBox.HideSelection = false;
-            this.wandTextBox.Location = new System.Drawing.Point(0, 435);
+            this.wandTextBox.Location = new System.Drawing.Point(0, 530);
             this.wandTextBox.Name = "wandTextBox";
             this.wandTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.wandTextBox.Size = new System.Drawing.Size(928, 0);
+            this.wandTextBox.Size = new System.Drawing.Size(1038, 0);
             this.wandTextBox.TabIndex = 2;
             this.wandTextBox.TabStop = false;
             this.wandTextBox.Text = "";
@@ -89,7 +89,7 @@ namespace CustomShell
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Maroon;
-            this.ClientSize = new System.Drawing.Size(928, 460);
+            this.ClientSize = new System.Drawing.Size(1038, 522);
             this.Controls.Add(this.wandTextBox);
             this.Controls.Add(this.inputBox);
             this.Controls.Add(this.outputBox);
