@@ -114,11 +114,11 @@ namespace CustomShell
             string[] misc = new string[] {"#", "$", "\"", "'", "region", "endregion"};
             string[] numbers = new string[] {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
 
-            color.FindAndColor(types, Color.Blue);
-            color.FindAndColor(operators, Color.Red);
-            color.FindAndColor(statements, Color.Purple);
-            color.FindAndColor(misc, Color.Khaki);
-            color.FindAndColor(numbers, Color.DarkViolet);
+            color.FindAndColorArray(types, Color.Blue, main.wandTextBox);
+            color.FindAndColorArray(operators, Color.Red, main.wandTextBox);
+            color.FindAndColorArray(statements, Color.Purple, main.wandTextBox);
+            color.FindAndColorArray(misc, Color.Khaki, main.wandTextBox);
+            color.FindAndColorArray(numbers, Color.DarkViolet, main.wandTextBox);
         }
 
         public void SaveAndExit()

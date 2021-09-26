@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Management;
 
 namespace CustomShell
@@ -9,7 +10,7 @@ namespace CustomShell
     {
         MainController main = MainController.controller;
         ManagementObjectSearcher searcher;
-        Coloring color;
+        Coloring color = new Coloring();
         // The ascii art SHOULD be a specific size such as 32x32 or close to that
         public SystemInformation()
         {
@@ -23,8 +24,9 @@ namespace CustomShell
             DrawIcon();
             int lineCounter = main.outputBox.Lines.Length - 18; //Lastline - 18
             int index = 0;
+            string line = string.Empty;
+            Color clr;
 
-            
             data.Add(GetOS());
             data.Add(GetCPU());
             data.Add(GetGPU());
@@ -35,9 +37,19 @@ namespace CustomShell
             for (int i = 0; i < data.Count; ++i)
             {
                 index = main.outputBox.GetFirstCharIndexFromLine(lineCounter + 1) - 1;
-                main.outputBox.Text = main.outputBox.Text.Insert(index, "      |" + data[i]);
+                line = "      |" + data[i];
+                main.outputBox.Text = main.outputBox.Text.Insert(index, line);
                 ++lineCounter;
-            }       
+            }
+            //This can be commented out to remove coloring, or switched to FindAndColorArray to color all lines with the same color
+            #region Coloring 
+            string[] dataLines = data.ToArray(); //Datalines contains the same data as the data list, it needs to be copied over so that all the strings can be colored after everyting has been printed
+            for (int i = 0; i < dataLines.Length; i++)
+            {
+                clr = color.GetRandomColor();
+                color.FindAndColorString(dataLines[i], clr, main.outputBox);
+            }
+            #endregion
         }
 
         private string GetSystemUpTimeInfo()
