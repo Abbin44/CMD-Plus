@@ -56,6 +56,7 @@ All tasks that will appear here will be bigger and more time consuming than othe
 **Upcoming features**
 
 - [ ] Fix the calculator
+- [ ] Add linux support
 - [ ] Create an interpreted scripting language to run commands from a script file
     - [ ] Create basic structure of variables
     - [ ] Create if statement and lables
