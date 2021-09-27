@@ -53,7 +53,7 @@ The Windows Command Line or CMD, is fully integrated and all batch commands that
 ## TODO LIST
 All tasks that will appear here will be bigger and more time consuming than other tasks that regularly gets pushed.
 
-###Upcoming features
+**Upcoming features**
 
 - [ ] Fix the calculator
 - [ ] Create an interpreted scripting language to run commands from a script file
