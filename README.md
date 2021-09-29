@@ -58,6 +58,6 @@ All tasks that will appear here will be bigger and more time consuming than othe
 - [ ] Fix the calculator
 - [ ] Add linux support
 - [ ] Create an interpreted scripting language to run commands from a script file
-    - [ ] Create basic structure of variables
-    - [ ] Create if statement and lables
+    - [ ] Create basic structure of variables  **--- In Progress**
+    - [ ] Create if statement and lables       **--- In Progress**
     - [ ] Create END statements and other misc statements
