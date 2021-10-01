@@ -28,7 +28,9 @@ namespace CustomShell
                 main.AddTextToConsole("Invalid command format");
                 return;
             }
-            path = main.CheckInputType(tokens);
+
+            if (!main.IsFilePath(tokens[1]))
+                path = main.GetFullPathFromName(tokens[1]);
 
             string[] lines = File.ReadAllLines(path);
             for (int i = 0; i < lines.Length; ++i)
@@ -48,7 +50,8 @@ namespace CustomShell
                 return;
             }
 
-            path = main.CheckInputType(tokens);
+            if (!main.IsFilePath(tokens[1]))
+                path = main.GetFullPathFromName(tokens[1]);
 
             main.wandTextBox.Clear();
             main.wandTextBox.Visible = true;// Swap text box to be able to preseve coloring in previous commands

@@ -7,6 +7,8 @@ namespace CustomShell
     class FTPController
     {
         FtpClient client;
+        MainController main = MainController.controller;
+
         public FTPController(string ip)
         {
             client = new FtpClient(ip);
@@ -18,13 +20,13 @@ namespace CustomShell
             {
                 client.Credentials = new NetworkCredential(user, pass);
                 client.Connect();
-                MainController.controller.AddTextToConsole("Successfully connected to the server...");
-                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
-                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+                main.AddTextToConsole("Successfully connected to the server...");
+                main.inputBox.Text = main.InputPrefix();
+                main.inputBox.SelectionStart = main.inputBox.Text.Length;
             }
             catch (Exception)
             {
-                MainController.controller.AddTextToConsole("An error occured, please try again...");
+                main.AddTextToConsole("An error occured, please try again...");
                 return;
             }
         }
@@ -33,26 +35,26 @@ namespace CustomShell
             try
             {
                 client.Connect();
-                MainController.controller.AddTextToConsole("Successfully connected to the server...");
-                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
-                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+                main.AddTextToConsole("Successfully connected to the server...");
+                main.inputBox.Text = main.InputPrefix();
+                main.inputBox.SelectionStart = main.inputBox.Text.Length;
 
             }
             catch (Exception)
             {
-                MainController.controller.AddTextToConsole("An error occured, did you enter the right login credentials?");
+                main.AddTextToConsole("An error occured, did you enter the right login credentials?");
                 return;
             }
         }
         public void GetDir(string dir)
         {
-            dir = MainController.controller.GetFullPathFromName(dir);
+            dir = main.GetFullPathFromName(dir);
 
             foreach (FtpListItem item in client.GetListing(dir))
-                MainController.controller.AddFTPItemToConsole(item);
+                main.AddFTPItemToConsole(item);
 
-            MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
-            MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+            main.inputBox.Text = main.InputPrefix();
+            main.inputBox.SelectionStart = main.inputBox.Text.Length;
         }
 
         public void UploadFile(string from, string to)
@@ -60,13 +62,13 @@ namespace CustomShell
             try
             {
                 client.UploadFile(from, to);
-                MainController.controller.AddTextToConsole("Successfully uploaded file...");
-                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
-                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+                main.AddTextToConsole("Successfully uploaded file...");
+                main.inputBox.Text = main.InputPrefix();
+                main.inputBox.SelectionStart = main.inputBox.Text.Length;
             }
             catch (Exception)
             {
-                MainController.controller.AddTextToConsole("Could not upload file...");
+                main.AddTextToConsole("Could not upload file...");
                 return;
             }
         }
@@ -76,13 +78,13 @@ namespace CustomShell
             try
             {
                 client.DownloadFile(to, from);
-                MainController.controller.AddTextToConsole("Successfully downloaded file...");
-                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
-                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+                main.AddTextToConsole("Successfully downloaded file...");
+                main.inputBox.Text = main.InputPrefix();
+                main.inputBox.SelectionStart = main.inputBox.Text.Length;
             }
             catch (Exception)
             {
-                MainController.controller.AddTextToConsole("Could not download file...");
+                main.AddTextToConsole("Could not download file...");
                 return;
             }
         }
@@ -92,13 +94,13 @@ namespace CustomShell
             try
             {
                 client.UploadDirectory(from, to);
-                MainController.controller.AddTextToConsole("Successfully uploaded directory...");
-                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
-                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+                main.AddTextToConsole("Successfully uploaded directory...");
+                main.inputBox.Text = main.InputPrefix();
+                main.inputBox.SelectionStart = main.inputBox.Text.Length;
             }
             catch (Exception)
             {
-                MainController.controller.AddTextToConsole("Could not upload directory...");
+                main.AddTextToConsole("Could not upload directory...");
                 return;
             }
         }
@@ -108,13 +110,13 @@ namespace CustomShell
             try
             {
                 client.DownloadDirectory(to, from);
-                MainController.controller.AddTextToConsole("Successfully downloaded directory...");
-                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
-                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+                main.AddTextToConsole("Successfully downloaded directory...");
+                main.inputBox.Text = main.InputPrefix();
+                main.inputBox.SelectionStart = main.inputBox.Text.Length;
             }
             catch (Exception)
             {
-                MainController.controller.AddTextToConsole("Could not download directory...");
+                main.AddTextToConsole("Could not download directory...");
                 return;
             }
         }
@@ -124,13 +126,13 @@ namespace CustomShell
             try
             {
                 client.DeleteFile(path);
-                MainController.controller.AddTextToConsole("Successfully deleted the file...");
-                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
-                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+                main.AddTextToConsole("Successfully deleted the file...");
+                main.inputBox.Text = main.InputPrefix();
+                main.inputBox.SelectionStart = main.inputBox.Text.Length;
             }
             catch (Exception)
             {
-                MainController.controller.AddTextToConsole("Could not delete file...");
+                main.AddTextToConsole("Could not delete file...");
                 return;
             }
         }
@@ -140,13 +142,13 @@ namespace CustomShell
             try
             {
                 client.DeleteDirectory(path);
-                MainController.controller.AddTextToConsole("Successfully deleted the directory...");
-                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
-                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+                main.AddTextToConsole("Successfully deleted the directory...");
+                main.inputBox.Text = main.InputPrefix();
+                main.inputBox.SelectionStart = main.inputBox.Text.Length;
             }
             catch (Exception)
             {
-                MainController.controller.AddTextToConsole("Could not delete directory...");
+                main.AddTextToConsole("Could not delete directory...");
                 return;
             }
         }
@@ -156,13 +158,13 @@ namespace CustomShell
             try
             {
                 client.Disconnect();
-                MainController.controller.AddTextToConsole("Successfully terminated connection to the server...");
-                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
-                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+                main.AddTextToConsole("Successfully terminated connection to the server...");
+                main.inputBox.Text = main.InputPrefix();
+                main.inputBox.SelectionStart = main.inputBox.Text.Length;
             }
             catch (Exception)
             {
-                MainController.controller.AddTextToConsole("Could not terminate connection, please try again...");
+                main.AddTextToConsole("Could not terminate connection, please try again...");
                 return;
             }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Management;
+using System.Windows.Forms;
 
 namespace CustomShell
 {
@@ -31,25 +32,34 @@ namespace CustomShell
             data.Add(GetCPU());
             data.Add(GetGPU());
             data.Add(GetRAM());
+            data.Add(GetResolution());
             data.Add(GetSystemUpTimeInfo());
             data.Add(GetMobo());
 
             for (int i = 0; i < data.Count; ++i)
             {
                 index = main.outputBox.GetFirstCharIndexFromLine(lineCounter + 1) - 1;
-                line = "      |" + data[i];
+                line = "    |" + data[i];
                 main.outputBox.Text = main.outputBox.Text.Insert(index, line);
                 ++lineCounter;
             }
             //This can be commented out to remove coloring, or switched to FindAndColorArray to color all lines with the same color
             #region Coloring 
-            string[] dataLines = data.ToArray(); //Datalines contains the same data as the data list, it needs to be copied over so that all the strings can be colored after everyting has been printed
-            for (int i = 0; i < dataLines.Length; i++)
-            {
-                clr = color.GetRandomColor();
-                color.FindAndColorString(dataLines[i], clr, main.outputBox);
-            }
+            //string[] dataLines = data.ToArray(); //Datalines contains the same data as the data list, it needs to be copied over so that all the strings can be colored after everyting has been printed
+            //for (int i = 0; i < dataLines.Length; i++)
+            //{
+            //    clr = color.GetRandomColor();
+            //    color.FindAndColorString(dataLines[i], clr, main.outputBox);
+            //}
             #endregion
+        }
+
+        private string GetResolution()
+        {
+            string screenWidth = Screen.PrimaryScreen.Bounds.Width.ToString();
+            string screenHeight = Screen.PrimaryScreen.Bounds.Height.ToString();
+
+            return string.Concat("Resolution: " ,screenWidth, "x", screenHeight);
         }
 
         private string GetSystemUpTimeInfo()
@@ -217,7 +227,7 @@ namespace CustomShell
    -:  .*@@@@@@@@@@@@@@@@@@*.  :-   
        .%@@@@@@@@@@@@@@@@@@@:       
        -*@@%.  -@@@@=. .%@@*-       
-          :    :@@@@:    :          ";
+          :    :@@@@:    :          " + "\n";
 
             MainController.controller.outputBox.AppendText(icon);
         }

@@ -7,6 +7,8 @@ namespace CustomShell
     class SSHClient
     {
         public SshClient client;
+        MainController main = MainController.controller;
+
         public SSHClient()
         {
             
@@ -19,13 +21,13 @@ namespace CustomShell
                 ConnectionInfo connInfo = new ConnectionInfo(host, username, new PasswordAuthenticationMethod(username, password), new PrivateKeyAuthenticationMethod("rsa.key"));
                 client = new SshClient(connInfo);
                 client.Connect();
-                MainController.controller.AddTextToConsole("Successfully connected to the host...");
-                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
-                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+                main.AddTextToConsole("Successfully connected to the host...");
+                main.inputBox.Text = main.InputPrefix();
+                main.inputBox.SelectionStart = main.inputBox.Text.Length;
             }
             catch (Exception)
             {
-                MainController.controller.AddTextToConsole("Could not connect, did you enter the right login credentials?");
+                main.AddTextToConsole("Could not connect, did you enter the right login credentials?");
                 return;            
             }
         }
@@ -35,20 +37,20 @@ namespace CustomShell
             try
             {
                 SshCommand result = client.RunCommand(command);
-                MainController.controller.AddCommandToConsole(MainController.controller.tokens);
+                main.AddCommandToConsole(MainController.controller.tokens);
 
                 //Add a red color for the ssh output
-                MainController.controller.AddTextToConsole(result.Result);
-                MainController.controller.outputBox.Select(MainController.controller.outputBox.Text.Length - result.Result.Length - 1, MainController.controller.outputBox.Text.Length);
-                MainController.controller.outputBox.SelectionColor = Color.Red;
-                MainController.controller.outputBox.SelectionStart = MainController.controller.outputBox.Text.Length;
+                main.AddTextToConsole(result.Result);
+                main.outputBox.Select(main.outputBox.Text.Length - result.Result.Length - 1, main.outputBox.Text.Length);
+                main.outputBox.SelectionColor = Color.Red;
+                main.outputBox.SelectionStart = main.outputBox.Text.Length;
 
-                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
-                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+                main.inputBox.Text = main.InputPrefix();
+                main.inputBox.SelectionStart = main.inputBox.Text.Length;
             }
             catch (Exception)
             {
-                MainController.controller.AddTextToConsole("Could not execute command...");
+                main.AddTextToConsole("Could not execute command...");
                 return;
             }
         }
@@ -58,13 +60,13 @@ namespace CustomShell
             try
             {
                 client.Disconnect();
-                MainController.controller.AddTextToConsole("Successfully terminated the connection...");
-                MainController.controller.inputBox.Text = MainController.controller.InputPrefix();
-                MainController.controller.inputBox.SelectionStart = MainController.controller.inputBox.Text.Length;
+                main.AddTextToConsole("Successfully terminated the connection...");
+                main.inputBox.Text = main.InputPrefix();
+                main.inputBox.SelectionStart = main.inputBox.Text.Length;
             }
             catch (Exception)
             {
-                MainController.controller.AddTextToConsole("Could not terminate...");
+                main.AddTextToConsole("Could not terminate...");
                 return;
             }
         }

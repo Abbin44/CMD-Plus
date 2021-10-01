@@ -26,6 +26,8 @@ namespace CustomShell
         SSHClient sshClient;
         LocalDirectory localDirectory;
         SystemInformation systemInfo;
+        ScriptInterpreter script;
+        Coloring coloring;
         public static MainController controller { get; private set; }
 
         public MainController()
@@ -67,8 +69,17 @@ namespace CustomShell
                 return string.Concat(currentDir, path);
         }
 
+        public bool IsFilePath(string path)
+        {
+            if (!path.Contains(@":\"))
+                return false;
+            else
+                return true;
+        }
+
+
         //Check if the user has entered a complete file path or only a file or folder within the current directory
-        public string CheckInputType(string[] tokens)
+        public string CheckInputType(string[] tokens) //This should be replaced as soon as possible since it only checks the last token
         {
             string path;
             if (!tokens[tokens.Length - 1].Contains(@":\"))
@@ -532,6 +543,11 @@ namespace CustomShell
             inputBox.SelectionStart = inputBox.Text.Length;
         }
 
+        public void ClearHistory()
+        {
+            File.WriteAllText(historyFilePath, string.Empty);
+        }
+
         public void DirectorySize(string[] tokens)
         {
             string path = CheckInputType(tokens);
@@ -609,6 +625,240 @@ namespace CustomShell
 
         public string[] tokens;
         int historyIndex;
+        public void RunCommand(string command, bool fromScript) 
+        {
+            historyIndex = cmdHistory.Length - 1;
+            int commands = 1; //Default is one but will be incresed if there are any && in the input line
+            string[] cmds;
+            string input = string.Empty;
+            if (fromScript == false)//Check if command comes from input box of from a script file since the input prefix doesn't exist in a script file
+            {
+                input = inputBox.Text;
+                command = input.Remove(0, (Environment.UserName + "@" + currentDir + " ~").Length);
+                command = command.Trim();
+            }
+            else
+            {
+                input = command;
+                input = input.Trim();
+            }
+
+            if (string.IsNullOrEmpty(command) || string.IsNullOrWhiteSpace(command))
+                return;
+
+            tokens = command.Split(' ');
+
+            if (command.Contains("&&"))
+            {
+                string[] cmd = command.Split(new string[] { "&&" }, StringSplitOptions.None); //Split input line into seperate commands
+                cmds = new string[cmd.Length];
+                commands = cmd.Length;
+                for (int i = 0; i < cmd.Length; ++i)
+                    cmds[i] = cmd[i].Trim();//Trim the white chars
+            }
+            else
+                cmds = tokens;
+
+            for (int i = 0; i < commands; ++i)
+            {
+                if (commands > 1)
+                    tokens = cmds[i].Split(' ');//Split all the commands into tokens and run them
+
+                switch (true)
+                {
+                    case true when cmds[i].StartsWith("cd"):
+                        ChangeDirectory(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("ls"):
+                        ListFiles(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("mkdir"):
+                        MakeDirectory(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("mkfile"):
+                        MakeFile(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("cp"):
+                        CopyFile(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("rename"):
+                        Rename(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("mv"):
+                        Move(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("rm"):
+                        RemoveFolder(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("help"):
+                        DisplayHelp();
+                        break;
+                    case true when cmds[i].StartsWith("exec"):
+                        Execute(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("open"):
+                        OpenFile(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("extr"):
+                        if (comp == null)
+                            comp = new Compression();
+                        comp.ExtractArchive(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("compr"):
+                        if (comp == null)
+                            comp = new Compression();
+                        comp.CompressFolder(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("size"):
+                        DirectorySize(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("peek"):
+                        if (wand == null)
+                            wand = new WandEditor();
+                        wand.PeekFile(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("wand"):
+                        AddCommandToConsole(tokens);
+                        if (wand == null)
+                            wand = new WandEditor();
+                        wand.LoadFile(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("clear"):
+                        if (tokens.Length == 1)
+                            ClearConsole();
+                        else if (tokens.Length == 2 && tokens[1] == "history")
+                            ClearHistory();
+                        break;
+                    case true when cmds[i].StartsWith("exit"):
+                        ExitShell();
+                        break;
+                    case true when cmds[i].StartsWith("shutdown"):
+                        Shutdown();
+                        break;
+                    case true when cmds[i].StartsWith("listproc"):
+                        AddCommandToConsole(tokens);
+                        if (proc == null)
+                            proc = new Processes();
+                        proc.ListProcesses();
+                        break;
+                    case true when cmds[i].StartsWith("killproc"):
+                        if (proc == null)
+                            proc = new Processes();
+                        proc.KillProcess(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("calc")://Broken fucking calculator, someone please fix it.
+                        AddCommandToConsole(tokens);
+                        CreateTokens(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("batch"):
+                        if (batch == null)
+                            batch = new BatchInterpreter();
+                        batch.ExecuteCommand(tokens);
+                        break;
+                    case true when cmds[i].StartsWith("system"):
+                        AddCommandToConsole(tokens);
+                        if (systemInfo == null)
+                            systemInfo = new SystemInformation();
+
+                        systemInfo = null;
+                        break;
+                    case true when cmds[i].StartsWith("script"):
+                        if (tokens.Length < 2)
+                        {
+                            if (tokens.Length > 0)
+                                AddCommandToConsole(tokens);
+
+                            AddTextToConsole("Incorrect ammount of parameters in command...");
+                            return;
+                        }
+
+                        if (script == null)
+                            script = new ScriptInterpreter(tokens[1]);
+
+                        script = null;
+                        break;
+                    case true when cmds[i].StartsWith("ftp"):
+                        AddCommandToConsole(tokens);
+
+                        if (ftpController == null)
+                        {
+                            ftpController = new FTPController(tokens[1]);
+                            if (tokens[2] == "true")
+                                ftpController.StartFTPSConnection(tokens[3], tokens[4]);
+                            else
+                                ftpController.StartFTPConnection();
+                        }
+
+                        if (tokens[1] == "uploadFile")
+                            ftpController.UploadFile(tokens[2], tokens[3]);
+                        else if (tokens[1] == "downloadFile")
+                            ftpController.DownloadFile(tokens[2], tokens[3]);
+                        else if (tokens[1] == "uploadDirectory")
+                            ftpController.UploadDirectory(tokens[2], tokens[3]);
+                        else if (tokens[1] == "downloadDirectory")
+                            ftpController.DownloadDirectory(tokens[2], tokens[3]);
+                        else if (tokens[1] == "deleteFile")
+                            ftpController.DeleteFile(tokens[2]);
+                        else if (tokens[1] == "deleteDirectory")
+                            ftpController.DeleteDirectory(tokens[2]);
+                        else if (tokens[1] == "ls")
+                        {
+                            AddTextToConsole("Path               Last Modified               Size");
+                            if (tokens.Length > 2)
+                                ftpController.GetDir(tokens[2]);
+                            else
+                                ftpController.GetDir("\\");
+                        }
+                        else if (tokens[1] == "close")
+                            ftpController.Terminate();
+
+                        break;
+                    case true when cmds[i].StartsWith("fcolor"):
+                        string fcolor = tokens[1].ToUpper();
+                        coloring = new Coloring();
+                        coloring.ColorForeground(fcolor);
+
+                        inputBox.Text = InputPrefix();
+                        inputBox.SelectionStart = inputBox.Text.Length;
+                        break;
+                    case true when cmds[i].StartsWith("bcolor"):
+                        string bcolor = tokens[1].ToUpper();
+                        coloring = new Coloring();
+                        coloring.ColorForeground(bcolor);
+
+                        inputBox.Text = InputPrefix();
+                        inputBox.SelectionStart = inputBox.Text.Length;
+                        break;
+                    case true when cmds[i].StartsWith("ssh"):
+                        AddCommandToConsole(tokens);
+
+                        if (sshClient == null)
+                            sshClient = new SSHClient();
+
+                        if (tokens[0] == "sshCom" || tokens[0] == "sshcom")
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            for (int x = 1; x < tokens.Length; ++x)
+                            {
+                                sb.Append(tokens[x]);
+                                if (x + 1 < tokens.Length)
+                                    sb.Append(" ");
+                            }
+                            sshClient.SendCommand(sb.ToString());
+                        }
+                        else if (tokens[0] == "ssh" && tokens[1] == "close")
+                            sshClient.TerminateConnection();
+                        else if (tokens[0] == "ssh" && tokens[1] == "connect")
+                            sshClient.EstablishConnection(tokens[2], tokens[3], tokens[4]);
+
+                        break;
+                    default:
+                        AddTextToConsole("Command does not exist");
+                        break;
+                }
+            }
+        }
+
         bool firstClick = true;
         private void inputBox_KeyDown(object sender, KeyEventArgs e)
         {
@@ -622,287 +872,7 @@ namespace CustomShell
             if (e.KeyCode == Keys.Enter)
             {
                 e.Handled = true;
-                historyIndex = cmdHistory.Length - 1;
-                int commands = 1; //Default is one but will be incresed if there are any && in the input line
-                string[] cmds;
-                string input = inputBox.Text;
-                string command = input.Remove(0, (Environment.UserName + "@" + currentDir + " ~").Length);
-                command = command.Trim();
-
-                if (string.IsNullOrEmpty(command) || string.IsNullOrWhiteSpace(command))
-                    return;
-
-                tokens = command.Split(' ');
-
-                if (command.Contains("&&"))
-                {
-                    string[] cmd = command.Split(new string[] { "&&" }, StringSplitOptions.None); //Split input line into seperate commands
-                    cmds = new string[cmd.Length];
-                    commands = cmd.Length;
-                    for (int i = 0; i < cmd.Length; ++i)
-                        cmds[i] = cmd[i].Trim();//Trim the white chars
-                }
-                else
-                    cmds = tokens;
-
-                for (int i = 0; i < commands; ++i)
-                {
-                    if (commands > 1)
-                        tokens = cmds[i].Split(' ');//Split all the commands into tokens and run them
-
-                    switch (true)
-                    {
-                        case true when cmds[i].StartsWith("cd"):
-                            ChangeDirectory(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("ls"):
-                            ListFiles(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("mkdir"):
-                            MakeDirectory(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("mkfile"):
-                            MakeFile(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("cp"):
-                            CopyFile(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("rename"):
-                            Rename(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("mv"):
-                            Move(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("rm"):
-                            RemoveFolder(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("help"):
-                            DisplayHelp();
-                            break;
-                        case true when cmds[i].StartsWith("exec"):
-                            Execute(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("open"):
-                            OpenFile(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("extr"):
-                            if (comp == null)
-                                comp = new Compression();
-                            comp.ExtractArchive(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("compr"):
-                            if (comp == null)
-                                comp = new Compression();
-                            comp.CompressFolder(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("size"):
-                            DirectorySize(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("peek"):
-                            if (wand == null)
-                                wand = new WandEditor();
-                            wand.PeekFile(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("wand"):
-                            AddCommandToConsole(tokens);
-                            if (wand == null)
-                                wand = new WandEditor();
-                            wand.LoadFile(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("clear"):
-                            ClearConsole();
-                            break;
-                        case true when cmds[i].StartsWith("exit"):
-                            ExitShell();
-                            break;
-                        case true when cmds[i].StartsWith("shutdown"):
-                            Shutdown();
-                            break;
-                        case true when cmds[i].StartsWith("listproc"):
-                            AddCommandToConsole(tokens);
-                            if (proc == null)
-                                proc = new Processes();
-                            proc.ListProcesses();
-                            break;
-                        case true when cmds[i].StartsWith("killproc"):
-                            if (proc == null)
-                                proc = new Processes();
-                            proc.KillProcess(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("calc")://Broken fucking calculator, someone please fix it.
-                            AddCommandToConsole(tokens);
-                            CreateTokens(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("batch"):
-                            if (batch == null)
-                                batch = new BatchInterpreter();
-                            batch.ExecuteCommand(tokens);
-                            break;
-                        case true when cmds[i].StartsWith("system"):
-                            AddCommandToConsole(tokens);
-                            if (systemInfo == null)
-                                systemInfo = new SystemInformation();
-
-                            systemInfo = null;
-                            break;
-                        case true when cmds[i].StartsWith("ftp"):
-                            AddCommandToConsole(tokens);
-
-                            if (ftpController == null)
-                            {
-                                ftpController = new FTPController(tokens[1]);
-                                if (tokens[2] == "true")
-                                    ftpController.StartFTPSConnection(tokens[3], tokens[4]);
-                                else
-                                    ftpController.StartFTPConnection();
-                            }
-
-                            if (tokens[1] == "uploadFile")
-                                ftpController.UploadFile(tokens[2], tokens[3]);
-                            else if (tokens[1] == "downloadFile")
-                                ftpController.DownloadFile(tokens[2], tokens[3]);
-                            else if (tokens[1] == "uploadDirectory")
-                                ftpController.UploadDirectory(tokens[2], tokens[3]);
-                            else if (tokens[1] == "downloadDirectory")
-                                ftpController.DownloadDirectory(tokens[2], tokens[3]);
-                            else if (tokens[1] == "deleteFile")
-                                ftpController.DeleteFile(tokens[2]);
-                            else if (tokens[1] == "deleteDirectory")
-                                ftpController.DeleteDirectory(tokens[2]);
-                            else if (tokens[1] == "ls")
-                            {
-                                AddTextToConsole("Path               Last Modified               Size");
-                                if (tokens.Length > 2)
-                                    ftpController.GetDir(tokens[2]);
-                                else
-                                    ftpController.GetDir("\\");
-                            }
-                            else if (tokens[1] == "close")
-                                ftpController.Terminate();
-
-                            break;
-                        case true when cmds[i].StartsWith("fcolor"):
-                            string fcolor = tokens[1].ToUpper();
-
-                            if (fcolor == "RED" || fcolor == "01" || fcolor == "1")
-                            {
-                                outputBox.ForeColor = Color.Red;
-                                inputBox.ForeColor = Color.Red;
-                            }
-                            else if (fcolor == "GREEN" || fcolor == "02" || fcolor == "2")
-                            {
-                                outputBox.ForeColor = Color.Green;
-                                inputBox.ForeColor = Color.Green;
-                            }
-                            else if (fcolor == "YELLOW" || fcolor == "03" || fcolor == "3")
-                            {
-                                outputBox.ForeColor = Color.Yellow;
-                                inputBox.ForeColor = Color.Yellow;
-                            }
-                            else if (fcolor == "ORANGE" || fcolor == "04" || fcolor == "4")
-                            {
-                                outputBox.ForeColor = Color.Orange;
-                                inputBox.ForeColor = Color.Orange;
-                            }
-                            else if (fcolor == "BLUE" || fcolor == "05" || fcolor == "5")
-                            {
-                                outputBox.ForeColor = Color.Blue;
-                                inputBox.ForeColor = Color.Blue;
-                            }
-                            else if (fcolor == "WHITE" || fcolor == "06" || fcolor == "6")
-                            {
-                                outputBox.ForeColor = Color.White;
-                                inputBox.ForeColor = Color.White;
-                            }
-                            else if (fcolor == "TURQUOISE" || fcolor == "07" || fcolor == "7")
-                            {
-                                outputBox.ForeColor = Color.Turquoise;
-                                inputBox.ForeColor = Color.Turquoise;
-                            }
-                            else if (fcolor == "BLACK" || fcolor == "08" || fcolor == "8")
-                            {
-                                outputBox.ForeColor = Color.Black;
-                                inputBox.ForeColor = Color.Black;
-                            }
-
-                            inputBox.Text = InputPrefix();
-                            inputBox.SelectionStart = inputBox.Text.Length;
-                            break;
-                        case true when cmds[i].StartsWith("bcolor"):
-                            string bcolor = tokens[1].ToUpper();
-
-                            if (bcolor == "RED" || bcolor == "01" || bcolor == "1")
-                            {
-                                outputBox.BackColor = Color.Red;
-                                inputBox.BackColor = Color.Red;
-                            }
-                            else if (bcolor == "GREEN" || bcolor == "02" || bcolor == "2")
-                            {
-                                outputBox.BackColor = Color.Green;
-                                inputBox.BackColor = Color.Green;
-                            }
-                            else if (bcolor == "YELLOW" || bcolor == "03" || bcolor == "3")
-                            {
-                                outputBox.BackColor = Color.Yellow;
-                                inputBox.BackColor = Color.Yellow;
-                            }
-                            else if (bcolor == "ORANGE" || bcolor == "04" || bcolor == "4")
-                            {
-                                outputBox.BackColor = Color.Orange;
-                                inputBox.BackColor = Color.Orange;
-                            }
-                            else if (bcolor == "BLUE" || bcolor == "05" || bcolor == "5")
-                            {
-                                outputBox.BackColor = Color.Blue;
-                                inputBox.BackColor = Color.Blue;
-                            }
-                            else if (bcolor == "WHITE" || bcolor == "06" || bcolor == "6")
-                            {
-                                outputBox.BackColor = Color.White;
-                                inputBox.BackColor = Color.White;
-                            }
-                            else if (bcolor == "TURQUOISE" || bcolor == "07" || bcolor == "7")
-                            {
-                                outputBox.BackColor = Color.Turquoise;
-                                inputBox.BackColor = Color.Turquoise;
-                            }
-                            else if (bcolor == "BLACK" || bcolor == "08" || bcolor == "8")
-                            {
-                                outputBox.BackColor = Color.Black;
-                                inputBox.BackColor = Color.Black;
-                            }
-
-                            inputBox.Text = InputPrefix();
-                            inputBox.SelectionStart = inputBox.Text.Length;
-                            break;
-                        case true when cmds[i].StartsWith("ssh"):
-                            AddCommandToConsole(tokens);
-
-                            if (sshClient == null)
-                                sshClient = new SSHClient();
-
-                            if (tokens[0] == "sshCom" || tokens[0] == "sshcom")
-                            {
-                                StringBuilder sb = new StringBuilder();
-                                for (int x = 1; x < tokens.Length; ++x)
-                                {
-                                    sb.Append(tokens[x]);
-                                    if(x + 1 < tokens.Length)
-                                        sb.Append(" ");
-                                }
-                                sshClient.SendCommand(sb.ToString());
-                            }
-                            else if (tokens[0] == "ssh" && tokens[1] == "close")
-                                sshClient.TerminateConnection();
-                            else if(tokens[0] == "ssh" && tokens[1] == "connect")
-                                sshClient.EstablishConnection(tokens[2], tokens[3], tokens[4]);
-
-                            break;
-                        default:
-                            AddTextToConsole("Command does not exist");
-                            break;
-                    }
-                }
+                RunCommand(inputBox.Text, false);
             }
 
             if (e.KeyCode == Keys.Tab)

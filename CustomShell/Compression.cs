@@ -48,7 +48,7 @@ namespace CustomShell
             {
                 string path;
 
-                if (!tokens[1].Contains(@":\"))
+                if (!main.IsFilePath(tokens[1]))
                     path = main.GetFullPathFromName(tokens[1]);
                 else
                     path = tokens[1];
