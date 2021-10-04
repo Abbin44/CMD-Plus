@@ -149,8 +149,6 @@ namespace CustomShell
         {
             for (int i = 0; i < lines.Length; ++i)
             {
-                lines = file; //Reset the file each iteration
-
                 if (string.IsNullOrWhiteSpace(lines[i]))//Skip all empty lines
                     continue;
 
@@ -161,7 +159,7 @@ namespace CustomShell
                 {
                     for (int l = 0; l < nums.Count; ++l)
                     {
-                        if (tokens[j].Equals(nums[l].name) && tokens[j - 1] != "NUM")
+                        if (tokens[j].Equals(nums[l].name) && lines[i].Contains("if")) //If line contains both "variable name" and "if"
                         {
                             tokens[j] = nums[l].value.ToString(); //Replace variable names with the appropriate number
                             break;
@@ -187,19 +185,32 @@ namespace CustomShell
                         {
                             if (ifs[z].line == i)
                             {
-                                i = (int)ifs[z].endLine;
+                                i = (int)ifs[z].endLine - 1;
                                 continue;
                             }
                         }
                     }
                 }
-                else if (!lines[i].Contains("NUM") && !lines[i].Contains("label") && !lines[i].Contains("[SCRIPT]"))//If line doesn't contain a keyword, run it as a command
-                    main.RunCommand(lines[i], true);
                 else if (lines[i].Contains("[END]"))
                     return;
+                else if (!lines[i].Contains("NUM") && !lines[i].Contains("label") && !lines[i].Contains("[SCRIPT]") && !lines[i].Contains("endif") && LineContainsVariable(lines[i]) == false)//If line doesn't contain a keyword, run it as a command
+                    main.RunCommand(lines[i], true);
 
                 CheckForVariableChange(tokens);
             }
+        }
+
+        private bool LineContainsVariable(string line)
+        {
+            bool containsVar = false;
+            for (int i = 0; i < nums.Count; ++i)
+            {
+                if (line.Contains(nums[i].name)) //Line contains a variable
+                    containsVar = true;
+                else
+                    containsVar = false;
+            }
+            return containsVar;
         }
 
         private bool isValidStatement(string[] statement)
@@ -250,16 +261,28 @@ namespace CustomShell
                         if (tokens.Length >= 2)
                         {
                             if (tokens[j + 1] == "+")
+                            {
                                 ChangeNUMValue(nums[j], j, true, Convert.ToSingle(tokens[2]));
+                                return;
+                            }
                             else if (tokens[j + 1] == "-")
+                            {
                                 ChangeNUMValue(nums[j], j, false, Convert.ToSingle(tokens[2]));
+                                return;
+                            }
                         }
                         else
                         {
                             if (tokens[j].EndsWith("++"))
+                            {
                                 ChangeNUMValue(nums[j], j, true, 1.0f);
+                                return;
+                            }
                             else if (tokens[j].EndsWith("--"))
+                            {
                                 ChangeNUMValue(nums[j], j, false, 1.0f);
+                                return;
+                            }
                         }
                     }
                 }
@@ -275,6 +298,7 @@ namespace CustomShell
                 newValue = number.value - change;
 
             nums[index] = new NUM { name = number.name, value = newValue };
+            file.CopyTo(lines, 0); //Reset the file each iteration
         }
     }
 }

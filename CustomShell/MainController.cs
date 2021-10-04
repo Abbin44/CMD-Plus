@@ -764,11 +764,13 @@ namespace CustomShell
                     case true when cmds[i].StartsWith("script"):
                         if (tokens.Length == 2)
                         {
+                            AddCommandToConsole(tokens);
                             if (tokens.Length > 0)
                             {
-                                AddCommandToConsole(tokens);
                                 if (script == null)
                                     script = new ScriptInterpreter(tokens[1]);
+
+                                script = null; //delete object when script has been run
                             }
                             else
                             {
