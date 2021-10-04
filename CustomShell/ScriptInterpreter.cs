@@ -117,8 +117,11 @@ namespace CustomShell
                     iF.index = ifIndex;
                     iF.endLine = null;
                     for (int x = 0; x < endifs.Count; ++x)//Check if an if statement can be paired to an end line
+                    {
                         if (iF.index == endifs[x].index)
                             iF.endLine = endifs[x].line;
+                    }
+
 
                     ifs.Add(iF);
                 }
@@ -129,12 +132,13 @@ namespace CustomShell
                     endif.index = endifIndex;
                     endif.startLine = null;
                     for (int x = 0; x < ifs.Count; ++x)
+                    {
                         if (endif.index == ifs[x].index)
                         {
                             endif.startLine = ifs[x].line;
-                            ifs[x] = new IF {endLine = endif.line, index = ifs[x].index, line = ifs[x].line, statement = ifs[x].statement }; //Create a new copy of the if struct with a modified end line
+                            ifs[x] = new IF { endLine = endif.line, index = ifs[x].index, line = ifs[x].line, statement = ifs[x].statement }; //Create a new copy of the if struct with a modified end line
                         }
-
+                    }
                     endifs.Add(endif);
                 }
             }
@@ -154,35 +158,45 @@ namespace CustomShell
                 string[] tokens = lines[i].Split();
 
                 for (int j = 0; j < tokens.Length; ++j)
+                {
                     for (int l = 0; l < nums.Count; ++l)
+                    {
                         if (tokens[j].Equals(nums[l].name) && tokens[j - 1] != "NUM")
                         {
                             tokens[j] = nums[l].value.ToString(); //Replace variable names with the appropriate number
                             break;
                         }
+                    }
+                }
 
                 lines[i] = string.Join(" ", tokens); //Insert the modified string back into the main file array
 
                 if (lines[i].Contains("goto"))
                 {
                     for (int x = 0; x < labels.Count; ++x)
+                    {
                         if (labels[x].name == tokens[1]) //Set i to the line number of the label referenced by the goto statement
                             i = labels[x].lineNum;
+                    }
                 }
                 else if (lines[i].StartsWith("if"))
                 {
                     if (!isValidStatement(tokens)) //If the statement is not valid, jump to endif
+                    {
                         for (int z = 0; z < ifs.Count; ++z)
+                        {
                             if (ifs[z].line == i)
                             {
                                 i = (int)ifs[z].endLine;
                                 continue;
                             }
+                        }
+                    }
                 }
-                else if (lines[i].Contains("[END]"))
-                    return;
                 else if (!lines[i].Contains("NUM") && !lines[i].Contains("label") && !lines[i].Contains("[SCRIPT]"))//If line doesn't contain a keyword, run it as a command
                     main.RunCommand(lines[i], true);
+                else if (lines[i].Contains("[END]"))
+                    return;
 
                 CheckForVariableChange(tokens);
             }
@@ -228,7 +242,9 @@ namespace CustomShell
         private void CheckForVariableChange(string[] tokens)
         {
             for (int l = 0; l < tokens.Length; ++l) //Look for lines where a NUM variable changes in value, only +, -, ++, --
+            {
                 for (int j = 0; j < nums.Count; ++j)
+                {
                     if (tokens[j].StartsWith(nums[j].name))
                     {
                         if (tokens.Length >= 2)
@@ -246,6 +262,8 @@ namespace CustomShell
                                 ChangeNUMValue(nums[j], j, false, 1.0f);
                         }
                     }
+                }
+            }
         }
 
         private void ChangeNUMValue(NUM number, int index, bool add, float change)
