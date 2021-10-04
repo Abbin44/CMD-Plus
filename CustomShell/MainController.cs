@@ -459,6 +459,7 @@ namespace CustomShell
             sb.Append("cp [InputPath] (OutputPath)                      | Copies a file\n");
             sb.Append("mv [InputPath] [OutputPath]                      | Moves a file or folder\n");
             sb.Append("rm [Path]                                        | Removes a file or folder\n");
+            sb.Append("system                                           | Displays system information in a nice way\n");
             sb.Append("exec [PathToExe]                                 | Executes an .EXE file\n");
             sb.Append("open [PathToFile]                                | Opens a file with the standard app\n");
             sb.Append("extr [PathToZip] (OutputFolder)                  | Extracts a zip file\n");
@@ -466,11 +467,12 @@ namespace CustomShell
             sb.Append("calc [Equation]                                  | Calculates the given equation\n");
             sb.Append("size [Path]                                      | Gets the size of a folder\n");
             sb.Append("peek [Path]                                      | Prints all the text in a file\n");
-            sb.Append("wand [Path]                                      | Lets you edit a file. CTRL + S to save. CTRL + Q to quit\n");
+            sb.Append("wand [Path]                                      | Lets you edit a file. CTRL + S to save. CTRL + Q to quit. CTRL + H to toggle syntax highlight. CTRL + D to duplicate line. \n");
             sb.Append("listproc                                         | Lists all running processes\n");
             sb.Append("killproc [ID]                                    | Lets you kill a process\n");
             sb.Append("batch [CommandOrBatFile]                         | Lets you run any batch command or script file\n");
             sb.Append("clear                                            | Clears the console\n");
+            sb.Append("clear history                                    | Clears the command history\n");
             sb.Append("fcolor [Color]                                   | Changes the text color of the console\n");
             sb.Append("bcolor [Color]                                   | Changes the back color of the console\n");
             sb.Append("ftp [ip] [true/false] (username) (Password)      | Starts an FTP/FTPS Connection\n");
@@ -638,10 +640,7 @@ namespace CustomShell
                 command = command.Trim();
             }
             else
-            {
-                input = command;
-                input = input.Trim();
-            }
+                command = command.Trim();
 
             if (string.IsNullOrEmpty(command) || string.IsNullOrWhiteSpace(command))
                 return;
@@ -763,19 +762,20 @@ namespace CustomShell
                         systemInfo = null;
                         break;
                     case true when cmds[i].StartsWith("script"):
-                        if (tokens.Length < 2)
+                        if (tokens.Length == 2)
                         {
                             if (tokens.Length > 0)
+                            {
                                 AddCommandToConsole(tokens);
-
-                            AddTextToConsole("Incorrect ammount of parameters in command...");
-                            return;
+                                if (script == null)
+                                    script = new ScriptInterpreter(tokens[1]);
+                            }
+                            else
+                            {
+                                AddTextToConsole("Incorrect ammount of parameters in command...");
+                                return;
+                            }
                         }
-
-                        if (script == null)
-                            script = new ScriptInterpreter(tokens[1]);
-
-                        script = null;
                         break;
                     case true when cmds[i].StartsWith("ftp"):
                         AddCommandToConsole(tokens);
@@ -988,6 +988,9 @@ namespace CustomShell
 
             if (systemInfo != null)
                 systemInfo = null;
+
+            if (script != null)
+                script = null;
         }
     }
 }

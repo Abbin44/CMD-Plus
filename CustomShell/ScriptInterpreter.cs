@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomShell
 {
@@ -12,14 +9,21 @@ namespace CustomShell
         MainController main = MainController.controller;
 
         string[] lines;
-        List<string> statements = new List<string>();
-        List<string> pipe = new List<string>(); //List of commands to run and in the correct order
+        string[] file;
         List<NUM> nums = new List<NUM>();
         List<LABEL> labels = new List<LABEL>();
         List<GOTO> jumps = new List<GOTO>();
         List<IF> ifs = new List<IF>();
         List<ENDIF> endifs = new List<ENDIF>();
 
+        /*  TINY DOCUMENTATION
+         * 
+         *  The variables value is assigned in the script file and is converted into a NUM token with it's value.
+         *  If the interpreter finds a call to change it's value, the script file will remain the same, but the
+         *  Tokens value will be changed. The file is only ever read to create the initial string array of lines.
+         *  The "File" array is a constant list that always contain the original script lines while "Lines" contain
+         *  Modified text, such as variable names getting replaced by numbers.
+         */
 
         private struct NUM
         {
@@ -55,36 +59,20 @@ namespace CustomShell
 
         public ScriptInterpreter(string filePath)
         {
-            AddStatements();
             ReadScriptFile(filePath);
-        }
-
-        private void AddStatements()
-        {
-            statements.Add("NUM");
-            statements.Add("label");
-            statements.Add("if");
-            statements.Add("endif");
-            statements.Add("goto");
         }
 
         private void ReadScriptFile(string filePath)
         {
-            try
-            {
-                if (!main.IsFilePath(filePath))
-                    filePath = main.GetFullPathFromName(filePath);
+            if (!main.IsFilePath(filePath))
+                filePath = main.GetFullPathFromName(filePath);
 
-                if (!filePath.EndsWith(".srp"))
-                    return;
+            if (!filePath.EndsWith(".srp"))
+                return;
 
-                lines = File.ReadAllLines(filePath);
-                CreateTokens();
-            }
-            catch (Exception e)
-            {
-                main.AddTextToConsole("Could't read script file.");
-            }
+            lines = File.ReadAllLines(filePath);
+            file = File.ReadAllLines(filePath);
+            CreateTokens();
         }
 
         private void CreateTokens()
@@ -99,6 +87,7 @@ namespace CustomShell
                 if (string.IsNullOrWhiteSpace(lines[i]))//Skip all empty lines
                     continue;
 
+                lines[i] = lines[i].Trim();
                 string[] tokens = lines[i].Split();
                 if (lines[i].Contains("NUM"))
                 {
@@ -120,11 +109,11 @@ namespace CustomShell
                     jump.name = tokens[1];
                     jumps.Add(jump);
                 }
-                else if (lines[i].Contains("if"))
+                else if (lines[i].StartsWith("if"))
                 {
                     IF iF;
                     iF.line = i;
-                    iF.statement = string.Concat(tokens[1], tokens[2], tokens[3]);
+                    iF.statement = string.Concat(tokens[1], " ",tokens[2], " ", tokens[3]);
                     iF.index = ifIndex;
                     iF.endLine = null;
                     for (int x = 0; x < endifs.Count; ++x)//Check if an if statement can be paired to an end line
@@ -141,13 +130,12 @@ namespace CustomShell
                     endif.startLine = null;
                     for (int x = 0; x < ifs.Count; ++x)
                         if (endif.index == ifs[x].index)
+                        {
                             endif.startLine = ifs[x].line;
+                            ifs[x] = new IF {endLine = endif.line, index = ifs[x].index, line = ifs[x].line, statement = ifs[x].statement }; //Create a new copy of the if struct with a modified end line
+                        }
 
                     endifs.Add(endif);
-                }
-                else
-                {
-                    //TODO: Run line as a command
                 }
             }
             InterpretTokens();
@@ -157,16 +145,23 @@ namespace CustomShell
         {
             for (int i = 0; i < lines.Length; ++i)
             {
+                lines = file; //Reset the file each iteration
+
                 if (string.IsNullOrWhiteSpace(lines[i]))//Skip all empty lines
                     continue;
 
+                lines[i] = lines[i].Trim();
                 string[] tokens = lines[i].Split();
 
-                for (int j = 0; j < nums.Count; ++j)
-                    if (tokens[j].Equals(nums[j].name))
-                        tokens[j] = nums[j].value.ToString(); //Replace variable names with the appropriate number
+                for (int j = 0; j < tokens.Length; ++j)
+                    for (int l = 0; l < nums.Count; ++l)
+                        if (tokens[j].Equals(nums[l].name) && tokens[j - 1] != "NUM")
+                        {
+                            tokens[j] = nums[l].value.ToString(); //Replace variable names with the appropriate number
+                            break;
+                        }
 
-                lines[i] = tokens.ToString(); //Insert the modified string back into the main file array
+                lines[i] = string.Join(" ", tokens); //Insert the modified string back into the main file array
 
                 if (lines[i].Contains("goto"))
                 {
@@ -174,21 +169,94 @@ namespace CustomShell
                         if (labels[x].name == tokens[1]) //Set i to the line number of the label referenced by the goto statement
                             i = labels[x].lineNum;
                 }
-                else if (lines[i].Contains("if"))
+                else if (lines[i].StartsWith("if"))
                 {
-
-                }
-                else if (lines[i].Contains("endif"))
-                {
-
+                    if (!isValidStatement(tokens)) //If the statement is not valid, jump to endif
+                        for (int z = 0; z < ifs.Count; ++z)
+                            if (ifs[z].line == i)
+                            {
+                                i = (int)ifs[z].endLine;
+                                continue;
+                            }
                 }
                 else if (lines[i].Contains("[END]"))
-                {
                     return;
-                }
-                else
+                else if (!lines[i].Contains("NUM") && !lines[i].Contains("label") && !lines[i].Contains("[SCRIPT]"))//If line doesn't contain a keyword, run it as a command
                     main.RunCommand(lines[i], true);
+
+                CheckForVariableChange(tokens);
             }
+        }
+
+        private bool isValidStatement(string[] statement)
+        {
+            bool valid = false;
+
+            switch (statement[2])
+            {
+                case "==":
+                    if (statement[1] == statement[3])
+                        valid = true;
+                    break;
+                case "<":
+                    if (Convert.ToSingle(statement[1]) < Convert.ToSingle(statement[3]))
+                        valid = true;
+                    break;
+                case "<=":
+                    if (Convert.ToSingle(statement[1]) <= Convert.ToSingle(statement[3]))
+                        valid = true;
+                    break;
+                case ">":
+                    if (Convert.ToSingle(statement[1]) > Convert.ToSingle(statement[3]))
+                        valid = true;
+                    break;
+                case ">=":
+                    if (Convert.ToSingle(statement[1]) >= Convert.ToSingle(statement[3]))
+                        valid = true;
+                    break;
+                case "!=":
+                    if (statement[1] != statement[3])
+                        valid = true;
+                    break;
+                default:
+                    valid = false;
+                    break;
+            }
+            return valid;
+        }
+
+        private void CheckForVariableChange(string[] tokens)
+        {
+            for (int l = 0; l < tokens.Length; ++l) //Look for lines where a NUM variable changes in value, only +, -, ++, --
+                for (int j = 0; j < nums.Count; ++j)
+                    if (tokens[j].StartsWith(nums[j].name))
+                    {
+                        if (tokens.Length >= 2)
+                        {
+                            if (tokens[j + 1] == "+")
+                                ChangeNUMValue(nums[j], j, true, Convert.ToSingle(tokens[2]));
+                            else if (tokens[j + 1] == "-")
+                                ChangeNUMValue(nums[j], j, false, Convert.ToSingle(tokens[2]));
+                        }
+                        else
+                        {
+                            if (tokens[j].EndsWith("++"))
+                                ChangeNUMValue(nums[j], j, true, 1.0f);
+                            else if (tokens[j].EndsWith("--"))
+                                ChangeNUMValue(nums[j], j, false, 1.0f);
+                        }
+                    }
+        }
+
+        private void ChangeNUMValue(NUM number, int index, bool add, float change)
+        {
+            float newValue = 0.0f;
+            if(add == true)
+                newValue = number.value + change;
+            else
+                newValue = number.value - change;
+
+            nums[index] = new NUM { name = number.name, value = newValue };
         }
     }
 }
