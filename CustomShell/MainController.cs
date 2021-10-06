@@ -54,40 +54,12 @@ namespace CustomShell
             return text;
         }
 
-        //This is used to get a full file path if only a file or folder is entered 
-        //and the user expects the command to understand that it's the file inside of the current directory 
-        public string GetFullPathFromArray(string[] tokens)
-        {
-            return string.Concat(currentDir, @"\", tokens[tokens.Length - 1]);
-        }
-
         public string GetFullPathFromName(string path)
         {
             if (!currentDir.EndsWith("\\"))
                 return string.Concat(currentDir, @"\", path);
             else
                 return string.Concat(currentDir, path);
-        }
-
-        public bool IsFilePath(string path)
-        {
-            if (!path.Contains(@":\"))
-                return false;
-            else
-                return true;
-        }
-
-
-        //Check if the user has entered a complete file path or only a file or folder within the current directory
-        public string CheckInputType(string[] tokens) //This should be replaced as soon as possible since it only checks the last token
-        {
-            string path;
-            if (!tokens[tokens.Length - 1].Contains(@":\"))
-                path = GetFullPathFromArray(tokens);
-            else
-                path = tokens[1];
-
-            return path;
         }
 
         public string GetPathType(string path)
@@ -174,7 +146,8 @@ namespace CustomShell
         #region Commands
         public void ChangeDirectory(string[] tokens)
         {
-            string path = CheckInputType(tokens);
+            
+            string path = GetPathType(tokens[1]);
 
             if (tokens.Length == 1) //Go to root
             {
@@ -223,7 +196,7 @@ namespace CustomShell
                 {
                     AddCommandToConsole(tokens);
 
-                    string path = CheckInputType(tokens);
+                    string path = GetPathType(tokens[1]);
                     IEnumerable entries = Directory.EnumerateFileSystemEntries(path);
                     foreach (string item in entries)
                     {
@@ -253,18 +226,8 @@ namespace CustomShell
         }
         public void Rename(string[] tokens)
         {
-            string path = string.Empty;
-            string name = string.Empty;
-
-            if (!tokens[1].Contains(@":\"))
-                path = GetFullPathFromName(tokens[1]);
-            else
-                path = tokens[1];
-
-            if (!tokens[2].Contains(@":\"))
-                name = GetFullPathFromName(tokens[2]);
-            else
-                name = tokens[2];
+            string path = GetPathType(tokens[1]);
+            string name = GetPathType(tokens[2]);
 
             try
             {
@@ -283,11 +246,11 @@ namespace CustomShell
 
         public void MakeDirectory(string[] tokens)
         {
-            string dir = CheckInputType(tokens);
+            string path = GetPathType(tokens[1]);
 
-            if (!Directory.Exists(dir))
+            if (!Directory.Exists(path))
             {
-                Directory.CreateDirectory(dir);
+                Directory.CreateDirectory(path);
                 AddCommandToConsole(tokens);
             }
             else
@@ -296,7 +259,17 @@ namespace CustomShell
 
         public void MakeFile(string[] tokens)
         {
-            string path = CheckInputType(tokens);
+            string path = string.Empty;
+            if (tokens.Length == 2)
+            {
+                path = GetPathType(tokens[1]);
+
+            }
+            else
+            {
+                AddTextToConsole("Wrong ammount of arguments...");
+                return;
+            }
 
             if (!File.Exists(path))
             {
@@ -322,14 +295,18 @@ namespace CustomShell
 
         public void RemoveFolder(string[] tokens)
         {
-            string path = CheckInputType(tokens);
+            string path = string.Empty;
+            if (!tokens[1].Equals("-r"))
+                path = GetPathType(tokens[1]);
+            else
+                path = GetPathType(tokens[2]);
 
-            if (tokens[1].Contains("."))
+            if (path.Contains("."))
             {
                 if (File.Exists(path))
                     File.Delete(path);
                 else
-                    AddTextToConsole("File doesn't exists");
+                    AddTextToConsole("File doesn't exist...");
             }
             else
             {
@@ -458,8 +435,9 @@ namespace CustomShell
             sb.Append("mkfile [Path]                                    | Creates a file\n");
             sb.Append("cp [InputPath] (OutputPath)                      | Copies a file\n");
             sb.Append("mv [InputPath] [OutputPath]                      | Moves a file or folder\n");
-            sb.Append("rm [Path]                                        | Removes a file or folder\n");
+            sb.Append("rm (-r) [Path]                                   | Removes a file or folder\n");
             sb.Append("system                                           | Displays system information in a nice way\n");
+            sb.Append("script [ScriptPath]                              | Runs a script file\n");
             sb.Append("exec [PathToExe]                                 | Executes an .EXE file\n");
             sb.Append("open [PathToFile]                                | Opens a file with the standard app\n");
             sb.Append("extr [PathToZip] (OutputFolder)                  | Extracts a zip file\n");
@@ -496,8 +474,9 @@ namespace CustomShell
 
         public void Execute(string[] tokens)
         {
-            string path = CheckInputType(tokens);
-            if (!tokens[1].EndsWith(".exe"))
+            string path = GetPathType(tokens[1]);
+
+            if (path.EndsWith(".exe"))
             {
                 AddTextToConsole("You have not entered a valid file to execute");
                 return;
@@ -518,8 +497,9 @@ namespace CustomShell
 
         public void OpenFile(string[] tokens)
         {
-            string path = CheckInputType(tokens);
-            if (!tokens[1].Contains("."))
+            string path = GetPathType(tokens[1]);
+
+            if (!path.Contains("."))
             {
                 AddTextToConsole("You have not entered a valid file to open");
                 return;
@@ -552,7 +532,7 @@ namespace CustomShell
 
         public void DirectorySize(string[] tokens)
         {
-            string path = CheckInputType(tokens);
+            string path = GetPathType(tokens[1]);
             long size = 0;
             DirectoryInfo di = new DirectoryInfo(path);
 
@@ -577,17 +557,8 @@ namespace CustomShell
         {
             if (tokens.Length == 3)
             {
-                string input;
-                if (!tokens[1].Contains(@":\"))
-                    input = GetFullPathFromName(tokens[1]);
-                else
-                    input = tokens[1];
-
-                string output;
-                if (!tokens[2].Contains(@":\"))
-                    output = GetFullPathFromName(tokens[2]);
-                else
-                    output = tokens[2];
+                string input = GetPathType(tokens[1]);
+                string output = GetPathType(tokens[2]);
 
                 try
                 {
@@ -712,6 +683,7 @@ namespace CustomShell
                         DirectorySize(tokens);
                         break;
                     case true when cmds[i].StartsWith("peek"):
+                        AddCommandToConsole(tokens);
                         if (wand == null)
                             wand = new WandEditor();
                         wand.PeekFile(tokens);
@@ -870,7 +842,6 @@ namespace CustomShell
                 historyIndex = historyLen - 1;
             }
 
-            //When command is entered
             if (e.KeyCode == Keys.Enter)
             {
                 e.Handled = true;
@@ -882,6 +853,7 @@ namespace CustomShell
                 e.Handled = true;
                 if (localDirectory == null)
                     localDirectory = new LocalDirectory();
+
                 localDirectory.GetAllCurrentDir(inputBox.Text, currentDir);
             }
 

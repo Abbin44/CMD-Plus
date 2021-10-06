@@ -46,13 +46,7 @@ namespace CustomShell
             }
             else if (tokens.Length == 2)
             {
-                string path;
-
-                if (!main.IsFilePath(tokens[1]))
-                    path = main.GetFullPathFromName(tokens[1]);
-                else
-                    path = tokens[1];
-
+                string path = main.GetPathType(tokens[1]);
                 ZipFile.CreateFromDirectory(path, path + ".zip");
             }
             main.AddCommandToConsole(tokens);

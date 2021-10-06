@@ -64,8 +64,7 @@ namespace CustomShell
 
         private void ReadScriptFile(string filePath)
         {
-            if (!main.IsFilePath(filePath))
-                filePath = main.GetFullPathFromName(filePath);
+            filePath = main.GetPathType(filePath);
 
             if (!filePath.EndsWith(".srp"))
                 return;
