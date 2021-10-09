@@ -50,14 +50,22 @@ The wand editor also have syntax highlighting for better readability when modify
 ## Batch Integration
 The Windows Command Line or CMD, is fully integrated and all batch commands that can be run in CMD can be run in my shell as well.
 
-## TODO LIST
+## Upcoming features
 All tasks that will appear here will be bigger and more time consuming than other tasks that regularly gets pushed.
 
-**Upcoming features**
+**Currently working on**
 
+
+**Big features**
+
+**Currently being developed**
+- Stability to remove as many scenarios as possible that could cause crashes
+
+These features require more work than regular updates and are therefor listed in a checkbox system.
 - [ ] Fix the calculator
 - [ ] Add linux support
 - [ ] Create an interpreted scripting language to run commands from a script file
-    - [ ] Create basic structure of variables  **--- In Progress**
-    - [ ] Create if statement and lables       **--- In Progress**
-    - [ ] Create END statements and other misc statements
+    - [x] Create basic structure of variables
+    - [x] Create if statement and lables
+    - [x] Create END statements and other misc statements
+    - [ ] Testing, bugfixes and final improvements **In Progress**
