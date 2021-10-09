@@ -21,8 +21,7 @@ namespace CustomShell
                 client.Credentials = new NetworkCredential(user, pass);
                 client.Connect();
                 main.AddTextToConsole("Successfully connected to the server...");
-                main.inputBox.Text = main.InputPrefix();
-                main.inputBox.SelectionStart = main.inputBox.Text.Length;
+                main.SetInputPrefix();
             }
             catch (Exception)
             {
@@ -36,9 +35,7 @@ namespace CustomShell
             {
                 client.Connect();
                 main.AddTextToConsole("Successfully connected to the server...");
-                main.inputBox.Text = main.InputPrefix();
-                main.inputBox.SelectionStart = main.inputBox.Text.Length;
-
+                main.SetInputPrefix();
             }
             catch (Exception)
             {
@@ -53,8 +50,7 @@ namespace CustomShell
             foreach (FtpListItem item in client.GetListing(dir))
                 main.AddFTPItemToConsole(item);
 
-            main.inputBox.Text = main.InputPrefix();
-            main.inputBox.SelectionStart = main.inputBox.Text.Length;
+            main.SetInputPrefix();
         }
 
         public void UploadFile(string from, string to)
@@ -63,8 +59,7 @@ namespace CustomShell
             {
                 client.UploadFile(from, to);
                 main.AddTextToConsole("Successfully uploaded file...");
-                main.inputBox.Text = main.InputPrefix();
-                main.inputBox.SelectionStart = main.inputBox.Text.Length;
+                main.SetInputPrefix();
             }
             catch (Exception)
             {
@@ -79,8 +74,7 @@ namespace CustomShell
             {
                 client.DownloadFile(to, from);
                 main.AddTextToConsole("Successfully downloaded file...");
-                main.inputBox.Text = main.InputPrefix();
-                main.inputBox.SelectionStart = main.inputBox.Text.Length;
+                main.SetInputPrefix();
             }
             catch (Exception)
             {
@@ -95,8 +89,7 @@ namespace CustomShell
             {
                 client.UploadDirectory(from, to);
                 main.AddTextToConsole("Successfully uploaded directory...");
-                main.inputBox.Text = main.InputPrefix();
-                main.inputBox.SelectionStart = main.inputBox.Text.Length;
+                main.SetInputPrefix();
             }
             catch (Exception)
             {
@@ -111,8 +104,7 @@ namespace CustomShell
             {
                 client.DownloadDirectory(to, from);
                 main.AddTextToConsole("Successfully downloaded directory...");
-                main.inputBox.Text = main.InputPrefix();
-                main.inputBox.SelectionStart = main.inputBox.Text.Length;
+                main.SetInputPrefix();
             }
             catch (Exception)
             {
@@ -127,8 +119,7 @@ namespace CustomShell
             {
                 client.DeleteFile(path);
                 main.AddTextToConsole("Successfully deleted the file...");
-                main.inputBox.Text = main.InputPrefix();
-                main.inputBox.SelectionStart = main.inputBox.Text.Length;
+                main.SetInputPrefix();
             }
             catch (Exception)
             {
@@ -143,8 +134,7 @@ namespace CustomShell
             {
                 client.DeleteDirectory(path);
                 main.AddTextToConsole("Successfully deleted the directory...");
-                main.inputBox.Text = main.InputPrefix();
-                main.inputBox.SelectionStart = main.inputBox.Text.Length;
+                main.SetInputPrefix();
             }
             catch (Exception)
             {
@@ -159,8 +149,7 @@ namespace CustomShell
             {
                 client.Disconnect();
                 main.AddTextToConsole("Successfully terminated connection to the server...");
-                main.inputBox.Text = main.InputPrefix();
-                main.inputBox.SelectionStart = main.inputBox.Text.Length;
+                main.SetInputPrefix();
             }
             catch (Exception)
             {

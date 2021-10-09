@@ -70,7 +70,7 @@ namespace CustomShell
                 TimeSpan time = TimeSpan.FromSeconds(uptimeInSeconds);
                 return string.Concat("Uptime: ", time.Hours, "h ", time.Minutes, "m ", time.Seconds, "s ");
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 string upTime = "Uptime: 0h 0m 0s";
                 return upTime;
@@ -104,7 +104,6 @@ namespace CustomShell
 
         private string GetOS()
         {
-
             string prefix = "OS: ";
             string name = string.Empty;
             string arch = string.Empty;

@@ -48,10 +48,23 @@ namespace CustomShell
             InitConsole();
         }
 
-        public string InputPrefix()
+        public string GetInputPrefix()
         {
             string text = string.Concat(Environment.UserName, "@", currentDir, " ~ ");
             return text;
+        }
+
+        public void SetInputPrefix()
+        {
+            inputBox.Text = GetInputPrefix();
+            LockInputPrefix();
+        }
+
+        public void LockInputPrefix()
+        {
+            inputBox.Select(0, GetInputPrefix().Length);
+            inputBox.SelectionProtected = true;
+            inputBox.SelectionStart = inputBox.Text.Length;
         }
 
         public string GetFullPathFromName(string path)
@@ -75,8 +88,7 @@ namespace CustomShell
 
         public void InitConsole()
         {
-            inputBox.Text = string.Concat(Environment.UserName, "@", currentDir, " ~ ");
-            inputBox.SelectionStart = inputBox.Text.Length;
+            SetInputPrefix();
             this.ActiveControl = inputBox;
         }
 
@@ -91,8 +103,7 @@ namespace CustomShell
             outputBox.SelectionStart = outputBox.TextLength;
             outputBox.ScrollToCaret();
             UpdateHistoryFile(command);//Update history file
-            inputBox.Text = InputPrefix(); //Clear input area
-            inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
+            SetInputPrefix();
         }
 
         public void UpdateHistoryFile(string command)
@@ -146,17 +157,22 @@ namespace CustomShell
         #region Commands
         public void ChangeDirectory(string[] tokens)
         {
-            
-            string path = GetPathType(tokens[1]);
+            string path = string.Empty;
 
-            if (tokens.Length == 1) //Go to root
+            if (tokens.Length > 1)
+                path = GetPathType(tokens[1]);
+            else if(tokens.Length == 1 && tokens[0] == "cd")
             {
                 if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                     currentDir = @"C:\";
                 else if (Environment.OSVersion.Platform == PlatformID.Unix)
                     currentDir = @"~";
+
+                SetInputPrefix();
+                return;
             }
-            else if (tokens[1] == "..")//Go back one folder
+
+            if (tokens[1] == "..")//Go back one folder
             {
                 string dir = currentDir;
                 int index = dir.LastIndexOf(@"\");
@@ -238,7 +254,7 @@ namespace CustomShell
 
                 AddCommandToConsole(tokens);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 AddTextToConsole("Cannot find file path, did you enter the right name?");
             }
@@ -261,10 +277,7 @@ namespace CustomShell
         {
             string path = string.Empty;
             if (tokens.Length == 2)
-            {
                 path = GetPathType(tokens[1]);
-
-            }
             else
             {
                 AddTextToConsole("Wrong ammount of arguments...");
@@ -336,7 +349,6 @@ namespace CustomShell
                                 return; //Hopefully never gets to this so don't display anything
                         }
                     }
-
                 }
                 else
                     AddTextToConsole("Folder doesn't exists");
@@ -365,7 +377,7 @@ namespace CustomShell
                     {
                         if (!Directory.Exists(output))
                         {
-                            //UNFINISHED, TO BE ADDED
+                            //TODO: COPY FOLDERS
                         }
                         else
                             AddTextToConsole("Output directory already exists");
@@ -468,8 +480,7 @@ namespace CustomShell
 
             AddTextToConsole(sb.ToString());
             AddCommandToConsole(com);
-            inputBox.Text = InputPrefix();
-            inputBox.SelectionStart = inputBox.Text.Length;
+            SetInputPrefix();
         }
 
         public void Execute(string[] tokens)
@@ -521,13 +532,13 @@ namespace CustomShell
         public void ClearConsole()
         {
             outputBox.Text = string.Empty;
-            inputBox.Text = InputPrefix();
-            inputBox.SelectionStart = inputBox.Text.Length;
+            SetInputPrefix();
         }
 
         public void ClearHistory()
         {
             File.WriteAllText(historyFilePath, string.Empty);
+            LoadHistoryFile();
         }
 
         public void DirectorySize(string[] tokens)
@@ -792,16 +803,14 @@ namespace CustomShell
                         coloring = new Coloring();
                         coloring.ColorForeground(fcolor);
 
-                        inputBox.Text = InputPrefix();
-                        inputBox.SelectionStart = inputBox.Text.Length;
+                        SetInputPrefix();
                         break;
                     case true when cmds[i].StartsWith("bcolor"):
                         string bcolor = tokens[1].ToUpper();
                         coloring = new Coloring();
-                        coloring.ColorForeground(bcolor);
+                        coloring.ColorBackground(bcolor);
 
-                        inputBox.Text = InputPrefix();
-                        inputBox.SelectionStart = inputBox.Text.Length;
+                        SetInputPrefix();
                         break;
                     case true when cmds[i].StartsWith("ssh"):
                         AddCommandToConsole(tokens);
@@ -874,7 +883,7 @@ namespace CustomShell
                 {
                     if(firstClick == false)
                         --historyIndex;
-                    inputBox.Text = string.Concat(InputPrefix(), " ", cmdHistory[historyIndex]);
+                    inputBox.Text = string.Concat(GetInputPrefix(), " ", cmdHistory[historyIndex]);
                     inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
 
                     if(firstClick == true)
@@ -882,7 +891,7 @@ namespace CustomShell
                 }
                 else if (historyIndex == 0) //This else if must be here so that you can press down to clear the history if you are at the end
                 {
-                    inputBox.Text = string.Concat(InputPrefix(), " ", cmdHistory[historyIndex]);
+                    inputBox.Text = string.Concat(GetInputPrefix(), " ", cmdHistory[historyIndex]);
                     inputBox.SelectionStart = inputBox.Text.Length;
                 }
             }
@@ -896,7 +905,7 @@ namespace CustomShell
                 {
                     if (firstClick == false)
                         ++historyIndex;
-                    inputBox.Text = string.Concat(InputPrefix(), " ", cmdHistory[historyIndex]); 
+                    inputBox.Text = string.Concat(GetInputPrefix(), " ", cmdHistory[historyIndex]); 
                     inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
                     if (firstClick == true)
                         firstClick = false;
@@ -904,14 +913,13 @@ namespace CustomShell
                 else if(historyIndex == 0 && firstClick == false) //This else if must be here so that you can press down to clear the history if you are at the end
                 {
                     ++historyIndex;
-                    inputBox.Text = string.Concat(InputPrefix(), " ", cmdHistory[historyIndex]);
+                    inputBox.Text = string.Concat(GetInputPrefix(), " ", cmdHistory[historyIndex]);
                     inputBox.SelectionStart = inputBox.Text.Length;
                 }
                 else if (historyIndex == cmdHistory.Length - 1)
                 {
                     ++historyIndex;
-                    inputBox.Text = InputPrefix();
-                    inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
+                    SetInputPrefix();
                 }
             }
             #endregion

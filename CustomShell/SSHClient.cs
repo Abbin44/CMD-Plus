@@ -22,8 +22,7 @@ namespace CustomShell
                 client = new SshClient(connInfo);
                 client.Connect();
                 main.AddTextToConsole("Successfully connected to the host...");
-                main.inputBox.Text = main.InputPrefix();
-                main.inputBox.SelectionStart = main.inputBox.Text.Length;
+                main.SetInputPrefix();
             }
             catch (Exception)
             {
@@ -45,8 +44,7 @@ namespace CustomShell
                 main.outputBox.SelectionColor = Color.Red;
                 main.outputBox.SelectionStart = main.outputBox.Text.Length;
 
-                main.inputBox.Text = main.InputPrefix();
-                main.inputBox.SelectionStart = main.inputBox.Text.Length;
+                main.SetInputPrefix();
             }
             catch (Exception)
             {
@@ -61,8 +59,7 @@ namespace CustomShell
             {
                 client.Disconnect();
                 main.AddTextToConsole("Successfully terminated the connection...");
-                main.inputBox.Text = main.InputPrefix();
-                main.inputBox.SelectionStart = main.inputBox.Text.Length;
+                main.SetInputPrefix();
             }
             catch (Exception)
             {

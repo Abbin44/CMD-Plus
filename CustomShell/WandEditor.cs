@@ -30,7 +30,16 @@ namespace CustomShell
             }
 
             path = main.GetPathType(tokens[1]);
-            string[] lines = File.ReadAllLines(path);
+            string[] lines;
+
+            if (!File.Exists(path))
+            {
+                main.AddTextToConsole("Could not find file...");
+                return;
+            }
+            else
+                lines = File.ReadAllLines(path);
+
             for (int i = 0; i < lines.Length; ++i)
             {
                 main.AddTextToConsole(lines[i]);
@@ -65,7 +74,7 @@ namespace CustomShell
 
                 main.wandTextBox.Focus();
                 main.wandTextBox.SelectionStart = main.wandTextBox.TextLength;
-                main.inputBox.Text = main.InputPrefix(); //Clear input console
+                main.SetInputPrefix();
                 hasFileLoaded = true;
             }
             catch (Exception)

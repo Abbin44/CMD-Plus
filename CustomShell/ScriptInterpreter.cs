@@ -262,30 +262,55 @@ namespace CustomShell
                             if (tokens[j + 1] == "+")
                             {
                                 ChangeNUMValue(nums[j], j, true, Convert.ToSingle(tokens[2]));
-                                return;
                             }
                             else if (tokens[j + 1] == "-")
                             {
                                 ChangeNUMValue(nums[j], j, false, Convert.ToSingle(tokens[2]));
-                                return;
                             }
+                            else if (tokens[j + 1] == "=")
+                            {
+                                ChangeNUMValue(nums[j], j, false, Convert.ToSingle(tokens[2]));
+                            }
+                            return;
                         }
-                        else
+                        else if (tokens.Length == 1) 
                         {
                             if (tokens[j].EndsWith("++"))
                             {
                                 ChangeNUMValue(nums[j], j, true, 1.0f);
-                                return;
                             }
                             else if (tokens[j].EndsWith("--"))
                             {
                                 ChangeNUMValue(nums[j], j, false, 1.0f);
-                                return;
                             }
+                            return;
                         }
                     }
                 }
             }
+        }
+
+        private bool IsNumVar(string name)
+        {
+            bool isVar = false;
+            for (int i = 0; i < nums.Count; ++i)
+            {
+                if (name == nums[i].name)
+                    isVar = true;
+            }
+            return isVar;
+        }
+
+        private float GetNumValue(string name)
+        {
+            for (int i = 0; i < nums.Count; ++i)
+            {
+                if (name == nums[i].name)
+                {
+                    return nums[i].value;
+                }
+            }
+            return 0.0f; //This should never be reached since a check for IsNumVar should always have happened before calling this
         }
 
         private void ChangeNUMValue(NUM number, int index, bool add, float change)

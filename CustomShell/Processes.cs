@@ -17,8 +17,7 @@ namespace CustomShell
             for (int i = 0; i < processes.Length; i++)
                 main.AddTextToConsole(processes[i].ProcessName + " : " + processes[i].Id);
 
-            main.inputBox.Text = main.InputPrefix();
-            main.inputBox.SelectionStart = main.inputBox.Text.Length;
+            main.SetInputPrefix();
         }
 
         public void KillProcess(string[] tokens)
