@@ -56,8 +56,6 @@ All tasks that will appear here will be bigger and more time consuming than othe
 **Currently being developed**
 - Stability to remove as many scenarios as possible that could cause crashes
 
-**Big features**
-
 These features require more work than regular updates and are therefor listed in a checkbox system.
 - [ ] Fix the calculator
 - [ ] Add linux support
