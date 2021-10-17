@@ -53,11 +53,6 @@ The Windows Command Line or CMD, is fully integrated and all batch commands that
 ## Upcoming features
 All tasks that will appear here will be bigger and more time consuming than other tasks that regularly gets pushed.
 
-**Currently working on**
-
-
-**Big features**
-
 **Currently being developed**
 - Stability to remove as many scenarios as possible that could cause crashes
 
