@@ -70,11 +70,23 @@ namespace CustomShell
             filePath = main.GetPathType(filePath);
 
             if (!filePath.EndsWith(".rls"))
+            {
+                main.AddTextToConsole("Not a .rls file...");
                 return;
+            }
 
-            lines = File.ReadAllLines(filePath);
-            file = File.ReadAllLines(filePath);
-            CreateTokens();
+            try
+            {
+                lines = File.ReadAllLines(filePath);
+                file = File.ReadAllLines(filePath);
+                CreateTokens();
+            }
+            catch (Exception)
+            {
+                main.AddTextToConsole("File could not be found...");
+                return;
+            }
+
         }
 
         private void CreateTokens()
