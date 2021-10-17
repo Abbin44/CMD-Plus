@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 
 namespace CustomShell
@@ -7,6 +8,8 @@ namespace CustomShell
     class ScriptInterpreter
     {
         MainController main = MainController.controller;
+
+        DataTable dt = new DataTable();
 
         string[] lines;
         string[] file;
@@ -45,14 +48,14 @@ namespace CustomShell
         private struct IF
         {
             public string statement;
+            public string name;
             public int line;
             public int? endLine;
-            public int index;
         }
 
         private struct ENDIF
         {
-            public int index;
+            public string name;
             public int line;
             public int? startLine;
         }
@@ -66,7 +69,7 @@ namespace CustomShell
         {
             filePath = main.GetPathType(filePath);
 
-            if (!filePath.EndsWith(".srp"))
+            if (!filePath.EndsWith(".rls"))
                 return;
 
             lines = File.ReadAllLines(filePath);
@@ -79,8 +82,6 @@ namespace CustomShell
             if (!lines[0].Equals("[SCRIPT]"))
                 return;
 
-            int ifIndex = 0;
-            int endifIndex = 0;
             for (int i = 0; i < lines.Length; ++i)
             {
                 if (string.IsNullOrWhiteSpace(lines[i]))//Skip all empty lines
@@ -112,12 +113,12 @@ namespace CustomShell
                 {
                     IF iF;
                     iF.line = i;
-                    iF.statement = string.Concat(tokens[1], " ",tokens[2], " ", tokens[3]);
-                    iF.index = ifIndex;
+                    iF.name = tokens[1];
+                    iF.statement = string.Concat(tokens[3], " ",tokens[4], " ", tokens[5]);
                     iF.endLine = null;
                     for (int x = 0; x < endifs.Count; ++x)//Check if an if statement can be paired to an end line
                     {
-                        if (iF.index == endifs[x].index)
+                        if (iF.name == endifs[x].name)
                             iF.endLine = endifs[x].line;
                     }
 
@@ -127,20 +128,21 @@ namespace CustomShell
                 else if (lines[i].Contains("endif"))
                 {
                     ENDIF endif;
+                    endif.name = tokens[1];
                     endif.line = i;
-                    endif.index = endifIndex;
                     endif.startLine = null;
                     for (int x = 0; x < ifs.Count; ++x)
                     {
-                        if (endif.index == ifs[x].index)
+                        if (tokens[1] == ifs[x].name)
                         {
                             endif.startLine = ifs[x].line;
-                            ifs[x] = new IF { endLine = endif.line, index = ifs[x].index, line = ifs[x].line, statement = ifs[x].statement }; //Create a new copy of the if struct with a modified end line
+                            ifs[x] = new IF { endLine = endif.line, line = ifs[x].line, name = ifs[x].name, statement = ifs[x].statement }; //Create a new copy of the if struct with a modified end line
                         }
                     }
                     endifs.Add(endif);
                 }
             }
+            HandleComments();
             InterpretTokens();
         }
 
@@ -153,6 +155,7 @@ namespace CustomShell
 
                 lines[i] = lines[i].Trim();
                 string[] tokens = lines[i].Split();
+                HandleComments();
 
                 for (int j = 0; j < tokens.Length; ++j)
                 {
@@ -168,7 +171,7 @@ namespace CustomShell
 
                 lines[i] = string.Join(" ", tokens); //Insert the modified string back into the main file array
 
-                if (lines[i].Contains("goto"))
+                if (lines[i].StartsWith("goto"))
                 {
                     for (int x = 0; x < labels.Count; ++x)
                     {
@@ -182,17 +185,23 @@ namespace CustomShell
                     {
                         for (int z = 0; z < ifs.Count; ++z)
                         {
-                            if (ifs[z].line == i)
+                            if (ifs[z].line == i && ifs[z].name == tokens[1])
                             {
-                                i = (int)ifs[z].endLine - 1;
+                                int l = GetEndifIndex(tokens[1]);
+                                i = endifs[l].line;
                                 continue;
                             }
                         }
                     }
                 }
-                else if (lines[i].Contains("[END]"))
+                else if(tokens[0] == "print")
+                {
+                    string output = string.Join(" ", tokens, 1, tokens.Length - 1);
+                    main.AddTextToConsole(output);
+                }
+                else if (lines[i].StartsWith("[END]"))
                     return;
-                else if (!lines[i].Contains("NUM") && !lines[i].Contains("label") && !lines[i].Contains("[SCRIPT]") && !lines[i].Contains("endif") && LineContainsVariable(lines[i]) == false)//If line doesn't contain a keyword, run it as a command
+                else if (!lines[i].StartsWith("NUM") && !lines[i].StartsWith("label") && !lines[i].StartsWith("[SCRIPT]") && !lines[i].Contains("endif") && !lines[i].StartsWith("print") && LineContainsVariable(lines[i]) == false)//If line doesn't contain a keyword, run it as a command
                     main.RunCommand(lines[i], true);
 
                 CheckForVariableChange(tokens);
@@ -212,34 +221,53 @@ namespace CustomShell
             return containsVar;
         }
 
+        private void HandleComments()
+        {
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i].Contains("#"))
+                {
+                    int commentIndex = 0;
+                    commentIndex = lines[i].IndexOf("#");
+
+                    if (commentIndex == 0)
+                        file[i] = "";
+                    else if(commentIndex > 0)
+                        file[i] = file[i].Substring(0, commentIndex);
+
+                    file.CopyTo(lines, 0);
+                }
+            }
+        }
+
         private bool isValidStatement(string[] statement)
         {
             bool valid = false;
 
-            switch (statement[2])
+            switch (statement[4])
             {
                 case "==":
-                    if (statement[1] == statement[3])
+                    if (statement[3] == statement[5])
                         valid = true;
                     break;
                 case "<":
-                    if (Convert.ToSingle(statement[1]) < Convert.ToSingle(statement[3]))
+                    if (Convert.ToSingle(statement[3]) < Convert.ToSingle(statement[5]))
                         valid = true;
                     break;
                 case "<=":
-                    if (Convert.ToSingle(statement[1]) <= Convert.ToSingle(statement[3]))
+                    if (Convert.ToSingle(statement[3]) <= Convert.ToSingle(statement[5]))
                         valid = true;
                     break;
                 case ">":
-                    if (Convert.ToSingle(statement[1]) > Convert.ToSingle(statement[3]))
+                    if (Convert.ToSingle(statement[3]) > Convert.ToSingle(statement[5]))
                         valid = true;
                     break;
                 case ">=":
-                    if (Convert.ToSingle(statement[1]) >= Convert.ToSingle(statement[3]))
+                    if (Convert.ToSingle(statement[3]) >= Convert.ToSingle(statement[5]))
                         valid = true;
                     break;
                 case "!=":
-                    if (statement[1] != statement[3])
+                    if (statement[3] != statement[5])
                         valid = true;
                     break;
                 default:
@@ -251,43 +279,40 @@ namespace CustomShell
 
         private void CheckForVariableChange(string[] tokens)
         {
-            for (int l = 0; l < tokens.Length; ++l) //Look for lines where a NUM variable changes in value, only +, -, ++, --
+            if (!IsNumVar(tokens[0]))
+                return;
+
+            int numIndex = GetNumIndex(tokens[0]);
+
+            //Check for var++ and var--
+            if (IsNumVar(tokens[0]) && tokens.Length == 1 && tokens[0].EndsWith("++"))
             {
-                for (int j = 0; j < nums.Count; ++j)
-                {
-                    if (tokens[j].StartsWith(nums[j].name))
-                    {
-                        if (tokens.Length >= 2)
-                        {
-                            if (tokens[j + 1] == "+")
-                            {
-                                ChangeNUMValue(nums[j], j, true, Convert.ToSingle(tokens[2]));
-                            }
-                            else if (tokens[j + 1] == "-")
-                            {
-                                ChangeNUMValue(nums[j], j, false, Convert.ToSingle(tokens[2]));
-                            }
-                            else if (tokens[j + 1] == "=")
-                            {
-                                ChangeNUMValue(nums[j], j, false, Convert.ToSingle(tokens[2]));
-                            }
-                            return;
-                        }
-                        else if (tokens.Length == 1) 
-                        {
-                            if (tokens[j].EndsWith("++"))
-                            {
-                                ChangeNUMValue(nums[j], j, true, 1.0f);
-                            }
-                            else if (tokens[j].EndsWith("--"))
-                            {
-                                ChangeNUMValue(nums[j], j, false, 1.0f);
-                            }
-                            return;
-                        }
-                    }
-                }
+                ChangeNUMValue(nums[numIndex], numIndex, true, 1.0f);
+                return;
             }
+            else if (IsNumVar(tokens[0]) && tokens.Length == 1 && tokens[0].EndsWith("--"))
+            {
+                ChangeNUMValue(nums[numIndex], numIndex, false, 1.0f);
+                return;
+            }
+
+            for (int i = 0; i < tokens.Length; ++i) //Skip first two tokens since they are not part of the new value
+            {
+                if (IsNumVar(tokens[i]))
+                    tokens[i] = nums[GetNumIndex(tokens[i])].value.ToString();
+            }
+
+            string equation = string.Empty;
+
+            if(tokens[1] == "=")
+                equation = string.Join(" ", tokens, 2, tokens.Length - 2);
+            else
+                equation = string.Join(" ", tokens);
+
+            float answer = Convert.ToSingle(dt.Compute(equation, ""));
+            nums[numIndex] = new NUM { name = nums[numIndex].name, value = answer };
+
+            file.CopyTo(lines, 0); //Reset the lines array to default
         }
 
         private bool IsNumVar(string name)
@@ -295,7 +320,7 @@ namespace CustomShell
             bool isVar = false;
             for (int i = 0; i < nums.Count; ++i)
             {
-                if (name == nums[i].name)
+                if (name == nums[i].name || name == nums[i].name + "++" || name == nums[i].name + "--")
                     isVar = true;
             }
             return isVar;
@@ -305,12 +330,33 @@ namespace CustomShell
         {
             for (int i = 0; i < nums.Count; ++i)
             {
-                if (name == nums[i].name)
-                {
+                if (name == nums[i].name || name == nums[i].name + "++" || name == nums[i].name + "--")
                     return nums[i].value;
-                }
             }
             return 0.0f; //This should never be reached since a check for IsNumVar should always have happened before calling this
+        }
+
+        private int GetNumIndex(string name)
+        {
+            int index = 0;
+            for (int i = 0; i < nums.Count; ++i)
+            {
+                if (name == nums[i].name)
+                    index = i;
+            }
+
+            return index;
+        }
+
+        private int GetEndifIndex(string name)
+        {
+            int index = 0;
+            for (int i = 0; i < endifs.Count; ++i)
+            {
+                if (endifs[i].name == name)
+                    index = i;
+            }
+            return index;
         }
 
         private void ChangeNUMValue(NUM number, int index, bool add, float change)

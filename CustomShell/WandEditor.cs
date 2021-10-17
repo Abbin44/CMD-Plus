@@ -86,6 +86,20 @@ namespace CustomShell
             }
         }
 
+        public void AppendText(string[] tokens)
+        {
+            try
+            {
+                File.AppendAllText(tokens[1], "\n" + tokens[2]);
+            }
+            catch (Exception)
+            {
+                main.wandTextBox.Visible = false;
+                main.outputBox.Visible = true;
+                main.AddTextToConsole("File not valid...");
+            }
+        }
+
         public void DuplicateLine()
         {
             int index = main.wandTextBox.GetLineFromCharIndex(main.wandTextBox.SelectionStart);
@@ -119,7 +133,7 @@ namespace CustomShell
             syntaxHighlighted = true;
             string[] types = new string[] {"int ", "integer ", "float ", "single ", "double ", "decimal ", "bool ", "boolean ", "string "};
             string[] operators = new string[] {"!", "=", ">", "<", "|", "@", "%", "+", "-", "*", "/", "\\", "?", ";", ":"};
-            string[] statements = new string[] {"if", "else if", "elif", "if else", "else", "true", "false", "try", "catch", "finally", "public", "private", "protected", "static", "using", "import", "include", "define", "void", "while", "for", "return", "continue", "break"};
+            string[] statements = new string[] {"if", "else if", "elif", "elseif", "endif", "if else", "else", "true", "false", "try", "catch", "finally", "public", "private", "protected", "static", "using", "import", "include", "define", "void", "while", "for", "return", "continue", "break"};
             string[] misc = new string[] {"#", "$", "\"", "'", "region", "endregion"};
             string[] numbers = new string[] {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
 

@@ -703,7 +703,11 @@ namespace CustomShell
                         AddCommandToConsole(tokens);
                         if (wand == null)
                             wand = new WandEditor();
-                        wand.LoadFile(tokens);
+
+                        if (tokens.Length == 2)
+                            wand.LoadFile(tokens);
+                        else if (tokens.Length == 3 && tokens[1] == "append")
+                            wand.AppendText(tokens);
                         break;
                     case true when cmds[i].StartsWith("clear"):
                         if (tokens.Length == 1)
@@ -747,19 +751,17 @@ namespace CustomShell
                     case true when cmds[i].StartsWith("script"):
                         if (tokens.Length == 2)
                         {
-                            AddCommandToConsole(tokens);
-                            if (tokens.Length > 0)
-                            {
-                                if (script == null)
-                                    script = new ScriptInterpreter(tokens[1]);
+                            string[] scriptInput = cmds;
+                            if (script == null)
+                                script = new ScriptInterpreter(tokens[1]);
 
-                                script = null; //delete object when script has been run
-                            }
-                            else
-                            {
-                                AddTextToConsole("Incorrect ammount of parameters in command...");
-                                return;
-                            }
+                            script = null; //delete object when script has been run
+                            AddCommandToConsole(scriptInput);
+                        }
+                        else
+                        {
+                            AddTextToConsole("Incorrect ammount of parameters in command...");
+                            return;
                         }
                         break;
                     case true when cmds[i].StartsWith("ftp"):
