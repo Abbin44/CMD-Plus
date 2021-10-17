@@ -47,20 +47,26 @@ The wand editor is the equivilent of the linux command touch. It allows you to o
 The wand editor also have syntax highlighting for better readability when modifying code. If you open a file that does not contain code, you can easily toggle off the coloring and read everything in plain text.
 ![alt text](https://github.com/Abbin44/Custom-Shell/blob/master/wand_preview.png?raw=true)
 
+## Rail Scripting Language
+The rail scripting language is designed to simplify tasks that require many commands to be ran before you can start working on what you need.
+Certain design choices may lead to unexpected behavior if the syntax is not followed correctly. The one of the biggest decicions i made was to run the script even it there are syntax errors.
+The language is decently complex even at first release so it is highly recommended that you read the github wiki before using it.
+
+As of now there are only a few script specific syntaxes that were chosen to minimize work and maximize functionality.
+The combination of if statements, labels, gotos and change of variable values lets you check data, create loops, and debug the script. Which i though was a good set of tools for a v1.0 release for the language.
+
+  + If statements
+  + Print Statements
+  + Labels/Goto Labels
+  + Floating Voint Variables (Can be used as ints without any extra work)
+  
+![alt text](https://github.com/Abbin44/Custom-Shell/blob/master/script_preview.png?raw=true)
+
 ## Batch Integration
 The Windows Command Line or CMD, is fully integrated and all batch commands that can be run in CMD can be run in my shell as well.
 
 ## Upcoming features
 All tasks that will appear here will be bigger and more time consuming than other tasks that regularly gets pushed.
 
-**Currently being developed**
-- Stability to remove as many scenarios as possible that could cause crashes
-
-These features require more work than regular updates and are therefor listed in a checkbox system.
 - [ ] Fix the calculator
 - [ ] Add linux support
-- [ ] Create an interpreted scripting language to run commands from a script file
-    - [x] Create basic structure of variables
-    - [x] Create if statement and lables
-    - [x] Create END statements and other misc statements
-    - [ ] Testing, bugfixes and final improvements **In Progress**
