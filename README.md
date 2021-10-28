@@ -50,7 +50,7 @@ The wand editor also have syntax highlighting for better readability when modify
 ## Rail Scripting Language
 The rail scripting language is designed to simplify tasks that require many commands to be ran before you can start working on what you need.
 Certain design choices may lead to unexpected behavior if the syntax is not followed correctly. The one of the biggest decicions i made was to run the script even it there are syntax errors.
-The language is decently complex even at first release so it is highly recommended that you read the github wiki before using it.
+The language is decently complex even at first release so it is highly recommended that you read the github wiki before using it. The documentation can be found [here](https://github.com/Abbin44/CMD-Plus/wiki/Rails)
 
 As of now there are only a few script specific syntaxes that were chosen to minimize work and maximize functionality.
 The combination of if statements, labels, gotos and change of variable values lets you check data, create loops, and debug the script. Which i though was a good set of tools for a v1.0 release for the language.
