@@ -20,6 +20,7 @@ namespace CustomShell
         int historyLen;
         WandEditor wand;
         Processes proc;
+        Helper helper;
         Compression comp;
         BatchInterpreter batch;
         FTPController ftpController;
@@ -108,6 +109,7 @@ namespace CustomShell
 
         public void UpdateHistoryFile(string command)
         {
+            command = command.Trim();
             if(cmdHistory.Length > 0)
             {
                 if(cmdHistory[cmdHistory.Length - 1] != command)//Check if the last command is the same as the current one so that there are no doubles in the history
@@ -152,6 +154,16 @@ namespace CustomShell
                 dblSByte = bytes / 1024.0;
 
             return string.Format("{0:0.##} {1}", dblSByte, suffix[i]);
+        }
+
+        private string GetLastCommand()
+        {
+            return cmdHistory[cmdHistory.Length - 1];
+        }
+        
+        private string GetCommandFromIndex(int index)
+        {
+            return cmdHistory[cmdHistory.Length - index];
         }
 
         #region Commands
@@ -434,55 +446,6 @@ namespace CustomShell
             }
         }
 
-        public void DisplayHelp()
-        {
-            string[] com = { "help" };
-            StringBuilder sb = new StringBuilder();
-            sb.Append("Not everything can be displayed here, please refer to https://github.com/Abbin44/CMD-Plus/wiki for more help\n");
-            sb.Append("() means optional parameter\n");
-            sb.Append("------------------------------------------------------------------------------------------\n");
-            sb.Append("cd [Path]                                        | Change directory\n");
-            sb.Append("ls (Path)                                        | List all files and folders in a directory\n");
-            sb.Append("mkdir [Path]                                     | Creates a folder\n");
-            sb.Append("mkfile [Path]                                    | Creates a file\n");
-            sb.Append("cp [InputPath] (OutputPath)                      | Copies a file\n");
-            sb.Append("mv [InputPath] [OutputPath]                      | Moves a file or folder\n");
-            sb.Append("rm (-r) [Path]                                   | Removes a file or folder\n");
-            sb.Append("system                                           | Displays system information in a nice way\n");
-            sb.Append("script [ScriptPath]                              | Runs a script file\n");
-            sb.Append("exec [PathToExe]                                 | Executes an .EXE file\n");
-            sb.Append("open [PathToFile]                                | Opens a file with the standard app\n");
-            sb.Append("extr [PathToZip] (OutputFolder)                  | Extracts a zip file\n");
-            sb.Append("compr [Path] (OutputArchive)                     | Compresses a foler or file into a zip\n");
-            sb.Append("calc [Equation]                                  | Calculates the given equation\n");
-            sb.Append("size [Path]                                      | Gets the size of a folder\n");
-            sb.Append("peek [Path]                                      | Prints all the text in a file\n");
-            sb.Append("wand [Path]                                      | Lets you edit a file. CTRL + S to save. CTRL + Q to quit. CTRL + H to toggle syntax highlight. CTRL + D to duplicate line. \n");
-            sb.Append("listproc                                         | Lists all running processes\n");
-            sb.Append("killproc [ID]                                    | Lets you kill a process\n");
-            sb.Append("batch [CommandOrBatFile]                         | Lets you run any batch command or script file\n");
-            sb.Append("clear                                            | Clears the console\n");
-            sb.Append("clear history                                    | Clears the command history\n");
-            sb.Append("fcolor [Color]                                   | Changes the text color of the console\n");
-            sb.Append("bcolor [Color]                                   | Changes the back color of the console\n");
-            sb.Append("ftp [ip] [true/false] (username) (Password)      | Starts an FTP/FTPS Connection\n");
-            sb.Append("ftp uploadFile [local path] [remote path]        | Uploads a file to the FTP server\n");
-            sb.Append("ftp downloadFile [local path] [remote path]      | Downloads a file from the FTP server\n");
-            sb.Append("ftp uploadDirectory [local path] [remote path]   | Uploads a directory to the FTP server\n");
-            sb.Append("ftp downloadDirectory [local path] [remote path] | Downloads a directory from the FTP server\n");
-            sb.Append("ftp close                                        | Terminates the connection to the FTP server\n");
-            sb.Append("ssh connect [host] [user] [password]             | Opens a connection to the SSH host\n");
-            sb.Append("sshCom [SSH Command]                             | Executes an SSH command an returns the result\n");
-            sb.Append("ssh close                                        | Terminates the connection to the SSH host\n");
-            sb.Append("help                                             | Display help\n");
-            sb.Append("shutdown                                         | Shuts down the computer\n");
-            sb.Append("exit                                             | Exits the shell");
-
-            AddTextToConsole(sb.ToString());
-            AddCommandToConsole(com);
-            SetInputPrefix();
-        }
-
         public void Execute(string[] tokens)
         {
             string path = GetPathType(tokens[1]);
@@ -529,19 +492,35 @@ namespace CustomShell
             }
         }
 
-        public void ClearConsole()
+        private void ClearConsole()
         {
             outputBox.Text = string.Empty;
             SetInputPrefix();
         }
 
-        public void ClearHistory()
+        private void ClearHistory()
         {
             File.WriteAllText(historyFilePath, string.Empty);
             LoadHistoryFile();
+            SetInputPrefix();
         }
 
-        public void DirectorySize(string[] tokens)
+        private void PrintHistory()
+        {
+            int counter = cmdHistory.Length - 1;
+            string text = string.Empty;
+            if (coloring == null)
+                coloring = new Coloring();
+            for (int i = 0; i < cmdHistory.Length; ++i)
+            {
+                text = counter.ToString() + ") " + cmdHistory[i];
+                AddTextToConsole(text);
+                coloring.FindAndColorString(text, Color.DarkOrange, outputBox);
+                --counter;
+            }
+        }
+
+        private void DirectorySize(string[] tokens)
         {
             string path = GetPathType(tokens[1]);
             long size = 0;
@@ -611,7 +590,7 @@ namespace CustomShell
         int historyIndex;
         public void RunCommand(string command, bool fromScript) 
         {
-            historyIndex = cmdHistory.Length - 1;
+            historyIndex = historyLen;
             int commands = 1; //Default is one but will be incresed if there are any && in the input line
             string[] cmds;
             string input = string.Empty;
@@ -628,6 +607,24 @@ namespace CustomShell
                 return;
 
             tokens = command.Split(' ');
+
+            for (int i = 0; i < tokens.Length; ++i)
+            {
+                if (tokens[i] == "!!")
+                {
+                    string temp = tokens[i];
+                    tokens[i] = GetLastCommand();
+                    UpdateHistoryFile(temp);//Update history file
+                }
+
+                if (tokens[i].StartsWith("!") && tokens[i] != "!!")
+                {
+                    string temp = tokens[i];
+                    int x = Convert.ToInt32(tokens[i].Substring(1));
+                    tokens[i] = GetCommandFromIndex(x + 1);
+                    UpdateHistoryFile(temp);//Update history file
+                }
+            }
 
             if (command.Contains("&&"))
             {
@@ -672,7 +669,10 @@ namespace CustomShell
                         RemoveFolder(tokens);
                         break;
                     case true when cmds[i].StartsWith("help"):
-                        DisplayHelp();
+                        if (helper == null)
+                            helper = new Helper();
+                        
+                        helper.DisplayHelp();
                         break;
                     case true when cmds[i].StartsWith("exec"):
                         Execute(tokens);
@@ -714,6 +714,11 @@ namespace CustomShell
                             ClearConsole();
                         else if (tokens.Length == 2 && tokens[1] == "history")
                             ClearHistory();
+                        break;
+                    case true when cmds[i].StartsWith("history"):
+                        AddCommandToConsole(tokens);
+                        if (tokens.Length == 1)
+                            PrintHistory();
                         break;
                     case true when cmds[i].StartsWith("exit"):
                         ExitShell();

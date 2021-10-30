@@ -59,7 +59,7 @@ namespace CustomShell
             string screenWidth = Screen.PrimaryScreen.Bounds.Width.ToString();
             string screenHeight = Screen.PrimaryScreen.Bounds.Height.ToString();
 
-            return string.Concat("Resolution: " ,screenWidth, "x", screenHeight);
+            return string.Concat("Resolution: " ,screenWidth, "x", screenHeight, "px");
         }
 
         private string GetSystemUpTimeInfo()
@@ -79,7 +79,6 @@ namespace CustomShell
 
         private string GetMobo()
         {
-            string prefix = "Motherboard: ";
             string company = string.Empty;
             string model = string.Empty;
             searcher = new ManagementObjectSearcher("select Manufacturer, Product from Win32_BaseBoard");
@@ -99,12 +98,11 @@ namespace CustomShell
                     }
                 }
             }
-            return string.Concat(prefix, company, model);
+            return string.Concat("Motherboard: ", company, model);
         }
 
         private string GetOS()
         {
-            string prefix = "OS: ";
             string name = string.Empty;
             string arch = string.Empty;
             string version = string.Empty;
@@ -130,12 +128,11 @@ namespace CustomShell
                     }
                 }
             }
-            return string.Concat(prefix, name, ", ", arch, " v", version);
+            return string.Concat("OS: ", name, ", ", arch, " v", version);
         }
 
         private string GetCPU()
         {
-            string prefix = "CPU: ";
             string name = string.Empty;
             string speed = string.Empty;
             searcher = new ManagementObjectSearcher("select Name, MaxClockSpeed from Win32_Processor");
@@ -157,12 +154,11 @@ namespace CustomShell
                 }
             }
             
-            return string.Concat(prefix, name, " ", "@ ", speed, "GHz");
+            return string.Concat("CPU: ", name, " ", "@ ", speed, "GHz");
         }
 
         private string GetGPU()
         {
-            string prefix = "GPU: ";
             string gpu = string.Empty;
             searcher = new ManagementObjectSearcher("select Caption from Win32_VideoController");
             foreach (ManagementObject share in searcher.Get())
@@ -176,12 +172,11 @@ namespace CustomShell
                     }
                 }
             }
-            return string.Concat(prefix, gpu);
+            return string.Concat("GPU: ", gpu);
         }
 
         private string GetRAM()
         {
-            string prefix = "RAM: ";
             string maxCapacity= string.Empty;
             string currentUse= string.Empty;
             searcher = new ManagementObjectSearcher("select TotalVisibleMemorySize, FreePhysicalMemory from Win32_OperatingSystem");
@@ -203,7 +198,7 @@ namespace CustomShell
                     }
                 }
             }
-            return string.Concat(prefix, currentUse, "/", maxCapacity);
+            return string.Concat("RAM: ", currentUse, "/", maxCapacity);
         }
 
         private void DrawIcon()
@@ -226,7 +221,7 @@ namespace CustomShell
    -:  .*@@@@@@@@@@@@@@@@@@*.  :-   
        .%@@@@@@@@@@@@@@@@@@@:       
        -*@@%.  -@@@@=. .%@@*-       
-          :    :@@@@:    :          " + "\n";
+          :    :@@@@:    :          " + "\n\n";
 
             MainController.controller.outputBox.AppendText(icon);
         }

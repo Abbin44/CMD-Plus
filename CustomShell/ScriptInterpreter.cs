@@ -178,6 +178,12 @@ namespace CustomShell
                             tokens[j] = nums[l].value.ToString(); //Replace variable names with the appropriate number
                             break;
                         }
+
+                        if (tokens[j].Equals(nums[l].name + ".value") && lines[i].StartsWith("print"))
+                        {
+                            tokens[j] = nums[l].value.ToString();
+                            break;
+                        }
                     }
                 }
 
