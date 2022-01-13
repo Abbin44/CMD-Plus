@@ -5,6 +5,7 @@ namespace CustomShell
     class Compression
     {
         MainController main = MainController.controller;
+        ProgressBar progress = new ProgressBar();
         public Compression()
         {
 
@@ -37,7 +38,6 @@ namespace CustomShell
 
         public void CompressFolder(string[] tokens)
         {
-
             if (tokens.Length == 3)
             {
                 string inputPath = main.GetPathType(tokens[1]);

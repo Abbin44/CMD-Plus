@@ -16,6 +16,8 @@ namespace CustomShell
         public SystemInformation()
         {
             CompileInformation();
+            main.outputBox.SelectionStart = main.outputBox.TextLength;
+            main.outputBox.ScrollToCaret();
         }
 
         private void CompileInformation()

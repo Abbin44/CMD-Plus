@@ -134,6 +134,10 @@ namespace CustomShell
             outputBox.ScrollToCaret();
         }
 
+        public void ReplaceLastLineConsole(string line)
+        {
+            outputBox.Lines[outputBox.Lines.Length] = line;
+        }
         public void AddFTPItemToConsole(FtpListItem item)
         {
             StringBuilder sb = new StringBuilder();
@@ -518,6 +522,7 @@ namespace CustomShell
                 coloring.FindAndColorString(text, Color.DarkOrange, outputBox);
                 --counter;
             }
+            //AddTextToConsole("\n");
         }
 
         private void DirectorySize(string[] tokens)
