@@ -58,7 +58,7 @@ The combination of if statements, labels, gotos and change of variable values le
   + If statements
   + Print Statements
   + Labels/Goto Labels
-  + Floating Voint Variables (Can be used as ints without any extra work)
+  + Floating Point Variables (Can be used as ints without any extra work)
   
 ![alt text](https://github.com/Abbin44/Custom-Shell/blob/master/script_preview.png?raw=true)
 
