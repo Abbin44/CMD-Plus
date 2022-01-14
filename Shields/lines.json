@@ -1,6 +1,6 @@
 {
 	"schemaVersion": 1,
-    "label": "Total-Lines",
-    "message": "3115",
-    "color": "orange"
-{
+	"label": "Line-Count",
+	"message": "3115",
+	"color": "orange"
+}
