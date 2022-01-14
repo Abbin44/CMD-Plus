@@ -2,7 +2,7 @@
 ![](https://img.shields.io/github/downloads/Abbin44/CMD-Plus/total?color=orange&label=Downloads)
 ![](https://img.shields.io/github/stars/Abbin44/CMD-Plus?color=orange&label=Stars)
 ![](https://img.shields.io/github/forks/Abbin44/CMD-Plus?color=orange&label=Forks)
-![](https://img.shields.io/tokei/lines/github/Abbin44/CMD-Plus?color=orange&label=Total-Lines)
+![](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Abbin44/CMD-Plus/master/Shields/lines.json)
 
 A custom shell that allows you to run a bunch of different commands, including everything from CMD/Batch. There are plans to have at least some support for linux in the future. Currently there are some missing references that needs to be rewritten to make it work. 
 
