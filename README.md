@@ -65,6 +65,11 @@ The combination of if statements, labels, gotos and change of variable values le
 ## Batch Integration
 The Windows Command Line or CMD, is fully integrated and all batch commands that can be run in CMD can be run in my shell as well.
 
+## Currently working on
+As of 2022/01/24
+ * Settings to allow certain values to be saved as defaults.
+ * More features in Rail, specifically loops.
+
 ## Upcoming features
 All tasks that will appear here will be bigger and more time consuming than other tasks that regularly gets pushed.
 
