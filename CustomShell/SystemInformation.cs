@@ -61,7 +61,7 @@ namespace CustomShell
             string screenWidth = Screen.PrimaryScreen.Bounds.Width.ToString();
             string screenHeight = Screen.PrimaryScreen.Bounds.Height.ToString();
 
-            return string.Concat("Resolution: " ,screenWidth, "x", screenHeight, "px");
+            return string.Concat("Resolution: " , screenWidth, "x", screenHeight, "px");
         }
 
         private string GetSystemUpTimeInfo()

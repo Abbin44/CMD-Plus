@@ -16,6 +16,8 @@ namespace CustomShell
         //TODO: Add support for linux filepaths as well, add an OS check in constructor of this class
         string currentDir = @"C:/";
         string historyFilePath = @"C:\Users\" + Environment.UserName + @"\AppData\Local\CMD++\cmdHistory.log";
+        string prgDirPath = @"C:\Users\" + Environment.UserName + @"\AppData\Local\CMD++\";
+        string settingsPath = @"C:\Users\" + Environment.UserName + @"\AppData\Local\CMD++\settings.cfg";
         string[] cmdHistory;
         int historyLen;
         WandEditor wand;
@@ -29,17 +31,21 @@ namespace CustomShell
         SystemInformation systemInfo;
         ScriptInterpreter script;
         Coloring coloring;
+        SettingsManager settings = new SettingsManager();
         public static MainController controller { get; private set; }
 
         public MainController()
         {
             InitializeComponent();
 
-            if (!Directory.Exists(@"C:\Users\" + Environment.UserName + @"\AppData\Local\CMD++"))
-                Directory.CreateDirectory(@"C:\Users\" + Environment.UserName + @"\AppData\Local\CMD++");
+            if (!Directory.Exists(prgDirPath))
+                Directory.CreateDirectory(prgDirPath);
 
             if (!File.Exists(historyFilePath))
                 File.Create(historyFilePath).Close();
+
+            if (!File.Exists(settingsPath))
+                File.Create(settingsPath).Close();
 
             if (controller != null)
                 throw new Exception("Only one instance of MainController may ever exist!");
