@@ -94,10 +94,19 @@ namespace CustomShell
                 main.outputBox.ForeColor = Color.Black;
                 main.inputBox.ForeColor = Color.Black;
             }
+            else if (code == "GRAY" || code == "GREY" || code == "09" || code == "9")
+            {
+                Color gray = new Color();
+                gray = Color.FromArgb(255, 50, 49, 49);
+
+                main.outputBox.ForeColor = gray;
+                main.inputBox.ForeColor = gray;
+            }
         }
 
         public void ColorBackground(string code)
         {
+            code = code.ToUpper();
             if (code == "RED" || code == "01" || code == "1")
             {
                 main.outputBox.BackColor = Color.Red;
@@ -137,6 +146,14 @@ namespace CustomShell
             {
                 main.outputBox.BackColor = Color.Black;
                 main.inputBox.BackColor = Color.Black;
+            }
+            else if (code == "GRAY" || code == "GREY" || code == "09" || code == "9")
+            {
+                Color gray = new Color();
+                gray = Color.FromArgb(255, 50, 49, 49);
+
+                main.outputBox.BackColor = gray;
+                main.inputBox.BackColor = gray;
             }
         }
 

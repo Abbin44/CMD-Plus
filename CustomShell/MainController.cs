@@ -31,7 +31,7 @@ namespace CustomShell
         SystemInformation systemInfo;
         ScriptInterpreter script;
         Coloring coloring;
-        SettingsManager settings = new SettingsManager();
+        SettingsManager settings;
         public static MainController controller { get; private set; }
 
         public MainController()
@@ -53,6 +53,7 @@ namespace CustomShell
             controller = this;
             LoadHistoryFile();
             InitConsole();
+            settings = new SettingsManager();
         }
 
         public string GetInputPrefix()
@@ -817,16 +818,26 @@ namespace CustomShell
 
                         break;
                     case true when cmds[i].StartsWith("fcolor"):
+                        AddCommandToConsole(tokens);
+
                         string fcolor = tokens[1].ToUpper();
                         coloring = new Coloring();
                         coloring.ColorForeground(fcolor);
+                        if (tokens.Length == 3)
+                            if (tokens[2] == "-s")
+                                settings.SetSetting("coloring", "fcolor", fcolor);
 
                         SetInputPrefix();
                         break;
                     case true when cmds[i].StartsWith("bcolor"):
+                        AddCommandToConsole(tokens);
+
                         string bcolor = tokens[1].ToUpper();
                         coloring = new Coloring();
                         coloring.ColorBackground(bcolor);
+                        if (tokens.Length == 3)
+                            if (tokens[2] == "-s")
+                                settings.SetSetting("coloring", "bcolor", bcolor);
 
                         SetInputPrefix();
                         break;
@@ -975,6 +986,8 @@ namespace CustomShell
 
         private void MainController_FormClosing(object sender, FormClosingEventArgs e)
         {
+            settings.jdf.WriteNewData(); //Save all the settings
+
             if (ftpController != null)
                 ftpController = null;
 

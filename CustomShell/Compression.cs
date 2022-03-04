@@ -1,4 +1,5 @@
-﻿using System.IO.Compression;
+﻿using System;
+using System.IO.Compression;
 
 namespace CustomShell
 {
@@ -13,43 +14,62 @@ namespace CustomShell
 
         public void ExtractArchive(string[] tokens)
         {
-            if (tokens.Length == 3)
+            try
             {
-                string inputPath = main.GetPathType(tokens[1]);
-                string outputPath = main.GetPathType(tokens[2]);
-                ZipFile.ExtractToDirectory(inputPath, outputPath);
-            }
-            else if (tokens.Length == 2)
-            {
-                string input = main.GetPathType(tokens[1]);
-                string output;
-                if (!tokens[1].Contains(@":\"))
+                main.AddTextToConsole("Extracting archive, please wait...");
+                if (tokens.Length == 3)
                 {
-                    output = main.GetFullPathFromName(tokens[1]);
-                    output = output.Substring(0, output.Length - 4);
+                    string inputPath = main.GetPathType(tokens[1]);
+                    string outputPath = main.GetPathType(tokens[2]);
+                    ZipFile.ExtractToDirectory(inputPath, outputPath);
                 }
-                else
-                    output = tokens[1];
+                else if (tokens.Length == 2)
+                {
+                    string input = main.GetPathType(tokens[1]);
+                    string output;
+                    if (!tokens[1].Contains(@":\"))
+                    {
+                        output = main.GetFullPathFromName(tokens[1]);
+                        output = output.Substring(0, output.Length - 4);
+                    }
+                    else
+                        output = tokens[1];
 
-                ZipFile.ExtractToDirectory(input, output);
+                    ZipFile.ExtractToDirectory(input, output);
+                }
+                main.AddCommandToConsole(tokens);
             }
-            main.AddCommandToConsole(tokens);
+            catch (Exception)
+            {
+                main.AddTextToConsole("Something went wrong...");
+                return;
+            }
+
         }
 
         public void CompressFolder(string[] tokens)
         {
-            if (tokens.Length == 3)
+            try
             {
-                string inputPath = main.GetPathType(tokens[1]);
-                string outputPath = main.GetPathType(tokens[2]);
-                ZipFile.CreateFromDirectory(inputPath, outputPath + ".zip");
+                main.AddTextToConsole("Compressing folder into archive, please wait...");
+                if (tokens.Length == 3)
+                {
+                    string inputPath = main.GetPathType(tokens[1]);
+                    string outputPath = main.GetPathType(tokens[2]);
+                    ZipFile.CreateFromDirectory(inputPath, outputPath + ".zip");
+                }
+                else if (tokens.Length == 2)
+                {
+                    string path = main.GetPathType(tokens[1]);
+                    ZipFile.CreateFromDirectory(path, path + ".zip");
+                }
+                main.AddCommandToConsole(tokens);
             }
-            else if (tokens.Length == 2)
+            catch (Exception)
             {
-                string path = main.GetPathType(tokens[1]);
-                ZipFile.CreateFromDirectory(path, path + ".zip");
+                main.AddTextToConsole("Something went wrong...");
+                return;
             }
-            main.AddCommandToConsole(tokens);
         }
     }
 }
