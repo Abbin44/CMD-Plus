@@ -13,7 +13,7 @@ I am grateful for any feature suggestions or bug reports that you leave. You can
 
 **I Recommend running the shell as administrator since certain commands does not work without admin privilege**
 
-The command history log is saved in a file in `C:\Users\%username%\AppData\Local\CMD++\cmdHistory.log`
+All data that is stored gets stored here `C:\Users\%username%\AppData\Local\CMD++\`
 ### What can the shell do?
 + File Maganement
     + Make and Delete Files and Folders
