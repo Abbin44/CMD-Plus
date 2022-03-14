@@ -66,8 +66,8 @@ The combination of if statements, labels, gotos and change of variable values le
 The Windows Command Line or CMD, is fully integrated and all batch commands that can be run in CMD can be run in my shell as well.
 
 ## Currently working on
-As of 2022/01/24
- * Settings to allow certain values to be saved as defaults.
+As of 2022/03/14
+ * <s>Settings to allow certain values to be saved as defaults.</s> *Done*
  * More features in Rail, specifically loops.
 
 ## Upcoming features
