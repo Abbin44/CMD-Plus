@@ -69,6 +69,7 @@ The Windows Command Line or CMD, is fully integrated and all batch commands that
 As of 2022/03/14
  * <s>Settings to allow certain values to be saved as defaults.</s> *Done*
  * More features in Rail, specifically loops.
+ * Reworking the SSH code
 
 ## Upcoming features
 All tasks that will appear here will be bigger and more time consuming than other tasks that regularly gets pushed.
