@@ -18,7 +18,7 @@ namespace CustomShell
         List<GOTO> jumps = new List<GOTO>();
         List<IF> ifs = new List<IF>();
         List<ENDIF> endifs = new List<ENDIF>();
-
+        List<string> args;
         /*  TINY DOCUMENTATION
          * 
          *  The variables value is assigned in the script file and is converted into a NUM token with it's value.
@@ -60,8 +60,9 @@ namespace CustomShell
             public int? startLine;
         }
 
-        public ScriptInterpreter(string filePath)
+        public ScriptInterpreter(string filePath, List<string> passedArgs)
         {
+            args = passedArgs;
             ReadScriptFile(filePath);
         }
 
@@ -83,7 +84,7 @@ namespace CustomShell
             }
             catch (Exception)
             {
-                main.AddTextToConsole("File could not be found...");
+                main.AddTextToConsole("Something went wrong...");
                 return;
             }
 
@@ -167,7 +168,6 @@ namespace CustomShell
 
                 lines[i] = lines[i].Trim();
                 string[] tokens = lines[i].Split();
-                HandleComments();
 
                 for (int j = 0; j < tokens.Length; ++j)
                 {
@@ -197,6 +197,23 @@ namespace CustomShell
                             i = labels[x].lineNum;
                     }
                 }
+                else if (lines[i].Contains("$"))
+                {
+                    for (int y = 0; y < tokens.Length; ++y)
+                    {
+                        if (tokens[y].StartsWith("$"))
+                        {
+                            string temp = tokens[y].Substring(1, tokens[y].Length - 1);
+                            int value;
+                            bool isNumber = int.TryParse(temp, out value);
+                            if (isNumber)
+                            {
+                                tokens[y] = args[value - 1];
+                                lines[i] = string.Join(" ", tokens);
+                            }
+                        }
+                    }
+                }
                 else if (lines[i].StartsWith("if"))
                 {
                     if (!isValidStatement(tokens)) //If the statement is not valid, jump to endif
@@ -212,15 +229,16 @@ namespace CustomShell
                         }
                     }
                 }
-                else if(tokens[0] == "print")
-                {
-                    string output = string.Join(" ", tokens, 1, tokens.Length - 1);
-                    main.AddTextToConsole(output);
-                }
                 else if (lines[i].StartsWith("[END]"))
                     return;
                 else if (!lines[i].StartsWith("NUM") && !lines[i].StartsWith("label") && !lines[i].StartsWith("[SCRIPT]") && !lines[i].Contains("endif") && !lines[i].StartsWith("print") && LineContainsVariable(lines[i]) == false)//If line doesn't contain a keyword, run it as a command
                     main.RunCommand(lines[i], true);
+
+                if (lines[i].StartsWith("print") && tokens[0] == "print")
+                {
+                    string output = string.Join(" ", tokens, 1, tokens.Length - 1);
+                    main.AddTextToConsole(output);
+                }
 
                 CheckForVariableChange(tokens);
             }

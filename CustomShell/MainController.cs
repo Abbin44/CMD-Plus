@@ -1,6 +1,7 @@
 ﻿using FluentFTP;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -766,11 +767,16 @@ namespace CustomShell
                         systemInfo = null;
                         break;
                     case true when cmds[i].StartsWith("script"):
-                        if (tokens.Length == 2)
+                        if (tokens.Length > 1 )
                         {
+                            List<string> args = new List<string>();
+                            if(tokens.Length > 2) //Add arguments to list if any are passed
+                                for (int a = 2; a < tokens.Length; ++a)
+                                    args.Add(tokens[a]);
+
                             string[] scriptInput = cmds;
                             if (script == null)
-                                script = new ScriptInterpreter(tokens[1]);
+                                script = new ScriptInterpreter(tokens[1], args);
 
                             script = null; //delete object when script has been run
                             AddCommandToConsole(scriptInput);
@@ -952,6 +958,7 @@ namespace CustomShell
                 }
             }
             #endregion
+            LockInputPrefix();
         }
 
         private void inputBox_KeyUp(object sender, KeyEventArgs e)
