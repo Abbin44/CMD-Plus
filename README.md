@@ -13,7 +13,7 @@ I am grateful for any feature suggestions or bug reports that you leave. You can
 
 **I Recommend running the shell as administrator since certain commands does not work without admin privilege**
 
-The command history log is saved in a file in `C:\Users\%username%\AppData\Local\CMD++\cmdHistory.log`
+All data that is stored gets stored here `C:\Users\%username%\AppData\Local\CMD++\`
 ### What can the shell do?
 + File Maganement
     + Make and Delete Files and Folders
@@ -66,9 +66,10 @@ The combination of if statements, labels, gotos and change of variable values le
 The Windows Command Line or CMD, is fully integrated and all batch commands that can be run in CMD can be run in my shell as well.
 
 ## Currently working on
-As of 2022/01/24
- * Settings to allow certain values to be saved as defaults.
+As of 2022/03/14
+ * <s>Settings to allow certain values to be saved as defaults.</s> *Done*
  * More features in Rail, specifically loops.
+ * Reworking the SSH code
 
 ## Upcoming features
 All tasks that will appear here will be bigger and more time consuming than other tasks that regularly gets pushed.
