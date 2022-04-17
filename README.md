@@ -68,11 +68,11 @@ The Windows Command Line or CMD, is fully integrated and all batch commands that
 ## Currently working on
 As of 2022/03/14
  * <s>Settings to allow certain values to be saved as defaults.</s> *Done*
- * More features in Rail, specifically loops.
- * Reworking the SSH code
+ * More features in Rail, specifically loops. *Has gotten more features, but not loops*
+ * Reworking the SSH code to be a more session like feature. Possibly changing the SSH lib as well as part of the linux support goal.
 
 ## Upcoming features
 All tasks that will appear here will be bigger and more time consuming than other tasks that regularly gets pushed.
 
 - [ ] Fix the calculator
-- [ ] Add linux support
+- [ ] Add linux support - This requires both the FTP and SSH libraries to be exchanged with something that can run with mono or dotnet.
