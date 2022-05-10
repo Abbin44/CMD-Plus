@@ -8,21 +8,65 @@ namespace CustomShell
     {
         public SshClient client;
         MainController main = MainController.controller;
-
+        string currentwd;
+        public string username;
+        public string host;
         public SSHClient()
         {
             
         }
+        public void SetSSHInputPrefix(string user, string clientIp)
+        {
+            GetCurrentWD();
+            string text = string.Concat(user, "@", clientIp, " ~ ", @currentwd, " § ");
+            main.inputBox.Text = text;
+            LockInputPrefix(text);
+        }
+        public void LockInputPrefix(string text)
+        {
+            main.inputBox.Select(0, text.Length);
+            main.inputBox.SelectionProtected = true;
+            main.inputBox.SelectionStart = main.inputBox.Text.Length;
+        }
 
-        public void EstablishConnection(string host, string username, string password)
+        private void AddTextToConsole(string text)
+        {
+            main.sshTextBox.AppendText(text);
+        }
+
+        private void InitSSHInterface()
+        {
+            main.sshTextBox.Visible = true;
+            main.outputBox.Visible = false;
+        }
+
+        private void CloseSSHInterface()
+        {
+            main.sshTextBox.Visible = false;
+            main.outputBox.Visible = true;
+        }
+
+        private void GetCurrentWD()
+        {
+            SshCommand result = client.RunCommand("pwd");
+            currentwd = result.Result.Trim('\n');
+        }
+
+        public void EstablishConnection(string ip, string usrname, string password)
         {
             try
             {
-                ConnectionInfo connInfo = new ConnectionInfo(host, username, new PasswordAuthenticationMethod(username, password), new PrivateKeyAuthenticationMethod("rsa.key"));
+                ConnectionInfo connInfo = new ConnectionInfo(ip, usrname, new PasswordAuthenticationMethod(usrname, password), new PrivateKeyAuthenticationMethod("rsa.key"));
                 client = new SshClient(connInfo);
                 client.Connect();
-                main.AddTextToConsole("Successfully connected to the host...");
-                main.SetInputPrefix();
+
+                username = usrname;
+                host = ip;
+                InitSSHInterface();
+                main.sshMode = true;
+                AddTextToConsole("Successfully connected to the host...\n");
+                main.Text = string.Concat("ssh ", usrname, "@", ip);
+                SetSSHInputPrefix(usrname, ip);
             }
             catch (Exception)
             {
@@ -39,12 +83,12 @@ namespace CustomShell
                 main.AddCommandToConsole(MainController.controller.tokens);
 
                 //Add a red color for the ssh output
-                main.AddTextToConsole(result.Result);
-                main.outputBox.Select(main.outputBox.Text.Length - result.Result.Length - 1, main.outputBox.Text.Length);
-                main.outputBox.SelectionColor = Color.Red;
-                main.outputBox.SelectionStart = main.outputBox.Text.Length;
+                AddTextToConsole(result.Result);
+                main.sshTextBox.Select(main.sshTextBox.Text.Length - result.Result.Length - 1, main.sshTextBox.Text.Length);
+                main.sshTextBox.SelectionColor = Color.Red;
+                main.sshTextBox.SelectionStart = main.sshTextBox.Text.Length;
 
-                main.SetInputPrefix();
+                SetSSHInputPrefix(username, host);
             }
             catch (Exception)
             {
@@ -58,6 +102,7 @@ namespace CustomShell
             try
             {
                 client.Disconnect();
+                CloseSSHInterface();
                 main.AddTextToConsole("Successfully terminated the connection...");
                 main.SetInputPrefix();
             }

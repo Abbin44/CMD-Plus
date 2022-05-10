@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 using static CustomShell.Calculator;
 
@@ -21,6 +20,7 @@ namespace CustomShell
         string settingsPath = @"C:\Users\" + Environment.UserName + @"\AppData\Local\CMD++\settings.cfg";
         string[] cmdHistory;
         int historyLen;
+        public bool sshMode = false;
         WandEditor wand;
         Processes proc;
         Helper helper;
@@ -104,15 +104,22 @@ namespace CustomShell
         public void AddCommandToConsole(string[] tokens)
         {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < tokens.Length; ++i)
+            int tokenCut = 0;
+            if (tokens[0] == "ssh" && tokens[1] == "connect")//This is used to remove the last token (the password)
+                tokenCut = -1;
+
+            for (int i = 0; i < tokens.Length + tokenCut; ++i)
                 sb.Append(tokens[i] + " ");
 
             string command = sb.ToString();
             outputBox.AppendText(command + "\n");
             outputBox.SelectionStart = outputBox.TextLength;
             outputBox.ScrollToCaret();
+
             UpdateHistoryFile(command);//Update history file
-            SetInputPrefix();
+
+            if(sshMode != true)
+                SetInputPrefix();
         }
 
         public void UpdateHistoryFile(string command)
@@ -610,7 +617,14 @@ namespace CustomShell
             if (fromScript == false)//Check if command comes from input box of from a script file since the input prefix doesn't exist in a script file
             {
                 input = inputBox.Text;
-                command = input.Remove(0, (Environment.UserName + "@" + currentDir + " ~").Length);
+                if (sshMode != true)
+                    command = input.Remove(0, (Environment.UserName + "@" + currentDir + " ~").Length);
+                else
+                {
+                    sshClient.SetSSHInputPrefix(sshClient.username, sshClient.host);
+                    int sshLength = inputBox.Text.Length;
+                    command = input.Remove(0, sshLength);
+                }
                 command = command.Trim();
             }
             else
@@ -618,6 +632,9 @@ namespace CustomShell
 
             if (string.IsNullOrEmpty(command) || string.IsNullOrWhiteSpace(command))
                 return;
+
+            if (sshMode == true && !command.StartsWith("ssh"))
+                command = string.Concat("ssh ", command);
 
             tokens = command.Split(' ');
 
@@ -766,7 +783,7 @@ namespace CustomShell
 
                         systemInfo = null;
                         break;
-                    case true when cmds[i].StartsWith("script"):
+                    case true when cmds[i].StartsWith("rail"):
                         if (tokens.Length > 1 )
                         {
                             List<string> args = new List<string>();
@@ -853,7 +870,7 @@ namespace CustomShell
                         if (sshClient == null)
                             sshClient = new SSHClient();
 
-                        if (tokens[0] == "sshCom" || tokens[0] == "sshcom")
+                        if (sshMode == true)
                         {
                             StringBuilder sb = new StringBuilder();
                             for (int x = 1; x < tokens.Length; ++x)
@@ -864,7 +881,7 @@ namespace CustomShell
                             }
                             sshClient.SendCommand(sb.ToString());
                         }
-                        else if (tokens[0] == "ssh" && tokens[1] == "close")
+                        else if (tokens[0] == "close" || tokens[0] == "exit")
                             sshClient.TerminateConnection();
                         else if (tokens[0] == "ssh" && tokens[1] == "connect")
                             sshClient.EstablishConnection(tokens[2], tokens[3], tokens[4]);
@@ -918,17 +935,15 @@ namespace CustomShell
                 {
                     if(firstClick == false)
                         --historyIndex;
-                    inputBox.Text = string.Concat(GetInputPrefix(), " ", cmdHistory[historyIndex]);
-                    inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
 
-                    if(firstClick == true)
+                    SetHistoryPrefix(cmdHistory[historyIndex]);
+
+
+                    if (firstClick == true)
                         firstClick = false;
                 }
                 else if (historyIndex == 0) //This else if must be here so that you can press down to clear the history if you are at the end
-                {
-                    inputBox.Text = string.Concat(GetInputPrefix(), " ", cmdHistory[historyIndex]);
-                    inputBox.SelectionStart = inputBox.Text.Length;
-                }
+                    SetHistoryPrefix(cmdHistory[historyIndex]);
             }
 
             if (e.KeyCode == Keys.Down)
@@ -940,27 +955,44 @@ namespace CustomShell
                 {
                     if (firstClick == false)
                         ++historyIndex;
-                    inputBox.Text = string.Concat(GetInputPrefix(), " ", cmdHistory[historyIndex]); 
-                    inputBox.SelectionStart = inputBox.Text.Length;//Set cursor to right position
+
+                    SetHistoryPrefix(cmdHistory[historyIndex]);
+
                     if (firstClick == true)
                         firstClick = false;
                 }
                 else if(historyIndex == 0 && firstClick == false) //This else if must be here so that you can press down to clear the history if you are at the end
                 {
                     ++historyIndex;
-                    inputBox.Text = string.Concat(GetInputPrefix(), " ", cmdHistory[historyIndex]);
-                    inputBox.SelectionStart = inputBox.Text.Length;
+                    SetHistoryPrefix(cmdHistory[historyIndex]);
                 }
-                else if (historyIndex == cmdHistory.Length - 1)
+                else if (historyIndex == cmdHistory.Length - 2)
                 {
                     ++historyIndex;
-                    SetInputPrefix();
+                    SetHistoryPrefix(cmdHistory[historyIndex]);
                 }
             }
             #endregion
             LockInputPrefix();
         }
 
+        private void SetHistoryPrefix(string historyCmd)
+        {
+            if (sshMode != true)
+            {
+                inputBox.Text = string.Concat(GetInputPrefix(), " ", historyCmd);
+                inputBox.SelectionStart = inputBox.Text.Length;
+                LockInputPrefix();
+            }
+            else
+            {
+                sshClient.SetSSHInputPrefix(sshClient.username, sshClient.host);//Set the input prefix to the ssh one
+                string text = inputBox.Text; //Get text before adding history cmd to be able to lock prefix only
+                inputBox.Text = string.Concat(inputBox.Text, " ", historyCmd);  // Reuse the set prefix in the new concated one
+                sshClient.LockInputPrefix(text);
+            }
+
+        }
         private void inputBox_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Tab)

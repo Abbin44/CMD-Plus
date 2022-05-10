@@ -33,6 +33,7 @@ namespace CustomShell
             this.outputBox = new System.Windows.Forms.RichTextBox();
             this.inputBox = new System.Windows.Forms.RichTextBox();
             this.wandTextBox = new System.Windows.Forms.RichTextBox();
+            this.sshTextBox = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
             // outputBox
@@ -86,12 +87,29 @@ namespace CustomShell
             this.wandTextBox.Visible = false;
             this.wandTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.wandTextBox_KeyDown);
             // 
+            // sshTextBox
+            // 
+            this.sshTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(49)))), ((int)(((byte)(49)))));
+            this.sshTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.sshTextBox.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.sshTextBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(119)))), ((int)(((byte)(68)))));
+            this.sshTextBox.HideSelection = false;
+            this.sshTextBox.Location = new System.Drawing.Point(0, 0);
+            this.sshTextBox.Name = "sshTextBox";
+            this.sshTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            this.sshTextBox.Size = new System.Drawing.Size(1038, 496);
+            this.sshTextBox.TabIndex = 3;
+            this.sshTextBox.TabStop = false;
+            this.sshTextBox.Text = "";
+            this.sshTextBox.Visible = false;
+            // 
             // MainController
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Maroon;
             this.ClientSize = new System.Drawing.Size(1038, 522);
+            this.Controls.Add(this.sshTextBox);
             this.Controls.Add(this.wandTextBox);
             this.Controls.Add(this.inputBox);
             this.Controls.Add(this.outputBox);
@@ -108,6 +126,7 @@ namespace CustomShell
         public System.Windows.Forms.RichTextBox outputBox;
         public System.Windows.Forms.RichTextBox inputBox;
         public System.Windows.Forms.RichTextBox wandTextBox;
+        public System.Windows.Forms.RichTextBox sshTextBox;
     }
 }
 

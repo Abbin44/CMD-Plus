@@ -16,7 +16,7 @@ namespace CustomShell
         string path;
         public bool hasFileLoaded = false;
         bool syntaxHighlighted = false;
-        public void AddTextToConsole(string text)
+        private void AddTextToConsole(string text)
         {
             main.wandTextBox.AppendText(text + "\n");
         }
