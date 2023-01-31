@@ -66,10 +66,11 @@ The combination of if statements, labels, gotos and change of variable values le
 The Windows Command Line or CMD, is fully integrated and all batch commands that can be run in CMD can be run in my shell as well.
 
 ## Currently working on
-As of 2022/03/14
+As of 2022/11/22
  * <s>Settings to allow certain values to be saved as defaults.</s> *Done*
  * More features in Rail, specifically loops. *Has gotten more features, but not loops*
- * Reworking the SSH code to be a more session like feature. Possibly changing the SSH lib as well as part of the linux support goal.
+ * Various hashing commandos
+ * <s>Reworking the SSH code to be a more session like feature. Possibly changing the SSH lib as well as part of the linux support goal.</s> *Done*
 
 ## Upcoming features
 All tasks that will appear here will be bigger and more time consuming than other tasks that regularly gets pushed.
