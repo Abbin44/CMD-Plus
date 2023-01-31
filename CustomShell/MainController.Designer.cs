@@ -63,6 +63,7 @@ namespace CustomShell
             this.inputBox.Location = new System.Drawing.Point(0, 496);
             this.inputBox.Multiline = false;
             this.inputBox.Name = "inputBox";
+            this.inputBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Horizontal;
             this.inputBox.Size = new System.Drawing.Size(1038, 26);
             this.inputBox.TabIndex = 1;
             this.inputBox.TabStop = false;

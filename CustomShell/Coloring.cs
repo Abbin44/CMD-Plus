@@ -54,7 +54,12 @@ namespace CustomShell
 
         public void ColorForeground(string code)
         {
-            if (code == "RED" || code == "01" || code == "1")
+            if(code == "DEFAULT" || code == "00" || code == "0")
+            {
+                main.outputBox.ForeColor = Color.FromArgb(238, 119, 68);
+                main.inputBox.ForeColor = Color.FromArgb(238, 119, 68);
+            }
+            else if (code == "RED" || code == "01" || code == "1")
             {
                 main.outputBox.ForeColor = Color.Red;
                 main.inputBox.ForeColor = Color.Red;
@@ -107,7 +112,12 @@ namespace CustomShell
         public void ColorBackground(string code)
         {
             code = code.ToUpper();
-            if (code == "RED" || code == "01" || code == "1")
+            if (code == "DEFAULT" || code == "00" || code == "0")
+            {
+                main.outputBox.BackColor = Color.FromArgb(50, 49, 49);
+                main.inputBox.BackColor = Color.FromArgb(50, 49, 49);
+            }
+            else if (code == "RED" || code == "01" || code == "1")
             {
                 main.outputBox.BackColor = Color.Red;
                 main.inputBox.BackColor = Color.Red;

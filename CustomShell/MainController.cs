@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using static CustomShell.Calculator;
@@ -18,7 +19,7 @@ namespace CustomShell
         string historyFilePath = @"C:\Users\" + Environment.UserName + @"\AppData\Local\CMD++\cmdHistory.log";
         string prgDirPath = @"C:\Users\" + Environment.UserName + @"\AppData\Local\CMD++\";
         string settingsPath = @"C:\Users\" + Environment.UserName + @"\AppData\Local\CMD++\settings.cfg";
-        string[] cmdHistory;
+        List<string> cmdHistory = new List<string>();
         int historyLen;
         public bool sshMode = false;
         WandEditor wand;
@@ -33,6 +34,7 @@ namespace CustomShell
         ScriptInterpreter script;
         Coloring coloring;
         SettingsManager settings;
+        Hashes hashes;
         public static MainController controller { get; private set; }
 
         public MainController()
@@ -84,7 +86,7 @@ namespace CustomShell
                 return string.Concat(currentDir, path);
         }
 
-        public string GetPathType(string path)
+        public string GetPathType(string path) //Check if path is local or complete
         {
             string input;
             if (!path.Contains(@":\"))
@@ -93,6 +95,14 @@ namespace CustomShell
                 input = path;
 
             return input;
+        }
+
+        public bool IsFilePath(string input)
+        {
+            if (input.Contains(@":\"))
+                return true;
+            else
+                return false;
         }
 
         public void InitConsole()
@@ -116,30 +126,34 @@ namespace CustomShell
             outputBox.SelectionStart = outputBox.TextLength;
             outputBox.ScrollToCaret();
 
-            UpdateHistoryFile(command);//Update history file
+            AddCommandToHistory(command);//Update history file
 
             if(sshMode != true)
                 SetInputPrefix();
         }
 
-        public void UpdateHistoryFile(string command)
+        public void AddCommandToHistory(string command)
         {
-            command = command.Trim();
-            if(cmdHistory.Length > 0)
+            if (cmdHistory[cmdHistory.Count - 1] != command)
             {
-                if(cmdHistory[cmdHistory.Length - 1] != command)//Check if the last command is the same as the current one so that there are no doubles in the history
-                    File.AppendAllText(historyFilePath, command + "\n");
+                command.Trim();
+                cmdHistory.Add(command);
             }
-            else
-                File.AppendAllText(historyFilePath, command + "\n");
+            
+            historyIndex = cmdHistory.Count;
+        }
 
-            LoadHistoryFile();//Update history array
+        public void UpdateHistoryFile()
+        {
+            if(cmdHistory.Count > 0)
+                File.WriteAllLines(historyFilePath, cmdHistory);
         }
 
         public void LoadHistoryFile()
         {
-            cmdHistory = File.ReadAllLines(historyFilePath);
-            historyLen = cmdHistory.Length;
+            cmdHistory = File.ReadAllLines(historyFilePath).ToList();
+            historyIndex = cmdHistory.Count;
+            historyLen = cmdHistory.Count;
         }
 
         public void AddTextToConsole(string text)
@@ -177,12 +191,12 @@ namespace CustomShell
 
         private string GetLastCommand()
         {
-            return cmdHistory[cmdHistory.Length - 1];
+            return cmdHistory[cmdHistory.Count - 1];
         }
         
         private string GetCommandFromIndex(int index)
         {
-            return cmdHistory[cmdHistory.Length - index];
+            return cmdHistory[cmdHistory.Count - index];
         }
 
         #region Commands
@@ -520,17 +534,17 @@ namespace CustomShell
         private void ClearHistory()
         {
             File.WriteAllText(historyFilePath, string.Empty);
-            LoadHistoryFile();
+            cmdHistory.Clear();
             SetInputPrefix();
         }
 
         private void PrintHistory()
         {
-            int counter = cmdHistory.Length - 1;
+            int counter = cmdHistory.Count - 1;
             string text = string.Empty;
             if (coloring == null)
                 coloring = new Coloring();
-            for (int i = 0; i < cmdHistory.Length; ++i)
+            for (int i = 0; i < cmdHistory.Count; ++i)
             {
                 text = counter.ToString() + ") " + cmdHistory[i];
                 AddTextToConsole(text);
@@ -607,10 +621,10 @@ namespace CustomShell
         #endregion
 
         public string[] tokens;
-        int historyIndex;
+        int historyIndex; //Used in RunCommand and in the input history system
         public void RunCommand(string command, bool fromScript) 
         {
-            historyIndex = historyLen;
+            historyIndex = historyLen; //This needs to be here for the !! and !2 part (i think)
             int commands = 1; //Default is one but will be incresed if there are any && in the input line
             string[] cmds;
             string input = string.Empty;
@@ -644,7 +658,7 @@ namespace CustomShell
                 {
                     string temp = tokens[i];
                     tokens[i] = GetLastCommand();
-                    UpdateHistoryFile(temp);//Update history file
+                    AddCommandToHistory(temp);//Update history file
                 }
 
                 if (tokens[i].StartsWith("!") && tokens[i] != "!!")
@@ -652,7 +666,7 @@ namespace CustomShell
                     string temp = tokens[i];
                     int x = Convert.ToInt32(tokens[i].Substring(1));
                     tokens[i] = GetCommandFromIndex(x + 1);
-                    UpdateHistoryFile(temp);//Update history file
+                    AddCommandToHistory(temp);//Update history file
                 }
             }
 
@@ -776,6 +790,19 @@ namespace CustomShell
                             batch = new BatchInterpreter();
                         batch.ExecuteCommand(tokens);
                         break;
+                    case true when cmds[i].StartsWith("hash"):
+                        AddCommandToConsole(tokens);
+                        string algorithm = tokens[1].ToUpper();
+                        string hashData = tokens[2];
+                        hashes = new Hashes();
+                        if (algorithm == "MD5")
+                            hashes.GetMD5(hashData);
+                        else if (algorithm == "SHA256")
+                            hashes.GetSHA256(hashData);
+                        else if (algorithm == "SHA512")
+                            hashes.GetSHA512(hashData);
+
+                        break;
                     case true when cmds[i].StartsWith("system"):
                         AddCommandToConsole(tokens);
                         if (systemInfo == null)
@@ -850,7 +877,6 @@ namespace CustomShell
                             if (tokens[2] == "-s")
                                 settings.SetSetting("coloring", "fcolor", fcolor);
 
-                        SetInputPrefix();
                         break;
                     case true when cmds[i].StartsWith("bcolor"):
                         AddCommandToConsole(tokens);
@@ -862,7 +888,6 @@ namespace CustomShell
                             if (tokens[2] == "-s")
                                 settings.SetSetting("coloring", "bcolor", bcolor);
 
-                        SetInputPrefix();
                         break;
                     case true when cmds[i].StartsWith("ssh"):
                         AddCommandToConsole(tokens);
@@ -883,7 +908,7 @@ namespace CustomShell
                         }
                         else if (tokens[0] == "close" || tokens[0] == "exit")
                             sshClient.TerminateConnection();
-                        else if (tokens[0] == "ssh" && tokens[1] == "connect")
+                        else if (tokens[0] == "ssh" && tokens[1] == "connect" && tokens.Length == 5)
                             sshClient.EstablishConnection(tokens[2], tokens[3], tokens[4]);
 
                         break;
@@ -894,24 +919,16 @@ namespace CustomShell
             }
         }
 
-        bool firstClick = true;
         private void inputBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if(firstClick == true)
-            {
-                historyLen = cmdHistory.Length;
-                historyIndex = historyLen - 1;
-            }
-
             if (e.KeyCode == Keys.Enter)
             {
-                e.Handled = true;
                 RunCommand(inputBox.Text, false);
+                historyIndex = cmdHistory.Count;//Starting index, last used command
             }
 
             if (e.KeyCode == Keys.Tab)
             {
-                e.Handled = true;
                 if (localDirectory == null)
                     localDirectory = new LocalDirectory();
 
@@ -919,68 +936,43 @@ namespace CustomShell
             }
 
             #region History
-            /*
-            The Command History system is extremley janky with a lot of shenanigans
-            Don't ever change this in the future because it is not understandable
-            firstClick needs to be there so that we stay inside of bounds and
-            only change the index by 1, if there is no bool it will either 
-            go out of bounds or change index by 2
-            */
             if (e.KeyCode == Keys.Up)
             {
-                if (cmdHistory.Length == 0 || cmdHistory == null)
+                if (cmdHistory.Count == 0 || cmdHistory == null)
                     return;
-                e.Handled = true;
-                if (historyIndex > 0 && historyIndex <= cmdHistory.Length)
+                if (historyIndex > 0)
                 {
-                    if(firstClick == false)
-                        --historyIndex;
-
+                    --historyIndex;
                     SetHistoryPrefix(cmdHistory[historyIndex]);
-
-
-                    if (firstClick == true)
-                        firstClick = false;
                 }
-                else if (historyIndex == 0) //This else if must be here so that you can press down to clear the history if you are at the end
-                    SetHistoryPrefix(cmdHistory[historyIndex]);
+                e.Handled = true;
             }
 
             if (e.KeyCode == Keys.Down)
             {
-                if (cmdHistory.Length == 0 || cmdHistory == null)
+                if (cmdHistory.Count == 0 || cmdHistory == null)
                     return;
+                if (historyIndex < cmdHistory.Count - 1)
+                {
+                    ++historyIndex;
+                    SetHistoryPrefix(cmdHistory[historyIndex]);
+                }
+                else
+                {
+                    SetInputPrefix();//Clear input when last after pressing down while on the latest command
+                    historyIndex = cmdHistory.Count;//Starting index, last used command
+                }
                 e.Handled = true;
-                if (historyIndex > 0 && historyIndex < cmdHistory.Length - 1)
-                {
-                    if (firstClick == false)
-                        ++historyIndex;
-
-                    SetHistoryPrefix(cmdHistory[historyIndex]);
-
-                    if (firstClick == true)
-                        firstClick = false;
-                }
-                else if(historyIndex == 0 && firstClick == false) //This else if must be here so that you can press down to clear the history if you are at the end
-                {
-                    ++historyIndex;
-                    SetHistoryPrefix(cmdHistory[historyIndex]);
-                }
-                else if (historyIndex == cmdHistory.Length - 2)
-                {
-                    ++historyIndex;
-                    SetHistoryPrefix(cmdHistory[historyIndex]);
-                }
             }
-            #endregion
             LockInputPrefix();
+            #endregion
         }
 
         private void SetHistoryPrefix(string historyCmd)
         {
             if (sshMode != true)
             {
-                inputBox.Text = string.Concat(GetInputPrefix(), " ", historyCmd);
+                inputBox.Text = string.Concat(GetInputPrefix(), historyCmd);
                 inputBox.SelectionStart = inputBox.Text.Length;
                 LockInputPrefix();
             }
@@ -988,7 +980,7 @@ namespace CustomShell
             {
                 sshClient.SetSSHInputPrefix(sshClient.username, sshClient.host);//Set the input prefix to the ssh one
                 string text = inputBox.Text; //Get text before adding history cmd to be able to lock prefix only
-                inputBox.Text = string.Concat(inputBox.Text, " ", historyCmd);  // Reuse the set prefix in the new concated one
+                inputBox.Text = string.Concat(inputBox.Text, historyCmd);  // Reuse the set prefix in the new concated one
                 sshClient.LockInputPrefix(text);
             }
 
@@ -1026,15 +1018,17 @@ namespace CustomShell
         private void MainController_FormClosing(object sender, FormClosingEventArgs e)
         {
             settings.jdf.WriteNewData(); //Save all the settings
+            UpdateHistoryFile(); //Update and Save the command history
 
             if (ftpController != null)
                 ftpController = null;
+
 
             if(sshClient != null)
             {
                 if (sshClient.client.IsConnected)
                     sshClient.TerminateConnection();
-
+                
                 sshClient = null;
             }
 

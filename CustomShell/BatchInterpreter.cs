@@ -52,7 +52,7 @@ namespace CustomShell
 
                 if (string.IsNullOrEmpty(output))
                     output = proc.StandardError.ReadToEnd();
-
+                
                 main.AddCommandToConsole(tokens);
                 main.AddTextToConsole(output);
 
