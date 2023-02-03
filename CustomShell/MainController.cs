@@ -22,6 +22,7 @@ namespace CustomShell
         List<string> cmdHistory = new List<string>();
         int historyLen;
         public bool sshMode = false;
+        int inputLockLen = 0;
         WandEditor wand;
         Processes proc;
         Helper helper;
@@ -792,6 +793,11 @@ namespace CustomShell
                         break;
                     case true when cmds[i].StartsWith("hash"):
                         AddCommandToConsole(tokens);
+                        if(tokens.Length != 3)
+                        {
+                            AddTextToConsole("Wrong number of arguments...");
+                            return;
+                        }
                         string algorithm = tokens[1].ToUpper();
                         string hashData = tokens[2];
                         hashes = new Hashes();
@@ -919,8 +925,21 @@ namespace CustomShell
             }
         }
 
+        private void inputBox_SelectionChanged(object sender, EventArgs e)
+        {
+            inputLockLen = GetInputPrefix().Length; //Get length to lock
+
+            if (inputBox.SelectionStart <= inputLockLen)
+                inputBox.SelectionStart = inputLockLen;
+        }
+
         private void inputBox_KeyDown(object sender, KeyEventArgs e)
         {
+            inputLockLen = GetInputPrefix().Length; //Get length to lock
+
+            if (e.KeyData != Keys.Left && e.KeyData != Keys.Up && e.KeyData != Keys.Down && e.KeyData != Keys.Delete)
+               e.Handled = e.SuppressKeyPress = true;
+
             if (e.KeyCode == Keys.Enter)
             {
                 RunCommand(inputBox.Text, false);
@@ -964,7 +983,6 @@ namespace CustomShell
                 }
                 e.Handled = true;
             }
-            LockInputPrefix();
             #endregion
         }
 
@@ -974,7 +992,6 @@ namespace CustomShell
             {
                 inputBox.Text = string.Concat(GetInputPrefix(), historyCmd);
                 inputBox.SelectionStart = inputBox.Text.Length;
-                LockInputPrefix();
             }
             else
             {

@@ -68,6 +68,7 @@ namespace CustomShell
             this.inputBox.TabIndex = 1;
             this.inputBox.TabStop = false;
             this.inputBox.Text = "";
+            this.inputBox.SelectionChanged += new System.EventHandler(this.inputBox_SelectionChanged);
             this.inputBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.inputBox_KeyDown);
             this.inputBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.inputBox_KeyUp);
             // 

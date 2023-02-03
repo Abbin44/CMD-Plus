@@ -42,6 +42,7 @@ namespace CustomShell
             sb.Append("killproc [ID]                                    | Lets you kill a process\n");
             sb.Append("batch [CommandOrBatFile]                         | Lets you run any batch command or script file\n");
             sb.Append("clear                                            | Clears the console\n");
+            sb.Append("hash [algo] [StringOrFilePath]                   | Shows hash value of input. Supports MD5, SHA256 and SHA512\n");
             sb.Append("clear history                                    | Clears the command history\n");
             sb.Append("history                                          | Displays command history with indexes\n");
             sb.Append("!!                                               | Runs the last command from the history file\n");
